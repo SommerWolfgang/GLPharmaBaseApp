@@ -1,51 +1,5 @@
-tableextension 50011 BAST32ItemLedgerEntryPHA extends "Item Ledger Entry"
-{ // version NAVW114.31,TODOPBA
-
-    // LAN001 12.11.09 ACPSS LAN1.00
-    //   New Fields: ID 50500, 50501, 50506 - 50509, 50512 - 50517, 50521, 50522, 50529, 50550 - 50552, 50600, 50601
-    //   Code bei LookUp Chargennr. gelöscht.
-    // LAN002 14.12.09 ACPSS LAN1.00
-    //   New Key: "Item No.,Lot No."
-    // 
-    // GL001 Funktion Wiegeposten(), (flowfield würde bei nichtfa-posten fehlmeldungen machen)
-    // GL002 Einstandspreis()
-    // GL003 SetItemLedgerEntryKundenFilter() (für Page 50070)
-    // GL004 Key (Entry Type,Nonstock,Item No.,Posting Date) aktiviert
-    // GL005 Key (Document No.,Posting Date) hinzugefügt für R50064
-    // 
-    // Flowfields EK-Betrag (erw.) und EK-Betrag (tats.): derzeit nicht eingebaut, ev. umstellen auf Standardfelder: Petsch, 10.2.2010
-    // 
-    // 
-    // Datum      | Autor   | Status     | Beschreibung
-    // --------------------------------------------------------------------------------------------------------
-    // 2010-02-25 | Fuerbass  | ok       | Update von 360
-    // --------------------------------------------------------------------------------------------------------
-    // 2010-03-24 | Petsch    | ok       | Feld Lagerplatzhilfsfeld für HoleVon-Maske eingebaut, wird nur in Temp-Tabelle befüllt
-    //                                     an Key: "Item No.,Lot No.,Open,Positive,Location Code, Lagerplatzhilfsfeld" angehängt
-    // --------------------------------------------------------------------------------------------------------
-    // 2013-06-19 | Fuerbass  | ok       | Feld Laetus Code Lookub für Maurer eingebaut
-    // --------------------------------------------------------------------------------------------------------
-    // 2015-10-28 | Fuerbass  | ok       | Feld Entwicklungsprojekt für Buchhaltung eingebaut  (Für Postenausschluss in R50013)
-    // --------------------------------------------------------------------------------------------------------
-    // 2016-04-29 | Fuerbass  | ok       | Feld VernichtungNachverrechnung für Buchhaltung eingebaut (Erkennung von Vernichtungen die Nachverrechnet wurden)
-    // --------------------------------------------------------------------------------------------------------
-    // 2017-05-08 | Fuerbass  | ok       | Key für FA-Dispoliste eingebaut
-    // --------------------------------------------------------------------------------------------------------
-    // 2019-12-10 | Fuerbass  | ok       | Neues FlowField "ArtikelStandortHerstellung" für Bericht Lieferantenstatistic quer
-    // --------------------------------------------------------------------------------------------------------
-    // 
-    // 
-    // 
-    // 
-    // Untenstehende Keys je nach Bedarf einbauen:
-    // 
-    // Alte Doku
-    // Neuer Key: "Location Code,Bin Code,Open"
-    // Neuer Key: "Item No.,Lot No.,Open,Positive,Location Code, Bin Code"
-    // 2004-08-30 | Petsch  | ok         | Key: "Item No.,Lot No.,Open,Positive,Location Code, um "Bin Code" erweitert für Umlag.Info
-    // Key "Source Type,Source No.,Entry Type,Item No.,Variant Code,Posting Date" Enable = JA
-    // Neuer Key: "Item No., Lot No., Posting Date"
-    // Neues Feld: "TreeViewStatus_Temp" für Umlagerinfo Baumansicht
+tableextension 50011 BASItemLedgerEntryExtPHA extends "Item Ledger Entry"
+{
     fields
     {
         // field(50000; "BASEK-Betrag (tats.)PHA"; Decimal)
@@ -78,11 +32,11 @@ tableextension 50011 BAST32ItemLedgerEntryPHA extends "Item Ledger Entry"
         // }
         field(50500; "BASExterne Rahmennr.PHA"; Code[20])
         {
-            Description = 'LAN1.00';
+
         }
         field(50501; BASAbrufdatumPHA; Date)
         {
-            Description = 'LAN1.00';
+
         }
         field(50502; BASTreeViewStatus_TempPHA; Integer)
         {
@@ -93,23 +47,23 @@ tableextension 50011 BAST32ItemLedgerEntryPHA extends "Item Ledger Entry"
         }
         field(50506; BASArtikelgruppePHA; Code[10])
         {
-            Description = 'LAN1.00';
+
             Editable = false;
         }
-        field(50507; "BASStatistikcode IPHA"; Code[10])
+        field(50507; "BASStatisticCode2PHA IPHA"; Code[10])
         {
             Editable = false;
             TableRelation = BASStatisticcode2PHA where(Level = const(1));
         }
-        field(50508; "BASStatistikcode IIPHA"; Code[10])
+        field(50508; "BASStatisticCode2PHA IIPHA"; Code[10])
         {
-            Description = 'LAN1.00';
+
             Editable = false;
             TableRelation = BASStatisticcode2PHA where(Level = const(2));
         }
-        field(50509; "BASStatistikcode IIIPHA"; Code[10])
+        field(50509; "BASStatisticCode2PHA IIIPHA"; Code[10])
         {
-            Description = 'LAN1.00';
+
             Editable = false;
             TableRelation = BASStatisticcode2PHA where(Level = const(3));
         }
@@ -121,55 +75,55 @@ tableextension 50011 BAST32ItemLedgerEntryPHA extends "Item Ledger Entry"
         // }
         field(50512; "BASBestellnr.PHA"; Code[20])
         {
-            Description = 'LAN1.00';
+
         }
         field(50513; BASBestelldatumPHA; Date)
         {
-            Description = 'LAN1.00';
+
         }
         field(50514; "BASWertgutschriftsnr.PHA"; Code[20])
         {
-            Description = 'LAN1.00';
+
         }
         field(50515; "Ländercode"; Code[10])
         {
-            Description = 'LAN1.00';
+
             TableRelation = "Country/Region";
         }
         field(50516; BASNaturalrabattmengePHA; Decimal)
         {
             DecimalPlaces = 0 : 5;
-            Description = 'LAN1.00';
+
         }
-        field(50517; BASVerkaufsstatistikcodePHA; Code[10])
+        field(50517; BASVerkaufsBASStatisticCode2PHAPHA; Code[10])
         {
-            Description = 'LAN1.00';
+
         }
         field(50521; "BASSuchtgift/PsychotropPHA"; Text[1])
         {
-            Description = 'LAN1.00';
+
         }
         field(50522; "BASVerkaufschargennr.PHA"; Code[20])
         {
-            Description = 'LAN1.00';
+
         }
         field(50529; "BASUrspr. MengePHA"; Decimal)
         {
             DecimalPlaces = 0 : 5;
-            Description = 'LAN1.00';
+
         }
         field(50550; BASGebindeanzahlPHA; Decimal)
         {
             DecimalPlaces = 0 : 5;
-            Description = 'LAN1.00';
+
         }
         field(50551; BASGebindeartencodePHA; Code[10])
         {
-            Description = 'LAN1.00';
+
         }
         field(50552; BASMusterlieferungPHA; Boolean)
         {
-            Description = 'LAN1.00';
+
         }
         field(50553; BASGetFromPHA; Decimal)
         {

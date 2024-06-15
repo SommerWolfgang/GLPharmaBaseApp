@@ -1,11 +1,11 @@
-tableextension 50010 "BAST23 VendorPHA" extends Vendor
+tableextension 50010 BASVendorPHA extends Vendor
 {
     fields
     {
         field(50003; "BASModified byPHA"; Code[50])
         {
             Caption = 'Korrigiert durch';
-            Description = 'Petsch';
+
             Editable = false;
         }
         field(50004; "BASE-MailAvisPHA"; Text[80])
@@ -14,7 +14,7 @@ tableextension 50010 "BAST23 VendorPHA" extends Vendor
         }
         field(50010; "BASARA-LizenzPHA"; Option)
         {
-            Description = 'Rieder';
+
             OptionCaption = ' ,Ja,Nein';
             OptionMembers = " ",Ja,Nein;
         }

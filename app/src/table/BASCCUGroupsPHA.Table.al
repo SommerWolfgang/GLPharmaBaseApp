@@ -58,7 +58,7 @@ table 50107 BASCCUGroupsPHA
 
         // Leere Gruppe nicht umbenennen lassen
         if (Typ = Typ::Packungsgroesse) and (xRec.Gruppe = '') then
-            ERROR('Leere PKG kann nicht umbenannt werden!');
+            Error('Leere PKG kann nicht umbenannt werden!');
     end;
 }
 

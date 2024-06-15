@@ -126,7 +126,7 @@ table 50000 BASItemAdditivePHA
         // {
         //     CalcFormula = lookup(Item.Artikelart where("No." = field("ItemNo.")));
         //     Caption = 'Item type';
-        //     Description = 'LAN1.00';
+        //     
         //     FieldClass = FlowField;
         //     OptionCaption = ' ,Rohstoff,Halbfabrikat,Fertigprodukt,Verpackungsstoff,Arbeitsschritt';
         //     OptionMembers = " ",Rohstoff,Halbfabrikat,Fertigprodukt,Verpackungsstoff,Arbeitsschritt;
@@ -207,7 +207,7 @@ table 50000 BASItemAdditivePHA
 
         // if (Rec.Suchtgiftgruppe <> xRec.Suchtgiftgruppe) then
         //     if not NaviPharma.Berechtigung('$ARTIKELBEARBEITENSG') then
-        //         ERROR('Fehlende Berechtigung für Änderung von Suchtgift Stammdaten!');
+        //         Error('Fehlende Berechtigung für Änderung von Suchtgift Stammdaten!');
     end;
 
     // var

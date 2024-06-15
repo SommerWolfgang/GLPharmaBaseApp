@@ -1,6 +1,6 @@
-table 50014 BASStatistikcodePHA
+table 50014 BASStatisticCode2PHAPHA
 {
-    Caption = 'Statistikcode';
+    Caption = 'BASStatisticCode2PHA';
     DataClassification = CustomerContent;
 
 
@@ -13,7 +13,7 @@ table 50014 BASStatistikcodePHA
     // ------------------------------------------------------------------------------------------------------------------------------------
     // Datum      | Autor   | Status     | Beschreibung
     // ------------------------------------------------------------------------------------------------------------------------------------
-    // 2014-11-10 | MFU     | ok         | GL001 Löschen bei vorhandenen Posten zu Statistikcodes nicht zulassen
+    // 2014-11-10 | MFU     | ok         | GL001 Löschen bei vorhandenen Posten zu BASStatisticCode2PHAs nicht zulassen
     // ------------------------------------------------------------------------------------------------------------------------------------
     // 2014-12-16 | MFU     | ok         | UPDATE2013 -> Key auf Bescgreibung dazu für Schnellsuche bei VK-Berichten
     // ------------------------------------------------------------------------------------------------------------------------------------
@@ -30,7 +30,7 @@ table 50014 BASStatistikcodePHA
         field(2; Bezeichnung; Text[30])
         {
         }
-        field(3; Ebene; Integer)
+        field(3; Level; Integer)
         {
         }
         field(4; "Gehört Zu"; Code[10])
@@ -61,7 +61,7 @@ table 50014 BASStatistikcodePHA
 
     keys
     {
-        key(Key1; "Code", Ebene)
+        key(Key1; "Code", Level)
         {
         }
         key(Key2; Bezeichnung)

@@ -39,7 +39,7 @@
                     "announcement": 3000,
                     "sound": 1000
                 },
-                "errorAtPosition": {
+                "ErrorAtPosition": {
                     "announcement": 3000,
                     "sound": 1000
                 }

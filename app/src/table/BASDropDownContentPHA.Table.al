@@ -53,21 +53,21 @@ table 50105 BASDropDownContentPHA
         DropDownContentParameter.SetFilter(ID, ID);
         if DropDownContentParameter.FIND('-') then begin
             if not DropDownContentParameter.Allow_Delete then
-                ERROR('Für Tabelle=''%1'', Feld=''%2'', ID=''%3'' darf keine Löschung erfolgen!', Tabelle, Feld, ID);
+                Error('Für Tabelle=''%1'', Feld=''%2'', ID=''%3'' darf keine Löschung erfolgen!', Tabelle, Feld, ID);
             exit
         end;
 
         DropDownContentParameter.SetFilter(ID, '%1', '');
         if DropDownContentParameter.FIND('-') then begin
             if not DropDownContentParameter.Allow_Delete then
-                ERROR('Für Tabelle=''%1'', Feld=''%2'' darf keine Löschung erfolgen!', Tabelle, Feld);
+                Error('Für Tabelle=''%1'', Feld=''%2'' darf keine Löschung erfolgen!', Tabelle, Feld);
             exit;
         end;
 
         DropDownContentParameter.SetFilter(Field, '%1', '');
         if DropDownContentParameter.FIND('-') then begin
             if not DropDownContentParameter.Allow_Delete then
-                ERROR('Für Tabelle=''%1'' darf keine Löschung erfolgen!', Tabelle);
+                Error('Für Tabelle=''%1'' darf keine Löschung erfolgen!', Tabelle);
             exit;
         end;
     end;
@@ -83,21 +83,21 @@ table 50105 BASDropDownContentPHA
         //+GL001
         if DropDownContentParameter.FIND('-') then begin
             if not DropDownContentParameter.Allow_New then
-                ERROR('Für Tabelle=''%1'', Feld=''%2'', ID=''%3'' darf kein Eintrag erstellt werden!', Tabelle, Feld, ID);
+                Error('Für Tabelle=''%1'', Feld=''%2'', ID=''%3'' darf kein Eintrag erstellt werden!', Tabelle, Feld, ID);
             exit
         end;
 
         DropDownContentParameter.SetFilter(ID, '%1', '');
         if DropDownContentParameter.FIND('-') then begin
             if not DropDownContentParameter.Allow_New then
-                ERROR('Für Tabelle=''%1'', Feld=''%2'' darf kein Eintrag erstellt werden!', Tabelle, Feld);
+                Error('Für Tabelle=''%1'', Feld=''%2'' darf kein Eintrag erstellt werden!', Tabelle, Feld);
             exit;
         end;
 
         DropDownContentParameter.SetFilter(Field, '%1', '');
         if DropDownContentParameter.FIND('-') then begin
             if not DropDownContentParameter.Allow_New then
-                ERROR('Für Tabelle=''%1'' darf kein neuer Eintrag erstellt werden!', Tabelle);
+                Error('Für Tabelle=''%1'' darf kein neuer Eintrag erstellt werden!', Tabelle);
             exit;
         end;
 
@@ -116,25 +116,25 @@ table 50105 BASDropDownContentPHA
                 if DropDownContentParameter.Allow_Description then
                     exit
                 else
-                    ERROR('Für Tabelle=''%1'', Feld=''%2'', ID=''%3'' darf die Beschreibung nicht verändert werden!', Tabelle, Feld, ID);
+                    Error('Für Tabelle=''%1'', Feld=''%2'', ID=''%3'' darf die Beschreibung nicht verändert werden!', Tabelle, Feld, ID);
 
 
             if not DropDownContentParameter.Allow_Modify then
-                ERROR('Für Tabelle=''%1'', Feld=''%2'', ID=''%3'' darf keine Änderung erfolgen!', Tabelle, Feld, ID);
+                Error('Für Tabelle=''%1'', Feld=''%2'', ID=''%3'' darf keine Änderung erfolgen!', Tabelle, Feld, ID);
             exit;
         end;
 
         DropDownContentParameter.SetFilter(ID, '%1', '');
         if DropDownContentParameter.FIND('-') then begin
             if not DropDownContentParameter.Allow_Modify then
-                ERROR('Für Tabelle=''%1'', Feld=''%2'' darf keine Änderung erfolgen!', Tabelle, Feld);
+                Error('Für Tabelle=''%1'', Feld=''%2'' darf keine Änderung erfolgen!', Tabelle, Feld);
             exit;
         end;
 
         DropDownContentParameter.SetFilter(Field, '%1', '');
         if DropDownContentParameter.FIND('-') then begin
             if not DropDownContentParameter.Allow_Modify then
-                ERROR('Für Tabelle=''%1'' darf keine Änderung erfolgen!', Tabelle);
+                Error('Für Tabelle=''%1'' darf keine Änderung erfolgen!', Tabelle);
             exit;
         end;
     end;
@@ -149,31 +149,31 @@ table 50105 BASDropDownContentPHA
                 if DropDownContentParameter.Allow_Description then
                     exit
                 else
-                    ERROR('Für Tabelle=''%1'', Feld=''%2'', ID=''%3'' darf die Beschreibung nicht verändert werden!', Tabelle, Feld, ID);
+                    Error('Für Tabelle=''%1'', Feld=''%2'', ID=''%3'' darf die Beschreibung nicht verändert werden!', Tabelle, Feld, ID);
 
 
             if not DropDownContentParameter.Allow_Modify then
-                ERROR('Für Tabelle=''%1'', Feld=''%2'', ID=''%3'' darf keine Änderung erfolgen!', Tabelle, Feld, ID);
+                Error('Für Tabelle=''%1'', Feld=''%2'', ID=''%3'' darf keine Änderung erfolgen!', Tabelle, Feld, ID);
             exit
         end;
 
         DropDownContentParameter.SetFilter(ID, '%1', '');
         if DropDownContentParameter.FIND('-') then begin
             if not DropDownContentParameter.Allow_Modify then
-                ERROR('Für Tabelle=''%1'', Feld=''%2'' darf keine Änderung erfolgen!', Tabelle, Feld);
+                Error('Für Tabelle=''%1'', Feld=''%2'' darf keine Änderung erfolgen!', Tabelle, Feld);
             exit;
         end;
 
         DropDownContentParameter.SetFilter(Field, '%1', '');
         if DropDownContentParameter.FIND('-') then begin
             if not DropDownContentParameter.Allow_Modify then
-                ERROR('Für Tabelle=''%1'' darf keine Änderung erfolgen!', Tabelle);
+                Error('Für Tabelle=''%1'' darf keine Änderung erfolgen!', Tabelle);
             exit;
         end;
 
         //-GL002  //Von leerer ID auf einen Wert abändern nicht zulassen, Werte in Tabellen werden sonst gesetzt
         if (StrLen(xRec.ID) = 0) and (StrLen(Rec.ID) > 0) then
-            ERROR('Ein leerer ID Wert darf nicht geändert werden!');
+            Error('Ein leerer ID Wert darf nicht geändert werden!');
         //+GL002
     end;
 

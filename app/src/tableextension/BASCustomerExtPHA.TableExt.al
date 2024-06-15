@@ -1,4 +1,4 @@
-tableextension 50000 BASCustomerExtensionPHA extends Customer
+tableextension 50000 BASCustomerExtPHA extends Customer
 {
     fields
     {
@@ -36,19 +36,19 @@ tableextension 50000 BASCustomerExtensionPHA extends Customer
         // }
         field(50008; BASInternerDatenaustauschPHA; Boolean)
         {
-            Description = 'Petsch';
+
         }
         field(50009; BASEDIZielNrPHA; Code[20])
         {
-            Description = 'Petsch';
+
         }
         field(50010; "BASARA-entpflichtetPHA"; Boolean)
         {
-            Description = 'Petsch';
+
         }
         field(50011; "BASNo. 2PHA"; Code[20])
         {
-            Description = 'Petsch';
+
         }
         field(50012; "Verkäufercode 3"; Code[10])
         {
@@ -97,35 +97,35 @@ tableextension 50000 BASCustomerExtensionPHA extends Customer
         }
         field(50601; BASSammelrechnungstypPHA; Option)
         {
-            Description = 'LAN1.00';
+
             OptionMembers = "Pro Auftrag","Pro Tag",ProWoche,"Pro Monat";
         }
         // field(50602; "BASCustomer Group CodePHA"; Code[10])
         // {
         //     Caption = 'Customer Group Code';
-        //     Description = 'LAN1.00';
+        //     
         //     TableRelation = CCUGroups.Gruppe where(Typ = const(Debitor));
         // }
         field(50603; "BASLieferungstext 1PHA"; Text[80])
         {
-            Description = 'LAN1.00';
+
         }
         field(50604; "BASLieferungstext 2PHA"; Text[80])
         {
-            Description = 'LAN1.00';
+
         }
         field(50605; "BASCarry off goodsPHA"; Boolean)
         {
             Caption = 'Ware abtragen';
-            Description = 'Rieder';
+
         }
         field(50606; BASAbstellgenehmigungPHA; Boolean)
         {
-            Description = 'Petsch';
+
         }
         field(50607; BASAbstellortPHA; Text[30])
         {
-            Description = 'Petsch';
+
         }
     }
     trigger OnInsert()

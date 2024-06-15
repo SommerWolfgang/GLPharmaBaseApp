@@ -1,10 +1,10 @@
 
 table 50015 BASStatisticcode2PHA
 {
-    Caption = 'Statistikcode';
+    Caption = 'BASStatisticCode2PHA';
     DataClassification = CustomerContent;
-    //LookupPageID = StatistikcodeList;
-    //DrillDownPageID = StatistikcodeList;
+    //LookupPageID = BASStatisticCode2PHAList;
+    //DrillDownPageID = BASStatisticCode2PHAList;
 
     fields
     {
@@ -18,7 +18,7 @@ table 50015 BASStatisticcode2PHA
         }
         field(3; Level; Integer)
         {
-            Caption = 'Level', comment = 'DEA="Ebene"';
+            Caption = 'Level', comment = 'DEA="Level"';
         }
         field(4; "Belongs to"; Code[10])
         {
