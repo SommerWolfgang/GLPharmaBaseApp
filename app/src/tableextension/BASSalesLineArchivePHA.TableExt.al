@@ -34,17 +34,17 @@ tableextension 50047 BASSalesLineArchivePHA extends "Sales Line Archive"
         field(50507; "BASStatistikcode IPHA"; Code[10])
         {
             Editable = false;
-            TableRelation = BASStatistikcode2PHA where(Level = const(1));
+            TableRelation = BASStatisticcode2PHA where(Level = const(1));
         }
         field(50508; "BASStatistikcode IIPHA"; Code[10])
         {
             Editable = false;
-            TableRelation = BASStatistikcode2PHA where(Level = const(2));
+            TableRelation = BASStatisticcode2PHA where(Level = const(2));
         }
         field(50509; "BASStatistikcode IIIPHA"; Code[10])
         {
             Editable = false;
-            TableRelation = BASStatistikcode2PHA where(Level = const(3));
+            TableRelation = BASStatisticcode2PHA where(Level = const(3));
         }
         field(50510; "BASZuordnung zu Artikelnr.PHA"; Code[20])
         {

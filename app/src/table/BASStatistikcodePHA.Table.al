@@ -35,7 +35,7 @@ table 50014 BASStatistikcodePHA
         }
         field(4; "Gehört Zu"; Code[10])
         {
-            TableRelation = BASStatistikcode2PHA;
+            TableRelation = BASStatisticcode2PHA;
         }
         field(5; PM; Code[10])
         {

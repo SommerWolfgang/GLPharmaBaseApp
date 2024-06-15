@@ -99,19 +99,19 @@ tableextension 50011 BAST32ItemLedgerEntryPHA extends "Item Ledger Entry"
         field(50507; "BASStatistikcode IPHA"; Code[10])
         {
             Editable = false;
-            TableRelation = BASStatistikcode2PHA where(Level = const(1));
+            TableRelation = BASStatisticcode2PHA where(Level = const(1));
         }
         field(50508; "BASStatistikcode IIPHA"; Code[10])
         {
             Description = 'LAN1.00';
             Editable = false;
-            TableRelation = BASStatistikcode2PHA where(Level = const(2));
+            TableRelation = BASStatisticcode2PHA where(Level = const(2));
         }
         field(50509; "BASStatistikcode IIIPHA"; Code[10])
         {
             Description = 'LAN1.00';
             Editable = false;
-            TableRelation = BASStatistikcode2PHA where(Level = const(3));
+            TableRelation = BASStatisticcode2PHA where(Level = const(3));
         }
         // field(50510; BASArtikelStandortHerstellungPHA; Code[20])
         // {
@@ -171,30 +171,28 @@ tableextension 50011 BAST32ItemLedgerEntryPHA extends "Item Ledger Entry"
         {
             Description = 'LAN1.00';
         }
-        field(50553; "BASHole VonPHA"; Decimal)
+        field(50553; BASGetFromPHA; Decimal)
         {
-            CalcFormula = sum("Item Ledger Entry"."Remaining Quantity" where("Item No." = field("Item No."),
-                                                                              "Location Code" = field("Location Code"),
-                                                                              Open = const(true)));
+            CalcFormula = sum("Item Ledger Entry"."Remaining Quantity" where("Item No." = field("Item No."), "Location Code" = field("Location Code"), Open = const(true)));
+            Caption = '', comment = 'DEA="Hole vom"';
             FieldClass = FlowField;
         }
-        field(50600; BASSachpostenkorrekturPHA; Decimal)
+        field(50600; BASCorrectionGLEntryPHA; Decimal)
         {
-            Description = 'LAN1.00';
+            Caption = 'Correction G/L Entry', comment = 'DEA="Sachposten Korrektur"';
         }
-        field(50601; "BASWertgutschrift KorrekturbetragPHA"; Decimal)
+        field(50601; BASCrMemoCorrectionAmountPHA; Decimal)
         {
-            Description = 'LAN1.00';
+            Caption = 'CrMemo Correction Amount', comment = 'DEA="Wertgutschrift Korrekturbetrag"';
         }
         field(50602; BASRUELLagerplatzStandortPHA; Code[20])
         {
-            CalcFormula = lookup("Warehouse Entry"."Bin Code" where("Location Code" = const('RÜL'),
-                                                                     "Item No." = field("Item No."),
-                                                                     "Variant Code" = field("Variant Code"),
-                                                                     "Lot No." = field("Lot No."),
-                                                                     "Registering Date" = field("Posting Date"),
-                                                                     "Location Code" = field("Location Code"),
-                                                                     Quantity = field(Quantity)));
+            // ToDo -> hardcoded !!!
+            CalcFormula = lookup(
+                "Warehouse Entry"."Bin Code"
+                    where("Location Code" = const('RÜL'),
+                        "Item No." = field("Item No."), "Variant Code" = field("Variant Code"), "Lot No." = field("Lot No."),
+                            "Registering Date" = field("Posting Date"), "Location Code" = field("Location Code"), Quantity = field(Quantity)));
             FieldClass = FlowField;
 
         }
@@ -203,32 +201,24 @@ tableextension 50011 BAST32ItemLedgerEntryPHA extends "Item Ledger Entry"
         }
     }
 
-    procedure Einstandspreis(): Decimal
+    procedure GetCostAmount(): Decimal
     begin
-        //-GL001
         if "Invoiced Quantity" <> 0 then begin
-            CALCFIELDS("Cost Amount (Actual)");
+            CalcFields("Cost Amount (Actual)");
             exit("Cost Amount (Actual)" / "Invoiced Quantity");
         end;
-        //+GL001
     end;
 
-
-
-    procedure SetItemLedgerEntryKundenFilter(var recArtikelposten: Record "32")
+    procedure SetItemLedgerEntryCustomerFilter(var ItemLedgerEntry: Record "Item Ledger Entry")
     var
-        sFilter: Text[100];
+        SourceNoFilter: Text;
     begin
-        //-GL003
-        //Einen Filter zum möglicherweise bestehneden dazugeben
-        //Schon gesetzte Filter auslesen
-        sFilter := recArtikelposten.GETFILTER("Source No.");
+        SourceNoFilter := ItemLedgerEntry.GetFilter("Source No.");
 
-        if STRLEN(sFilter) > 0 then
-            sFilter += ' & ';
-        sFilter += '<50004';
+        if StrLen(SourceNoFilter) > 0 then
+            SourceNoFilter += ' & ';
+        SourceNoFilter += '< 50004';
 
-        recArtikelposten.SETFILTER("Source No.", sFilter);
-        //+GL003
+        ItemLedgerEntry.SetFilter("Source No.", SourceNoFilter);
     end;
 }

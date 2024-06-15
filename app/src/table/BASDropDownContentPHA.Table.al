@@ -48,23 +48,23 @@ table 50105 BASDropDownContentPHA
 
     trigger OnDelete()
     begin
-        DropDownContentParameter.SETFILTER(Table, '%1', Tabelle);
-        DropDownContentParameter.SETFILTER(Field, Feld);
-        DropDownContentParameter.SETFILTER(ID, ID);
+        DropDownContentParameter.SetFilter(Table, '%1', Tabelle);
+        DropDownContentParameter.SetFilter(Field, Feld);
+        DropDownContentParameter.SetFilter(ID, ID);
         if DropDownContentParameter.FIND('-') then begin
             if not DropDownContentParameter.Allow_Delete then
                 ERROR('Für Tabelle=''%1'', Feld=''%2'', ID=''%3'' darf keine Löschung erfolgen!', Tabelle, Feld, ID);
             exit
         end;
 
-        DropDownContentParameter.SETFILTER(ID, '%1', '');
+        DropDownContentParameter.SetFilter(ID, '%1', '');
         if DropDownContentParameter.FIND('-') then begin
             if not DropDownContentParameter.Allow_Delete then
                 ERROR('Für Tabelle=''%1'', Feld=''%2'' darf keine Löschung erfolgen!', Tabelle, Feld);
             exit;
         end;
 
-        DropDownContentParameter.SETFILTER(Field, '%1', '');
+        DropDownContentParameter.SetFilter(Field, '%1', '');
         if DropDownContentParameter.FIND('-') then begin
             if not DropDownContentParameter.Allow_Delete then
                 ERROR('Für Tabelle=''%1'' darf keine Löschung erfolgen!', Tabelle);
@@ -75,11 +75,11 @@ table 50105 BASDropDownContentPHA
     trigger OnInsert()
     begin
 
-        DropDownContentParameter.SETFILTER(Table, '%1', Tabelle);
-        DropDownContentParameter.SETFILTER(Field, Feld);
-        DropDownContentParameter.SETFILTER(ID, ID);
+        DropDownContentParameter.SetFilter(Table, '%1', Tabelle);
+        DropDownContentParameter.SetFilter(Field, Feld);
+        DropDownContentParameter.SetFilter(ID, ID);
         //-GL001
-        DropDownContentParameter.SETFILTER("Standort Zuordnung", "Standort Zuordnung");
+        DropDownContentParameter.SetFilter("Standort Zuordnung", "Standort Zuordnung");
         //+GL001
         if DropDownContentParameter.FIND('-') then begin
             if not DropDownContentParameter.Allow_New then
@@ -87,14 +87,14 @@ table 50105 BASDropDownContentPHA
             exit
         end;
 
-        DropDownContentParameter.SETFILTER(ID, '%1', '');
+        DropDownContentParameter.SetFilter(ID, '%1', '');
         if DropDownContentParameter.FIND('-') then begin
             if not DropDownContentParameter.Allow_New then
                 ERROR('Für Tabelle=''%1'', Feld=''%2'' darf kein Eintrag erstellt werden!', Tabelle, Feld);
             exit;
         end;
 
-        DropDownContentParameter.SETFILTER(Field, '%1', '');
+        DropDownContentParameter.SetFilter(Field, '%1', '');
         if DropDownContentParameter.FIND('-') then begin
             if not DropDownContentParameter.Allow_New then
                 ERROR('Für Tabelle=''%1'' darf kein neuer Eintrag erstellt werden!', Tabelle);
@@ -108,9 +108,9 @@ table 50105 BASDropDownContentPHA
 
     trigger OnModify()
     begin
-        DropDownContentParameter.SETFILTER(Table, '%1', Tabelle);
-        DropDownContentParameter.SETFILTER(Field, Feld);
-        DropDownContentParameter.SETFILTER(ID, ID);
+        DropDownContentParameter.SetFilter(Table, '%1', Tabelle);
+        DropDownContentParameter.SetFilter(Field, Feld);
+        DropDownContentParameter.SetFilter(ID, ID);
         if DropDownContentParameter.FIND('-') then begin
             if ((xRec.Tabelle = Rec.Tabelle) and (xRec.Feld = Rec.Feld) and (xRec.ID = Rec.ID)) then
                 if DropDownContentParameter.Allow_Description then
@@ -124,14 +124,14 @@ table 50105 BASDropDownContentPHA
             exit;
         end;
 
-        DropDownContentParameter.SETFILTER(ID, '%1', '');
+        DropDownContentParameter.SetFilter(ID, '%1', '');
         if DropDownContentParameter.FIND('-') then begin
             if not DropDownContentParameter.Allow_Modify then
                 ERROR('Für Tabelle=''%1'', Feld=''%2'' darf keine Änderung erfolgen!', Tabelle, Feld);
             exit;
         end;
 
-        DropDownContentParameter.SETFILTER(Field, '%1', '');
+        DropDownContentParameter.SetFilter(Field, '%1', '');
         if DropDownContentParameter.FIND('-') then begin
             if not DropDownContentParameter.Allow_Modify then
                 ERROR('Für Tabelle=''%1'' darf keine Änderung erfolgen!', Tabelle);
@@ -141,9 +141,9 @@ table 50105 BASDropDownContentPHA
 
     trigger OnRename()
     begin
-        DropDownContentParameter.SETFILTER(Table, '%1', Tabelle);
-        DropDownContentParameter.SETFILTER(Field, Feld);
-        DropDownContentParameter.SETFILTER(ID, ID);
+        DropDownContentParameter.SetFilter(Table, '%1', Tabelle);
+        DropDownContentParameter.SetFilter(Field, Feld);
+        DropDownContentParameter.SetFilter(ID, ID);
         if DropDownContentParameter.FIND('-') then begin
             if ((xRec.Tabelle = Rec.Tabelle) and (xRec.Feld = Rec.Feld) and (xRec.ID = Rec.ID)) then
                 if DropDownContentParameter.Allow_Description then
@@ -157,14 +157,14 @@ table 50105 BASDropDownContentPHA
             exit
         end;
 
-        DropDownContentParameter.SETFILTER(ID, '%1', '');
+        DropDownContentParameter.SetFilter(ID, '%1', '');
         if DropDownContentParameter.FIND('-') then begin
             if not DropDownContentParameter.Allow_Modify then
                 ERROR('Für Tabelle=''%1'', Feld=''%2'' darf keine Änderung erfolgen!', Tabelle, Feld);
             exit;
         end;
 
-        DropDownContentParameter.SETFILTER(Field, '%1', '');
+        DropDownContentParameter.SetFilter(Field, '%1', '');
         if DropDownContentParameter.FIND('-') then begin
             if not DropDownContentParameter.Allow_Modify then
                 ERROR('Für Tabelle=''%1'' darf keine Änderung erfolgen!', Tabelle);
@@ -172,7 +172,7 @@ table 50105 BASDropDownContentPHA
         end;
 
         //-GL002  //Von leerer ID auf einen Wert abändern nicht zulassen, Werte in Tabellen werden sonst gesetzt
-        if (STRLEN(xRec.ID) = 0) and (STRLEN(Rec.ID) > 0) then
+        if (StrLen(xRec.ID) = 0) and (StrLen(Rec.ID) > 0) then
             ERROR('Ein leerer ID Wert darf nicht geändert werden!');
         //+GL002
     end;

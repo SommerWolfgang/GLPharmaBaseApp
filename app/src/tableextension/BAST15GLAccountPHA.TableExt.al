@@ -83,8 +83,8 @@ tableextension 50008 "BAST15 GL AccountPHA" extends "G/L Account"
                 DefaultDimension: Record "352";
             begin
                 //-GL002
-                DefaultDimension.SETRANGE("Table ID",15);
-                DefaultDimension.SETRANGE("No.","No.");
+                DefaultDimension.SetRange("Table ID",15);
+                DefaultDimension.SetRange("No.","No.");
                 PAGE.RUN(PAGE::"Default Dimensions",DefaultDimension);
                 //+GL002
             end;
