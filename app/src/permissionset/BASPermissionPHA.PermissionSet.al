@@ -1,0 +1,32 @@
+permissionset 50000 BASPermissionPHA
+{
+    Assignable = true;
+    Permissions = tabledata BASItemChargenTempPHA = RIMD,
+        tabledata BASLotSerialNoInformationPHA = RIMD,
+        table BASItemChargenTempPHA = X,
+        table BASLotSerialNoInformationPHA = X,
+        tabledata BASDebugPHA = RIMD,
+        tabledata BASDropDownContentParameterPHA = RIMD,
+        tabledata BASDropDownContentPHA = RIMD,
+        table BASDebugPHA = X,
+        table BASDropDownContentParameterPHA = X,
+        table BASDropDownContentPHA = X,
+        tabledata BASCCUGroupsPHA = RIMD,
+        tabledata BASGenericTempTablePHA = RIMD,
+        tabledata BASItemAdditivePHA = RIMD,
+        tabledata "BASRechnung MailversandPHA" = RIMD,
+        tabledata BASStatisticcode2PHA = RIMD,
+        tabledata BASStatistikcodePHA = RIMD,
+        tabledata BASStatTempPHA = RIMD,
+        tabledata BASVerkauf_VAXPHA = RIMD,
+        tabledata "BASWindream ButtonPHA" = RIMD,
+        table BASCCUGroupsPHA = X,
+        table BASGenericTempTablePHA = X,
+        table BASItemAdditivePHA = X,
+        table "BASRechnung MailversandPHA" = X,
+        table BASStatisticcode2PHA = X,
+        table BASStatistikcodePHA = X,
+        table BASStatTempPHA = X,
+        table BASVerkauf_VAXPHA = X,
+        table "BASWindream ButtonPHA" = X;
+}
