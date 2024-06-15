@@ -1,22 +1,24 @@
 {
-  "id": "",
-  "name": "",
-  "publisher": "",
+  "id": "54dc5d62-7673-4e51-b6a0-4e44f36c9865",
+  "name": "GL-Pharma BaseApp",
+  "publisher": "Cosmo Consult",
   "version": "0.0.1.0",
   "brief": "",
   "description": "",
   "dependencies": [],
   "screenshots": [],
-  "platform": "14.0.0.0",
-  "application": "14.0.0.0",
+  "platform": "1.0.0.0",
+  "application": "24.0.0.0",
   "supportedLocales": [
     "en-US",
     "de-DE",
     "de-AT",
     "de-CH"
   ],
-  "target": "Internal",
-  "runtime": "3.0",
+  "idRanges": [ 
+    { "from": 50000, "to": 51000 }
+  ],
+  "runtime": "13.0",
   "features": [
     "TranslationFile",
     "NoImplicitWith"

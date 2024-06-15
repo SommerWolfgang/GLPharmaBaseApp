@@ -1,5 +1,5 @@
 {
-    "CRS.ObjectNamePrefix": "",
+    "CRS.ObjectNamePrefix": "BAS",
     "CRS.ObjectNameSuffix": "PHA",
     "CRS.FileNamePattern": "<ObjectNameShort>.<ObjectTypeShortPascalCase>.al",
     "CRS.FileNamePatternExtensions": "<ObjectNameShort>.<ObjectTypeShortPascalCase>.al",
@@ -14,7 +14,7 @@
     "editor.codeActionsOnSave": {
         "source.fixAll": "explicit"
     },
-    "al.browser":"Chrome",
+    "al.browser":"Edge",
     "alOutline.codeActionsOnSave": [
         "SortVariables",
         "SortProperties",
@@ -25,5 +25,24 @@
             "C:/Program Files/Assemblies",
             "C:\\Windows\\Microsoft.NET\\assembly\\GAC_32\\mscorlib",
             "C:\\Windows\\Microsoft.NET\\",            
-        ]
+        ],
+        "accessibility.signalOptions": {
+
+            "volume": 70,
+            "debouncePositionChanges": false,
+            "experimental.delays": {
+                "general": {
+                    "announcement": 3000,
+                    "sound": 400
+                },
+                "warningAtPosition": {
+                    "announcement": 3000,
+                    "sound": 1000
+                },
+                "errorAtPosition": {
+                    "announcement": 3000,
+                    "sound": 1000
+                }
+            }
+        }
 }
