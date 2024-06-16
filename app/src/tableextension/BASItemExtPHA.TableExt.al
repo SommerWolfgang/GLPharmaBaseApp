@@ -9,11 +9,11 @@ tableextension 50009 BASItemExtPHA extends Item
         }
         field(50001; "BASJod-grammPHA"; Decimal)
         {
-            Description = 'x';
+
         }
         field(50002; "BASJod-mlPHA"; Decimal)
         {
-            Description = 'x';
+
         }
         field(50003; "BASModified byPHA"; Code[50])
         {
@@ -25,7 +25,7 @@ tableextension 50009 BASItemExtPHA extends Item
         {
             CalcFormula = lookup(Vendor.Name where("No." = field("Vendor No.")));
             Caption = 'Vendor Name';
-            Description = 'GL';
+
             FieldClass = FlowField;
 
         }
@@ -179,7 +179,7 @@ tableextension 50009 BASItemExtPHA extends Item
         field(50038; BASPostenAnzahlPHA; Integer)
         {
             CalcFormula = count("Item Ledger Entry" where("Item No." = field("No.")));
-            Description = 'MFU';
+
             FieldClass = FlowField;
 
         }
@@ -207,7 +207,7 @@ tableextension 50009 BASItemExtPHA extends Item
         }
         field(50045; BASArtikel_Hersteller_AnlegenPHA; Boolean)
         {
-            Description = 'MFU';
+
         }
         field(50046; "BASBestellmenge aus RahmenPHA"; Decimal)
         {
@@ -243,38 +243,36 @@ tableextension 50009 BASItemExtPHA extends Item
         field(50051; "BASAnzahl je TrommelPHA"; Decimal)
         {
             DecimalPlaces = 0 : 3;
-            Description = 'DKO';
+
         }
         field(50052; "BASPatentschutz bisPHA"; Date)
         {
-            Description = 'MFU';
+
         }
         field(50053; "Vermarktungsexklusivität bis"; Date)
         {
-            Description = 'DKO';
+
         }
         field(50054; "Protokoll-Änderung vorgesehen"; Boolean)
         {
-            Description = 'GL021';
+
         }
         field(50055; BASProbendurchlaufzeitPHA; DateFormula)
         {
-            Description = 'GL022';
+
         }
         field(50056; BASAnlagedatumPHA; Date)
         {
         }
         field(50057; BASInNAVBCUebernommenPHA; Boolean)
         {
-            Description = 'MFU';
+
         }
         field(50075; BASLIMS_VollerProbenumfangPHA; Boolean)
         {
-            Description = 'LIMS';
         }
         field(50200; "BASRegdat ConnectionPHA"; Boolean)
         {
-            Description = 'Regdat';
         }
         field(50500; BASPharmaCentralNoPHA; Code[20])
         {
@@ -347,7 +345,7 @@ tableextension 50009 BASItemExtPHA extends Item
         field(50515; BASSchwund_BeschreibungPHA; Text[50])
         {
             Caption = 'Schwund Beschreibung';
-            Description = 'MFU';
+
         }
         field(50516; BASItemTypePHA; enum BASItemTypePHA)
         {
@@ -372,34 +370,28 @@ tableextension 50009 BASItemExtPHA extends Item
         }
         field(50518; BASItemVendorShipMethodCodePHA; Code[10])
         {
-            // Description = 'Item Vendor Shipment Method Code',comment = 'DEA="Artikel Kreditor "';
             TableRelation = "Shipment Method";
         }
         field(50520; "BASMatGemeinkosten%7EPPHA"; Decimal)
         {
         }
-        field(50521; "BASItemKred PaymentTermsCodePHA"; Code[10])
+        field(50521; BASItemVendPaymentTermsCodePHA; Code[10])
         {
-            Description = 'MFU';
             TableRelation = "Payment Terms";
         }
         field(50522; BASVollkostenPHA; Decimal)
         {
 
         }
-        field(50523; "BASMenge in RahmenbestellungPHA"; Decimal)
+        field(50523; BASAmountBlanketOrderPHA; Decimal)
         {
-            CalcFormula = sum("Purchase Line"."Outstanding Qty. (Base)" where("Document Type" = const("Blanket Order"),
-                                                                               Type = const(Item),
-                                                                               "No." = field("No."),
-                                                                               "Shortcut Dimension 1 Code" = field("Global Dimension 1 Filter")));
-            Description = 'GL';
+            CalcFormula = sum("Purchase Line"."Outstanding Qty. (Base)"
+                where("Document Type" = const("Blanket Order"), Type = const(Item),
+                    "No." = field("No."), "Shortcut Dimension 1 Code" = field("Global Dimension 1 Filter")));
             FieldClass = FlowField;
-
         }
-        field(50524; "BASVollkosten 2000PHA"; Decimal)
+        field(50524; BASVollkosten2000PHA; Decimal)
         {
-
         }
         field(50525; BASDrugNoPHA; Code[20])
         {
@@ -408,43 +400,34 @@ tableextension 50009 BASItemExtPHA extends Item
         field(50526; BASSuchtgiftgehaltPHA; Decimal)
         {
             DecimalPlaces = 0 : 5;
-
         }
         field(50527; BASDrugBasePHA; Decimal)
         {
             DecimalPlaces = 0 : 5;
-
         }
         field(50528; "BASMat.-Gemeinkosten %PHA"; Decimal)
         {
             DecimalPlaces = 0 : 5;
-
         }
         field(50529; "BASPreis f. KalkulationPHA"; Decimal)
         {
-
         }
         field(50530; "Lösungsmittel"; Boolean)
         {
-
         }
         field(50531; BASDurchschnittsgehaltPHA; Decimal)
         {
-
         }
         field(50532; "BASSchwund %PHA"; Decimal)
         {
             DecimalPlaces = 0 : 5;
-
         }
         field(50533; "Güterlistencode"; Code[20])
         {
-
         }
         field(50534; "BASMat.-Gemeinkosten % 2PHA"; Decimal)
         {
             DecimalPlaces = 0 : 5;
-
         }
         field(50535; "Nicht prüfpflichtig"; Boolean)
         {
@@ -460,11 +443,11 @@ tableextension 50009 BASItemExtPHA extends Item
         }
         field(50538; BASKalkFloorPreisPHA; Decimal)
         {
-            Description = 'MFU';
+
         }
         field(50539; BASKalkProzentZuFAPPHA; Decimal)
         {
-            Description = 'MFU';
+
         }
         field(50541; "BASNumber of UnitsPHA"; Integer)
         {
@@ -496,7 +479,7 @@ tableextension 50009 BASItemExtPHA extends Item
         }
         field(50547; BASKalkProzentZuFertigArtikelFAPPHA; Decimal)
         {
-            Description = 'MFU';
+
         }
         field(50549; "BASProduct Type CodePHA"; Code[15])
         {
@@ -539,7 +522,7 @@ tableextension 50009 BASItemExtPHA extends Item
         //                                                                       "Serial No." = field("Serial No. Filter"),
         //                                                                       "Source No." = filter(< 50004)));
         //     Caption = 'Verkauf (Menge) Kunden Filter';
-        //     Description = 'GL';
+        //     
         //     FieldClass = FlowField;
         // }
         field(50555; "BASSales (LCY) Deb FilterPHA"; Decimal)
@@ -554,13 +537,13 @@ tableextension 50009 BASItemExtPHA extends Item
                                                                             "Posting Date" = field("Date Filter"),
                                                                             "Source No." = filter(< 50004)));
             Caption = 'Verkauf (MW) Kunden Filter';
-            Description = 'GL';
+
             FieldClass = FlowField;
 
         }
         field(50556; BASKalkPreisFuerTransportPHA; Decimal)
         {
-            Description = 'MFU';
+
         }
         field(50559; BASSiteAssignmentPHA; Code[20])
         {
@@ -597,7 +580,7 @@ tableextension 50009 BASItemExtPHA extends Item
         field(50567; BASManufacturingForPHA; Code[20])
         {
             Caption = 'Contract Manufacturing for';
-            Description = 'GL';
+
         }
         field(50568; BASTypeForecastPHA; Option)
         {
@@ -615,7 +598,7 @@ tableextension 50009 BASItemExtPHA extends Item
         }
         field(50571; BASVerkehrszweigPHA; Code[10])
         {
-            Description = 'MFU';
+
             TableRelation = "Transport Method".Code;
         }
 

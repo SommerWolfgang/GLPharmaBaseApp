@@ -65,30 +65,30 @@ tableextension 50021 BASSalesInvoiceHeaderExtPHA extends "Sales Invoice Header"
         field(50003; "BASinvoice copiesPHA"; Integer)
         {
             Caption = 'Invoice Copies';
-            Description = 'Petsch';
+            
         }
         field(50005; BASFirmenkopfPHA; Code[10])
         {
-            Description = 'Fürbaß';
+            
         }
         field(50007; BASTransportversicherungPHA; Boolean)
         {
-            Description = 'MFU';
+            
         }
         */
         field(50014; "Zugehörigkeitsdatum"; Date)
         {
-            Description = 'Fürbaß';
+
         }
         field(50015; "BASShip-to Customer No.PHA"; Code[20])
         {
             Caption = 'Lief. an Deb.-Nr.';
-            Description = 'Fürbaß';
+
         }
         /*
         field(50016; BASLieferdatumPHA; Text[30])
         {
-            Description = 'Fürbaß';
+            
         }
         field(50017; BASPDFDruckPHA; Boolean)
         {
@@ -98,11 +98,11 @@ tableextension 50021 BASSalesInvoiceHeaderExtPHA extends "Sales Invoice Header"
         }
         field(50019; "BASLieferungstext 1PHA"; Text[50])
         {
-            Description = 'MFU';
+            
         }
         field(50020; "BASLieferungstext 2PHA"; Text[50])
         {
-            Description = 'MFU';
+            
         }
         */
         field(50021; BASWindreamPDFPHA; Boolean)
@@ -123,20 +123,20 @@ tableextension 50021 BASSalesInvoiceHeaderExtPHA extends "Sales Invoice Header"
         /*
         field(50026; BASKundenBetriebsnummerPHA; Code[10])
         {
-            Description = 'MFU';
+            
         }
         field(50027; BASGLBetriebsnummerPHA; Code[10])
         {
-            Description = 'MFU';
+            
         }
         field(50028; BASKundenBetriebsnummerGHPHA; Code[10])
         {
-            Description = 'MFU';
+            
         }
         field(50501; "BASBill-to CodePHA"; Code[10])
         {
             Caption = 'Bill-to Code';
-            Description = 'LAN1.00';
+            
             TableRelation = "Ship-to Address".Code where("Customer No." = FIELD("Bill-to Customer No."));
         }
         field(50503; "BASBill-to E-MailPHA"; Text[80])
@@ -144,20 +144,20 @@ tableextension 50021 BASSalesInvoiceHeaderExtPHA extends "Sales Invoice Header"
         }
         field(50506; BASEinFuhrBewilligungsNrPHA; Text[150])
         {
-            Description = 'MFU';
+            
         }
         field(50507; BASAusFuhrBewilligungsNrPHA; Text[150])
         {
-            Description = 'MFU';
+            
         }
         field(50601; BASSammelrechnungstypPHA; Option)
         {
-            Description = 'LAN1.00';
+            
             OptionMembers = "Pro Auftrag","Pro Tag",ProWoche,"Pro Monat";
         }
         field(50603; BASCmrVorhandenPHA; Boolean)
         {
-            Description = 'DKO, WD';
+            
             Editable = false;
         }
         field(50604; BASCmrErforderlichPHA; Boolean)
@@ -165,64 +165,4 @@ tableextension 50021 BASSalesInvoiceHeaderExtPHA extends "Sales Invoice Header"
         }
         */
     }
-    procedure WriteInternalEDI()
-    var
-        recCustomer: Record "18";
-        recCompanyInfo: Record "79";
-        recSalesInvoiceLine: Record "113";
-        recDatenAustausch: Record "50010";
-    begin
-        /*
-        //-002
-        recCompanyInfo.GET;
-        recSalesInvoiceLine.SETRANGE("Document No.", "No.");
-        recSalesInvoiceLine.SETRANGE(Type, recSalesInvoiceLine.Type::Item);
-        recSalesInvoiceLine.SETFILTER(Quantity, '<>0');
-        IF recSalesInvoiceLine.FindSet() THEN
-            REPEAT
-                recDatenAustausch.INIT;
-                recDatenAustausch.Quelle := COMPANYNAME;
-                recDatenAustausch.Ziel := 'GL-DE';     //GL004
-                recDatenAustausch.Eintragsdatum := TODAY;
-                recDatenAustausch.Eintragsuhrzeit := TIME;
-                recDatenAustausch.QuellBenutzer := USERID;
-                recDatenAustausch.Geschäftsfall := 'VKRECH->EKBESTELL';
-                recDatenAustausch.QuellEDIReferenz := "Sell-to Customer No.";
-                recCustomer.GET("Sell-to Customer No.");
-                recDatenAustausch.ZielEDIReferenz := "Sell-to Contact";
-                recDatenAustausch.Quellbelegnr := "No.";
-                recDatenAustausch.Quellzeilennr := recSalesInvoiceLine."Line No.";
-                recDatenAustausch.Artikelnr := recSalesInvoiceLine."No.";
-                recDatenAustausch.Artikelname := recSalesInvoiceLine.Description;
-                recDatenAustausch.Menge := recSalesInvoiceLine.Quantity;
-                recDatenAustausch.Einheit := recSalesInvoiceLine."Unit of Measure";
-                recDatenAustausch.Einzelpreis := recSalesInvoiceLine."Unit Price";
-                recDatenAustausch.Rabatt := ROUND(recSalesInvoiceLine."Line Discount %" * recSalesInvoiceLine."Unit Price" / 100, 0.01);
-                recDatenAustausch.Gesamtpreis := ROUND((recSalesInvoiceLine."Unit Price" * recSalesInvoiceLine.Quantity) -
-                                                 recDatenAustausch.Rabatt, 0.01);
-                recDatenAustausch.Chargennr := recSalesInvoiceLine."Lot No.";
-                recDatenAustausch.Verkaufschargennr := recSalesInvoiceLine."Verkaufschargennr.";
-                recDatenAustausch.Ablaufdatum := recSalesInvoiceLine."Expiration Date";
-                recDatenAustausch.ExterneBelegnummer := "External Document No.";
-                recDatenAustausch.Status := recDatenAustausch.Status::angelegt;
-                //-GL003
-                recDatenAustausch.Buchungsdatum := "Posting Date";
-                //+GL003
-                recDatenAustausch.INSERT;
-
-            UNTIL recSalesInvoiceLine.NEXT = 0;
-
-        //+002
-        */
-    end;
-
-    procedure SetIstNachdruck(IstNachdruck: Boolean)
-    begin
-        //-GL005
-        bIstNachdruck := IstNachdruck;
-        //+GL005
-    end;
-
-    var
-        bIstNachdruck: Boolean;
 }

@@ -18,10 +18,10 @@ tableextension 50011 BASItemLedgerEntryExtPHA extends "Item Ledger Entry"
             CalcFormula = count("Warehouse Entry" where("Location Code" = field("Location Code"),
                                                          "Item No." = field("Item No."),
                                                          "Variant Code" = field("Variant Code"),
-                                                         BASLotNoPHA = field(BASLotNoPHA)));
+                                                         BASSalesLotNoPHA = field(BASLotNoPHA)));
             FieldClass = FlowField;
         }
-        field(50003; BASLagerplatzhilfsfeldPHA; Code[20])
+        field(50003; BASBinCodeHelpFieldPHA; Code[20])
         {
         }
         // field(50004; BASChargen_LaetusCodePHA; Text[15])
@@ -43,7 +43,7 @@ tableextension 50011 BASItemLedgerEntryExtPHA extends "Item Ledger Entry"
         }
         field(50503; BASEntwicklungsprojektPHA; Boolean)
         {
-            Description = 'MFU';
+
         }
         field(50506; BASArtikelgruppePHA; Code[10])
         {
@@ -70,7 +70,7 @@ tableextension 50011 BASItemLedgerEntryExtPHA extends "Item Ledger Entry"
         // field(50510; BASArtikelStandortHerstellungPHA; Code[20])
         // {
         //     CalcFormula = lookup(Item."Site Manufacturing" where("No." = field("Item No.")));
-        //     Description = 'MFU';
+        //     
         //     FieldClass = FlowField;
         // }
         field(50512; "BASBestellnr.PHA"; Code[20])
@@ -101,7 +101,7 @@ tableextension 50011 BASItemLedgerEntryExtPHA extends "Item Ledger Entry"
         {
 
         }
-        field(50522; "BASVerkaufschargennr.PHA"; Code[20])
+        field(50522; BASSalesLotNoPHA; Code[20])
         {
 
         }

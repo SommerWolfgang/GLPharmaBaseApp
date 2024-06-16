@@ -7,7 +7,7 @@ tableextension 50035 BASAccScheduleNamePHA extends "Acc. Schedule Name"
         }
         field(50001; "BASAktualisieren sperrenPHA"; Boolean)
         {
-            Description = 'MFU';
+
         }
     }
 }

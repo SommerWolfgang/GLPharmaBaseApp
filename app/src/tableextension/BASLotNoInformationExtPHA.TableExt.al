@@ -5,7 +5,7 @@ tableextension 50027 BASLotNoInformationExtPHA extends "Lot No. Information"
         field(50000; BASExpirationDatePHA; Date)
         {
             Caption = 'Expiration Date';
-            Description = 'LAN1.00';
+
 
             trigger OnValidate()
             var
@@ -54,7 +54,7 @@ tableextension 50027 BASLotNoInformationExtPHA extends "Lot No. Information"
         }
         field(50007; BASGehaltPHA; Decimal)
         {
-            Description = 'LAN1.00';
+
 
             trigger OnValidate()
             var
@@ -78,7 +78,7 @@ tableextension 50027 BASLotNoInformationExtPHA extends "Lot No. Information"
         }
         field(50008; BASLaborkommentarPHA; Text[100])
         {
-            Description = 'LAN1.00';
+
 
             trigger OnValidate()
             begin
@@ -87,7 +87,7 @@ tableextension 50027 BASLotNoInformationExtPHA extends "Lot No. Information"
         }
         field(50009; "BASLaetus-CodePHA"; Text[15])
         {
-            Description = 'LAN1.00';
+
 
         }
         field(50010; BASStatusPHA; enum BASStatusLotNoInformationPHA)
@@ -229,13 +229,9 @@ tableextension 50027 BASLotNoInformationExtPHA extends "Lot No. Information"
         }
         field(50102; "BASCEP NrPHA"; Code[50])
         {
-            Description = 'GL029,LQ18.1';
-
         }
         field(50103; BASHerstellerNrPHA; Code[20])
         {
-            Description = 'GL029,LQ18.1';
-            //TableRelation = Hersteller.HerstellerNr;
         }
         field(50104; BASExpirationDateDMPHA; Text[6])
         {
@@ -245,9 +241,8 @@ tableextension 50027 BASLotNoInformationExtPHA extends "Lot No. Information"
                 CheckExpDate();
             end;
         }
-        field(50105; "BASHF KommentarPHA"; Text[100])
+        field(50105; BASHFCommentPHA; Text[100])
         {
-            Description = 'GL032';
         }
         field(50106; "BASAnzahl FreigabenPHA"; Integer)
         {
@@ -256,26 +251,22 @@ tableextension 50027 BASLotNoInformationExtPHA extends "Lot No. Information"
                                                           "Primary Key Field 3 Value" = field(BASLotNoPHA),
                                                           //"New Value" = const(1),
                                                           "Field No." = const(50010)));
-            Description = 'GL038';
             Editable = false;
             FieldClass = FlowField;
         }
         field(50117; BASLimsStatusPHA; Code[29])
         {
-            Description = 'LIMS,CCU105';
         }
         field(50118; BASLimsImportInProgressPHA; Boolean)
         {
-            Description = 'LIMS';
         }
         field(50119; BASLimsBacklogEntriesPHA; Integer)
         {
         }
-        field(50120; BASItem_BlockedPHA; Boolean)
+        field(50120; BASItemBlockedPHA; Boolean)
         {
             CalcFormula = lookup(Item.Blocked where("No." = field("Item No.")));
             Caption = 'Artikel gesperrt';
-            Description = 'LIMS';
             FieldClass = FlowField;
         }
         field(50507; "BASStatistikcode IPHA"; Code[10])
@@ -311,31 +302,24 @@ tableextension 50027 BASLotNoInformationExtPHA extends "Lot No. Information"
         // }
         field(50511; BASErstablaufdatumPHA; Date)
         {
-            Description = 'CCU553';
         }
         field(50512; BASProduktionsdatumPHA; Date)
         {
-            Description = 'CCU656';
         }
-        field(50513; "BASEntry DatePHA"; Date)
+        field(50513; BASEntryDatePHA; Date)
         {
             Caption = 'Zugangsdatum';
-            Description = 'CCU656';
         }
     }
-
-
-
-    procedure LotNoCheck()
+    procedure CheckLotNo()
     var
         Item: Record Item;
         LotNoInformation: Record "Lot No. Information";
     begin
         Item.GET("Item No.");
         if Item.BASItemTypePHA in [Item.BASItemTypePHA::"Row Material", Item.BASItemTypePHA::"Package Material"] then begin
-            ;
-            // LotNoInformation.SetCurrentKey(BASLotNoPHA);
-            // LotNoInformation.SetRange(BASLotNoPHA, BASLotNoPHA);
+            LotNoInformation.SetCurrentKey(BASSalesLotNoPHA);
+            LotNoInformation.SetRange(BASSalesLotNoPHA, BASSalesLotNoPHA);
             if LotNoInformation.FindFirst() then
                 if LotNoInformation."Item No." <> "Item No." then
                     Error('Rohstoffcharge wurde schon zu anderer Artikelnummer vergeben!');
@@ -361,8 +345,8 @@ tableextension 50027 BASLotNoInformationExtPHA extends "Lot No. Information"
             end;
         nCountChecked := 0;
         recItemLedgerEntry.SETCURRENTKEY("Item No.", BASLotNoPHA, "Posting Date");
-        // recItemLedgerEntry.SETFILTER(BASLotNoPHA, LotNo);
-        recItemLedgerEntry.SETFILTER("Item No.", ItemNo);
+        // recItemLedgerEntry.SetFilter(BASLotNoPHA, LotNo);
+        recItemLedgerEntry.SetFilter("Item No.", ItemNo);
         recItemLedgerEntry.SetRange("Entry Type", recItemLedgerEntry."Entry Type"::Output);
         if recItemLedgerEntry.FindSet() then begin
 
@@ -370,16 +354,16 @@ tableextension 50027 BASLotNoInformationExtPHA extends "Lot No. Information"
             //neu
             recItemLedgerEntry1.SETCURRENTKEY("Order Type", "Order No.", "Order Line No.", "Entry Type", "Prod. Order Comp. Line No.");
             recItemLedgerEntry1.SetRange("Order Type", recItemLedgerEntry."Order Type"::Production);
-            recItemLedgerEntry1.SETFILTER("Order No.", recItemLedgerEntry."Order No.");
+            recItemLedgerEntry1.SetFilter("Order No.", recItemLedgerEntry."Order No.");
             //Alt
             //recItemLedgerEntry1.SETCURRENTKEY("Prod. Order No.","Prod. Order Line No.","Entry Type","Prod. Order Comp. Line No.");
-            //recItemLedgerEntry1.SETFILTER("Prod. Order No.", recItemLedgerEntry."Prod. Order No.");
+            //recItemLedgerEntry1.SetFilter("Prod. Order No.", recItemLedgerEntry."Prod. Order No.");
             //+UPDATE2013
-            recItemLedgerEntry1.SETFILTER("Entry Type", 'Verbrauch|Abgang');
+            recItemLedgerEntry1.SetFilter("Entry Type", 'Verbrauch|Abgang');
             if recItemLedgerEntry1.FindSet() then
                 repeat
-                    recLotNoInformation.SETFILTER("Item No.", recItemLedgerEntry1."Item No.");
-                    recLotNoInformation.SETFILTER(BASLotNoPHA, recItemLedgerEntry1.BASLotNoPHA);
+                    recLotNoInformation.SetFilter("Item No.", recItemLedgerEntry1."Item No.");
+                    recLotNoInformation.SetFilter(BASLotNoPHA, recItemLedgerEntry1.BASLotNoPHA);
                     if recLotNoInformation.FindFirst() then
                         if recLotNoInformation.BASStatusPHA <> recLotNoInformation.BASStatusPHA::Free then begin
                             if not ItemIsBulk(ItemNo) and ItemIsBulk(recLotNoInformation."Item No.") then
@@ -475,7 +459,7 @@ tableextension 50027 BASLotNoInformationExtPHA extends "Lot No. Information"
         // ToDo -> hardcoded!!! <>50004 and BASLotNoPHA-Field in change log entry
         // ChangeLog.SetRange("Primary Key Field 3 Value", BASLotNoPHA);
         ChangeLogEntry.SetRange("Type of Change", ChangeLogEntry."Type of Change"::Modification);
-        ChangeLogEntry.SETFILTER(ChangeLogEntry."Field No.", '<>50004');
+        ChangeLogEntry.SetFilter(ChangeLogEntry."Field No.", '<>50004');
         if ChangeLogEntry.FindLast() then
             case What of
                 What::Date:
@@ -522,7 +506,7 @@ tableextension 50027 BASLotNoInformationExtPHA extends "Lot No. Information"
 
 
         //-GL004
-        LotNoCheck();
+        CheckLotNo();
         //+GL004
 
         //-LAN003

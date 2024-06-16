@@ -10,7 +10,7 @@ tableextension 50010 BASVendorPHA extends Vendor
         }
         field(50004; "BASE-MailAvisPHA"; Text[80])
         {
-            Description = 'MFU';
+
         }
         field(50010; "BASARA-LizenzPHA"; Option)
         {
@@ -20,11 +20,11 @@ tableextension 50010 BASVendorPHA extends Vendor
         }
         field(50011; BASBetriebsnummerPHA; Code[10])
         {
-            Description = 'MFU';
+
         }
         field(50020; BASBestellemailPHA; Text[80])
         {
-            Description = 'DKO';
+
         }
 
     }

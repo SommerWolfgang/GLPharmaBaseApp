@@ -70,11 +70,11 @@ tableextension 50014 BASPurchaseHeaderExtPHA extends "Purchase Header"
         }
         field(50509; BASEinAusFuhrBewilligungsNrPHA; Text[100])
         {
-            Description = 'MFU';
+
         }
         field(50510; BASSMVerwendungszweckPHA; Option)
         {
-            Description = 'MFU';
+
             OptionMembers = " ","Import für Inlandsverbrauch","Import für Wiederausfuhr";
         }
         field(50511; BASTransportversicherungPHA; Boolean)

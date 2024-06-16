@@ -15,17 +15,17 @@ tableextension 50041 BASExtendedTextHeaderExtPHA extends "Extended Text Header"
         field(50000; "BASTransfer OrderPHA"; Boolean)
         {
             Caption = 'Transfer Order';
-            Description = 'Petsch';
+
         }
         field(50001; "BASLast Date ModifiedPHA"; Date)
         {
             Caption = 'Last Date Modified';
-            Description = 'Petsch';
+
             Editable = false;
         }
         field(50002; "BASModified byPHA"; Text[20])
         {
-            Description = 'Petsch';
+
             Editable = false;
         }
         field(50003; BASTextLinesPHA; Integer)
@@ -34,12 +34,12 @@ tableextension 50041 BASExtendedTextHeaderExtPHA extends "Extended Text Header"
                                                             "No." = FIELD("No."),
                                                             "Language Code" = FIELD("Language Code"),
                                                             "Text No." = FIELD("Text No.")));
-            Description = 'Petsch';
+
             FieldClass = FlowField;
         }
         field(50004; BASMusterzugbemerkungPHA; Boolean)
         {
-            Description = 'Pranter';
+
             InitValue = false;
         }
     }

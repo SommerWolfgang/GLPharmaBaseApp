@@ -1,61 +1,43 @@
 tableextension 50053 BASSalesPriceExtPHA extends "Sales Price"
-{   // LAN001 02.12.09 ACPSS LAN1.00
-    //   New Fields: ID 50000 - 50002
-    // 
-    // GL001 Funktionen: Artikeltext(), Kundentext()
-    // GL002 InitValue "Allow Line Disc." bei Deb.-Artikelpreisen auf NEIN
-    // 
-    // Datum      | Autor   | Status     | Beschreibung
-    // ------------------------------------------------------------------------------------------------------------------------------------
-    // 2010-02-01 | Petsch  | ok         | Update von 360
-    // ------------------------------------------------------------------------------------------------------------------------------------
-    // 2014-06-30 | Petsch  | ok         | Update 2009 auf 2013R2
-    // ------------------------------------------------------------------------------------------------------------------------------------
-    // 2018-04-25 | DKO     | ok         | ArtikelText() - ReturnValue Max Size auf 60 erhöht weil ItemDesc [50] + ItemPackSize[10]  = 60
-    // ------------------------------------------------------------------------------------------------------------------------------------
+{
     fields
     {
-        field(50000; BASBemerkungPHA; Text[100])
+        field(50000; BASCommentPHA; Text[100])
         {
+            Caption = '', comment = 'DEA="Kommentar"';
         }
-        field(50001; "Packungsgröße"; Text[30])
+        field(50001; PackageSize; Text[30])
         {
+            Caption = '', comment = 'DEA="Packetgröße"';
         }
-        field(50002; BASAnzeigenPHA; Boolean)
+        field(50002; BASShowPHA; Boolean)
         {
+            Caption = '', comment = 'DEA="Anzeigen"';
         }
     }
     trigger OnAfterInsert()
     begin
-        //-GL002
-        IF "Sales Type" = "Sales Type"::Customer THEN
-            "Allow Line Disc." := FALSE;
-        //+GL002
+        "Allow Line Disc." := not ("Sales Type" = "Sales Type"::Customer);
     end;
 
-    procedure ArtikelText() ArtikelText: Text[60]
+    procedure ArtikelText(): Text[60]
     var
-        Item: Record 27;
+        Item: Record Item;
     begin
-        //-GL001
-        IF Item.GET("Item No.") THEN
-            ArtikelText := CopyStr(Item.Description + ' ' + Item.BASPackageSizePHA, 1, 60);
-        //+GL001
+        if Item.Get("Item No.") then
+            exit(CopyStr(Item.Description + ' ' + Item.BASPackageSizePHA, 1, 60));
     end;
 
-    procedure KundenText() KundenText: Text[50]
+    procedure CustomerText(): Text[50]
     var
-        Cust: Record 18;
-        CustDiscGr: Record 340;
+        Cust: Record Customer;
+        CustDiscGr: Record "Customer Discount Group";
     begin
-        //-GL001
-        IF "Sales Type" = "Sales Type"::Customer THEN
-            IF Cust.GET("Sales Code") THEN
-                KundenText := CopyStr(Cust.Name, 1, 50);
-        IF "Sales Type" = "Sales Type"::"Customer Price Group" THEN
-            IF CustDiscGr.GET("Sales Code") THEN
-                KundenText := CopyStr(CustDiscGr.Description, 1, 50);
-        ;
-        //+GL001
+        if "Sales Type" = "Sales Type"::Customer then
+            if Cust.Get("Sales Code") then
+                exit(CopyStr(Cust.Name, 1, 50));
+        if "Sales Type" = "Sales Type"::"Customer Price Group" then
+            if CustDiscGr.Get("Sales Code") then
+                exit(CopyStr(CustDiscGr.Description, 1, 50));
     end;
 }

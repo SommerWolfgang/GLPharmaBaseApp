@@ -57,7 +57,7 @@ tableextension 50036 BASUserSetupPHA extends "User Setup"
         }
         field(50014; BASWartung_ZuordnungPHA; Code[20])
         {
-            Description = 'MFU';
+
 
         }
         field(50015; BASBenutzerEinstellungenPHA; Code[10])
@@ -71,7 +71,7 @@ tableextension 50036 BASUserSetupPHA extends "User Setup"
         // }
         field(50017; BASMarktfreigabePinPHA; Text[10])
         {
-            Description = 'MFU';
+
 
             trigger OnValidate()
             // var
@@ -84,7 +84,7 @@ tableextension 50036 BASUserSetupPHA extends "User Setup"
         }
         field(50018; BASLagerHandheldPinPHA; Text[10])
         {
-            Description = 'MFU';
+
 
             trigger OnValidate()
             // cuNaviPharma: Codeunit NaviPharma;
@@ -107,7 +107,7 @@ tableextension 50036 BASUserSetupPHA extends "User Setup"
         field(50022; BASDefaultLocationPHA; Code[10])
         {
             Caption = 'Standard Lagerort';
-            Description = 'CCU12';
+
             TableRelation = if (BASSiteAssignmentPHA = filter('WIEN')) Location.Code where(City = filter('WIEN' | ''))
             else
             if (BASSiteAssignmentPHA = filter('LANNACH')) Location.Code where(City = filter('LANNACH' | ''))

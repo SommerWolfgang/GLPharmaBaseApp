@@ -17,7 +17,7 @@ tableextension 50000 BASCustomerExtPHA extends Customer
         }
         field(50004; BASPSYBezugPHA; Boolean)
         {
-            Description = 'Pranter';
+
         }
         field(50005; BASShipmentCopiesPHA; Integer)
         {
@@ -53,7 +53,7 @@ tableextension 50000 BASCustomerExtPHA extends Customer
         field(50012; "Verkäufercode 3"; Code[10])
         {
             Caption = 'Salesperson Code 3';
-            Description = 'MFU';
+
             TableRelation = "Salesperson/Purchaser";
         }
         field(50013; BASBetriebsnummerPHA; Code[10])
@@ -61,21 +61,21 @@ tableextension 50000 BASCustomerExtPHA extends Customer
         }
         field(50014; BASPDFRechnungPHA; Boolean)
         {
-            Description = 'MFU';
+
         }
         field(50015; BASRechnungspreisformat1000PHA; Boolean)
         {
-            Description = 'MFU';
+
         }
         field(50016; "Verkäufercode 4"; Code[10])
         {
             Caption = 'Salesperson Code 3';
-            Description = 'MFU';
+
             TableRelation = "Salesperson/Purchaser";
         }
         field(50017; BASMailBestellAdressePHA; Text[50])
         {
-            Description = 'MFU';
+
         }
         field(50018; "Verkäufercode 5"; Code[10])
         {
@@ -85,12 +85,12 @@ tableextension 50000 BASCustomerExtPHA extends Customer
         field(50019; "BASBTM No.PHA"; Code[10])
         {
             Caption = 'BtM-Nummer';
-            Description = 'PRA';
+
         }
         field(50023; "BASAddress 3PHA"; Text[50])
         {
             Caption = 'Adresse 3';
-            Description = 'MFU';
+
         }
         field(50024; "BASSN deaktivierenPHA"; Boolean)
         {

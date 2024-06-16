@@ -7,20 +7,20 @@ tableextension 50040 BASPurchCrMemoHdrExtPHA extends "Purch. Cr. Memo Hdr."
     {
         field(50502; BASValutadatumPHA; Date)
         {
-            Description = 'LAN1.00';
+
         }
         field(50506; BASSpediteurcodePHA; Code[10])
         {
-            Description = 'LAN1.00';
+
             TableRelation = "Shipping Agent";
         }
         field(50507; BASWertgutschriftPHA; Boolean)
         {
-            Description = 'LAN1.00';
+
         }
         field(50508; BASStornoMitBelegNrPHA; Code[20])
         {
-            Description = 'MFU';
+
         }
     }
 }

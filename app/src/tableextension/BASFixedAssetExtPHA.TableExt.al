@@ -50,20 +50,20 @@ tableextension 50049 BASFixedAssetExtPHA extends "Fixed Asset"
         }
         field(50001; BASMengePHA; Decimal)
         {
-            Description = 'Petsch';
+
         }
         field(50002; "BASKontonr.PHA"; Text[10])
         {
-            Description = 'Petsch';
+
         }
         field(50005; BASMietePHA; Boolean)
         {
             Caption = 'Miete';
-            Description = 'LAN1.00';
+
         }
         field(50006; "Förderung"; Text[30])
         {
-            Description = 'Petsch';
+
         }
         field(50007; "BASRaumbuchnr.PHA"; Text[30])
         {

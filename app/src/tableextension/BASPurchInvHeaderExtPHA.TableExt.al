@@ -15,41 +15,41 @@ tableextension 50039 BASPurchInvHeaderExtPHA extends "Purch. Inv. Header"
         /*
         field(50000; "BASExterne Rahmennr.PHA"; Code[20])
         {
-            Description = 'LAN1.00';
+            
         }
         field(50001; BASAbrufdatumPHA; Date)
         {
-            Description = 'LAN1.00';
+            
         }
         field(50002; BASValutadatumPHA; Date)
         {
-            Description = 'LAN1.00';
+            
         }
         field(50003; "BASKW verwendenPHA"; Boolean)
         {
-            Description = 'LAN1.00';
+            
         }
         field(50005; "BASBezogen auf Rechnungsnr.PHA"; Code[20])
         {
-            Description = 'LAN1.00';
+            
             TableRelation = "Purch. Inv. Header" where("Buy-from Vendor No." = FIELD("Buy-from Vendor No."));
         }
         field(50006; BASSpediteurcodePHA; Code[10])
         {
-            Description = 'LAN1.00';
+            
             TableRelation = "Shipping Agent";
         }
         field(50008; BASStornoMitBelegNrPHA; Code[20])
         {
-            Description = 'MFU';
+            
         }
         field(50011; BASTransportversicherungPHA; Boolean)
         {
-            Description = 'MFU';
+            
         }
         field(51075; "Rücklieferung"; Boolean)
         {
-            Description = 'LAN1.00';
+            
         }
         */
     }

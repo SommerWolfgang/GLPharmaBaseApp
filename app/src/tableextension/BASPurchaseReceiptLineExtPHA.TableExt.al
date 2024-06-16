@@ -32,109 +32,92 @@ tableextension 50023 BASPurchaseReceiptLineExtPHA extends "Purch. Rcpt. Line"
     {
         field(50000; BASPreisfaktorPHA; Decimal)
         {
-            Description = 'LAN1.00';
+
         }
         field(50001; BASPackmittelVersionPHA; Code[20])
         {
-            Description = 'Petsch';
+
         }
-        field(50010; "BASLot No.PHA"; Code[20])
+        field(50010; BASLotNoPHA; Code[20])
         {
             Caption = 'Lot No.';
-            Description = 'LAN1.00';
-            TableRelation = IF (Type = const(Item)) "Lot No. Information"."Lot No." where("Item No." = FIELD("No."),
-                                                                                         "Variant Code" = FIELD("Variant Code"));
+            TableRelation = if (Type = const(Item)) "Lot No. Information"."Lot No."
+                where("Item No." = field("No."), "Variant Code" = field("Variant Code"));
         }
         field(50506; BASArtikelgruppePHA; Code[10])
         {
-            Description = 'LAN1.00';
             Editable = false;
         }
-        field(50507; "BASStatistikcode IPHA"; Code[10])
+        field(50507; BASStatisticCodeIPHA; Code[10])
         {
-            Description = 'LAN1.00';
             Editable = false;
             TableRelation = BASStatisticCodePHA where(Level = const(1));
         }
-        field(50508; "BASStatistikcode IIPHA"; Code[10])
+        field(50508; BASStatisticCodeIIPHA; Code[10])
         {
-            Description = 'LAN1.00';
             Editable = false;
             TableRelation = BASStatisticCodePHA where(Level = const(2));
         }
-        field(50509; "BASStatistikcode IIIPHA"; Code[10])
+        field(50509; BASStatisticCodeIIIPHA; Code[10])
         {
-            Description = 'LAN1.00';
             Editable = false;
             TableRelation = BASStatisticCodePHA where(Level = const(3));
         }
-        field(50510; "BASCountry/Region CodePHA"; Code[10])
+        field(50510; BASCountryRegionCodePHA; Code[10])
         {
             Caption = 'Country/Region Code';
-            Description = 'LAN1.00';
             TableRelation = "Country/Region";
         }
         field(50511; BASEinAusFuhrBewilligungsNrPHA; Text[100])
         {
-            Description = 'MFU';
         }
         field(50512; BASSMVerwendungszweckPHA; Option)
         {
-            Description = 'MFU';
             OptionMembers = " ","Import für Inlandsverbrauch","Import für Wiederausfuhr";
         }
         field(50514; "BASSuchtgift/PsychotropPHA"; Text[1])
         {
-            Description = 'LAN1.00';
+
         }
-        field(50515; "BASDirect Unit Cost PEPHA"; Decimal)
+        field(50515; BASDirectUnitCostPEPHA; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCodeFromHeader;
+            AutoFormatExpression = GetCurrencyCodeFromHeader();
             AutoFormatType = 2;
             Caption = 'Direct Unit Cost PE';
-            Description = 'LAN1.00';
         }
-        field(50526; "BASLieferantenchargennr.PHA"; Code[20])
+        field(50526; BASPurchaseLotNoPHA; Code[20])
         {
-            Description = 'LAN1.00';
         }
-        field(50528; "BASVerkaufschargennr.PHA"; Code[20])
+        field(50528; BASSalesLotNoPHA; Code[20])
         {
-            Description = 'LAN1.00';
         }
         field(50529; "BASUrspr. MengePHA"; Decimal)
         {
             DecimalPlaces = 0 : 5;
-            Description = 'LAN1.00';
+
         }
-        field(50530; "BASExpiration DatePHA"; Date)
+        field(50530; BASExpirationDatePHA; Date)
         {
             Caption = 'Expiration Date';
-            Description = 'LAN1.00';
         }
         field(50550; BASGebindeanzahlPHA; Decimal)
         {
             DecimalPlaces = 0 : 5;
-            Description = 'LAN1.00';
         }
         field(50551; BASGebindeartencodePHA; Code[10])
         {
-            Description = 'LAN1.00';
-
         }
-        field(50553; BASPalettenanzahlPHA; Integer)
+        field(50553; BASPalettsPHA; Integer)
         {
         }
-        field(50585; BASBeschreibungLangPHA; BLOB)
-        {
-            Description = 'MFU';
-        }
-        field(50586; "BASCEP NrPHA"; Code[50])
+        field(50585; BASDescriptionLongPHA; MediaSet)
         {
         }
-        field(50587; "BASExpiration Date DMPHA"; Text[6])
+        field(50586; BASCEPNoPHA; Code[50])
         {
-            Description = 'GL015,EUHUB';
+        }
+        field(50587; BASExpirationDateDMPHA; Text[6])
+        {
             Numeric = true;
             Width = 6;
         }

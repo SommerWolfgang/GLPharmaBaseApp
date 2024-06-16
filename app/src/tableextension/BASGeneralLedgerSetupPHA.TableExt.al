@@ -31,15 +31,15 @@ tableextension 50018 BASGeneralLedgerSetupPHA extends "General Ledger Setup"
         }
         field(50507; BASProjektRessBuchAbPHA; DateFormula)
         {
-            Description = 'MFU';
+
         }
         field(50508; BASPDFPfadAvisPHA; Text[250])
         {
-            Description = 'MFU';
+
         }
         field(50509; BASPDFPfadEKPHA; Text[250])
         {
-            Description = 'DKO';
+
         }
     }
 }

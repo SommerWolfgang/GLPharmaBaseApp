@@ -185,37 +185,29 @@ tableextension 50015 BASPurchaseLineExtPHA extends "Purchase Line"
         {
 
         }
-        field(50583; "BASWertkorrektur zu ArtikelpostenPHA"; Integer)
+        field(50583; BASValueCorrItemLedgEntryPHA; Integer)
         {
-
         }
-        field(50584; "BASZuordnung zu Artikelnr.PHA"; Code[20])
+        field(50584; BASAssignItemNoPHA; Code[20])
         {
-
             TableRelation = Item;
-
             trigger OnValidate()
             begin
-                //-LAN010
-                // "Wertkorrektur zu Artikelposten" := 0;
                 Wertgutschrift();
-                //+LAN010
             end;
         }
         field(50585; BASBeschreibungLangPHA; BLOB)
         {
-            Description = 'MFU';
+
         }
 
         field(50587; BASExpirationDateDMPHA; Text[6])
         {
-            Description = 'GL015,EUHUB';
             Numeric = true;
             Width = 6;
-
             trigger OnValidate()
             begin
-                CheckExpDate(); //GL015
+                CheckExpDate();
             end;
         }
     }

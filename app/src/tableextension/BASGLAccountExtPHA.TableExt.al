@@ -4,7 +4,7 @@ tableextension 50008 BASGLAccountExtPHA extends "G/L Account"
     {
         field(50002; BASAufteilungscodePHA; Code[10])
         {
-            Description = 'KSAUF';
+
         }
         field(50064; "BASName 2PHA"; Text[30])
         {
@@ -24,7 +24,7 @@ tableextension 50008 BASGLAccountExtPHA extends "G/L Account"
         }
         field(50069; "BASKORE relevantPHA"; Boolean)
         {
-            Description = 'MFU';
+
         }
     }
 }

@@ -31,77 +31,77 @@ tableextension 50031 BASInventorySetupExtPHA extends "Inventory Setup"
         field(50001; BASEtikettendruckPHA; Option)
         {
             Caption = 'Label Printing';
-            Description = 'Petsch';
+
             OptionCaption = 'at shipment,at picking-list';
             OptionMembers = "bei Lieferschein","bei Kommissionierschein";
         }
         field(50002; BASEtikettenstilPHA; Option)
         {
-            Description = 'Petsch';
+
             OptionCaption = 'with company-header,without company header';
             OptionMembers = "mit Firmenkopf","ohne Firmenkopf";
         }
         field(50003; BASEtikettenanzahlPHA; Integer)
         {
-            Description = 'Petsch';
+
         }
         field(50004; "BASEK-Warnung kein Art.lief.preisPHA"; Boolean)
         {
-            Description = 'Petsch';
+
         }
         field(50005; BASEtikettendruckerPHA; Option)
         {
-            Description = 'Petsch';
+
             OptionMembers = Matrixdrucker,Laserdrucker,Thermotransferdrucker;
         }
         field(50006; "BASPacking List Nos.PHA"; Code[10])
         {
-            Description = 'Petsch';
+
             TableRelation = "No. Series";
         }
         field(50500; BASSuchtgiftlagerortcodePHA; Code[10])
         {
-            Description = 'LAN1.00';
+
             TableRelation = Location;
         }
         field(50501; BASVerkaufslagerortcodePHA; Code[10])
         {
-            Description = 'LAN1.00';
+
             TableRelation = Location;
         }
         field(50502; BASRohstoffchargennummernPHA; Code[10])
         {
-            Description = 'LAN1.00';
+
             TableRelation = "No. Series";
         }
         field(50503; BASKonsignationslagerortcodePHA; Code[10])
         {
-            Description = 'LAN1.00';
+
             TableRelation = Location;
         }
         field(50504; BASKonsignationslagerfachcodePHA; Code[10])
         {
-            Description = 'LAN1.00';
+
             TableRelation = Bin.Code where("Location Code" = FIELD(Konsignationslagerortcode));
         }
         field(50505; "BASLagerbestand vor Ort FilterPHA"; Code[20])
         {
-            Description = 'Petsch';
+
         }
         field(50506; "BASLS Kopie bei Kommiss.PHA"; Integer)
         {
-            Description = 'Petsch';
+
             InitValue = 0;
             TableRelation = AllObj."Object ID" where("Object Type" = const(Report));
         }
         field(50507; BASBereitstellungslagerortcodePHA; Code[10])
         {
-            Description = 'Petsch';
+
         }
         field(50508; BASKommscheinPHA; Integer)
         {
             Caption = 'KommscheinObjekt';
-            Description = 'Petsch';
+
             InitValue = 0;
             TableRelation = AllObj."Object ID" where("Object Type" = const("Report"));
         }

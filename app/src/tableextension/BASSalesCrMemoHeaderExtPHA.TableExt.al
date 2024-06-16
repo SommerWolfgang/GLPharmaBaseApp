@@ -48,15 +48,15 @@ tableextension 50022 BASSalesCrMemoHeaderExtPHA extends "Sales Cr.Memo Header"
         field(50003; "BASinvoice copiesPHA"; Integer)
         {
             Caption = 'Invoice Copies';
-            Description = 'Petsch';
+
         }
         field(50004; BASAuftragsnummerPHA; Code[20])
         {
-            Description = 'MFU';
+
         }
         field(50005; BASFirmenkopfPHA; Code[10])
         {
-            Description = 'Fürbaß';
+
         }
         field(50006; BASPDFDruckPHA; Boolean)
         {
@@ -73,7 +73,7 @@ tableextension 50022 BASSalesCrMemoHeaderExtPHA extends "Sales Cr.Memo Header"
         }
         field(50022; BASKorrekturgrund_ZSMOPLPHA; Text[30])
         {
-            Description = 'MFU';
+
         }
         field(50023; "BASSell-to Address 3PHA"; Text[50])
         {
@@ -89,24 +89,24 @@ tableextension 50022 BASSalesCrMemoHeaderExtPHA extends "Sales Cr.Memo Header"
         }
         field(50026; BASKundenBetriebsnummerPHA; Code[10])
         {
-            Description = 'MFU';
+
         }
         field(50027; BASGLBetriebsnummerPHA; Code[10])
         {
-            Description = 'MFU';
+
         }
         field(50028; BASKundenBetriebsnummerGHPHA; Code[10])
         {
-            Description = 'MFU';
+
         }
         field(50500; BASWertgutschriftPHA; Boolean)
         {
-            Description = 'LAN1.00';
+
         }
         field(50501; "BASBill-to CodePHA"; Code[10])
         {
             Caption = 'Bill-to Code';
-            Description = 'LAN1.00';
+
             TableRelation = "Ship-to Address".Code where("Customer No." = FIELD("Bill-to Customer No."));
         }
         field(50504; BASStornoMitRechNrPHA; Code[150])
@@ -114,19 +114,19 @@ tableextension 50022 BASSalesCrMemoHeaderExtPHA extends "Sales Cr.Memo Header"
         }
         field(50506; BASEinFuhrBewilligungsNrPHA; Text[150])
         {
-            Description = 'MFU';
+
         }
         field(50507; BASAusFuhrBewilligungsNrPHA; Text[150])
         {
-            Description = 'MFU';
+
         }
         field(50508; BASExport_MengenimportPHA; Boolean)
         {
-            Description = 'MFU';
+
         }
         field(50601; BASSammelrechnungstypPHA; Option)
         {
-            Description = 'LAN1.00';
+
             OptionMembers = "Pro Auftrag","Pro Tag",ProWoche,"Pro Monat";
         }
     }

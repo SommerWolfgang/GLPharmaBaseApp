@@ -20,7 +20,7 @@ tableextension 50030 BASShipToAdressExtPHA extends "Ship-to Address"
         field(50000; "BASVAT Registration No.PHA"; Text[25])
         {
             Caption = 'VAT Registration No.';
-            Description = 'CCU580';
+
         }
         field(50023; "BASAddress 3PHA"; Text[50])
         {

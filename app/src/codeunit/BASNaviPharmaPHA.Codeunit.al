@@ -209,6 +209,7 @@ codeunit 50001 BASNaviPharmaPHA
         Item: Record Item;
         ManufacturingSetup: Record "Manufacturing Setup";
         DummyDate: Date;
+        ExpirationDate: Date;
         Month: Integer;
         nMonat: Integer;
         Year: Integer;
@@ -240,12 +241,12 @@ codeunit 50001 BASNaviPharmaPHA
 
                 if DummyDate <> 0D then
                     if Format(Item."Expiration Calculation") <> '' then begin
-                        ablaufdatum := CalcDate('<+' + Format(Item."Expiration Calculation") + '>', DummyDate);
-                        //IF CalcDate('+24M',dHilf) >= ablaufdatum THEN  diese zeile nicht bei gerotschen artikeln
-                        ablaufdatum := CalcDate('<+1M>', ablaufdatum); //Artikel unter 24 Monate Laufzeit bis letzten des lauf. Monats
-                        ablaufdatum := DMY2Date(1, Date2DMY(ablaufdatum, 2), Date2DMY(ablaufdatum, 3)); //Monatsletzten errechnen
-                        ablaufdatum := CalcDate('<+2M>', ablaufdatum); //Monatsletzten errechnen
-                        ablaufdatum := CalcDate('<-1D>', ablaufdatum); //Monatsletzten errechnen
+                        ExpirationDate := CalcDate('<+' + Format(Item."Expiration Calculation") + '>', DummyDate);
+                        ExpirationDate := CalcDate('<+1M>', ExpirationDate);
+                        ExpirationDate := CalcDate('<CW>', ExpirationDate);
+                        ExpirationDate := CalcDate('<+2M>', ExpirationDate);
+                        ExpirationDate := CalcDate('<-1D>', ExpirationDate);
+                        exit(ExpirationDate);
                     end else
                         MESSAGE('Keine Haltbarkeitsformel in der Artikelkarte hinterlegt!');
             end;
@@ -253,26 +254,26 @@ codeunit 50001 BASNaviPharmaPHA
 
     procedure AblaufDatumPlausibel(sArtikelnummer: Text[20]; dtDate: Date) bResult: Boolean
     var
-        recItem: Record Item;
+        Item: Record Item;
         dtHelp: Date;
         dtHelpToday: Date;
     begin
-
         bResult := false;
-        if dtDate = 0D then exit(true);
+        if dtDate = 0D then
+            exit(true);
+
         if dtDate <= TODAY then begin
             MESSAGE('Das Ablaufdatum muss in der Zukunft liegen!\Das Datum wird zurückgesetzt.');
             exit;
         end;
-        if not recItem.Get(sArtikelnummer) then exit;
-        if (Format(recItem."Expiration Calculation") <> '') then begin
-            //-GL021
-            //Neu:
-            dtHelp := CalcDate('<-' + Format(recItem."Expiration Calculation") + '>', dtDate);
-            dtHelpToday := CalcDate('+LM', TODAY); //Auf Monatsletzten setzen
-                                                   //ORG:  IF (CalcDate('<-' + Format(recItem."Expiration Calculation")+'>', dtDate) > TODAY) THEN
-                                                   //+GL021
-            if (dtHelp > dtHelpToday) then begin
+
+        if not Item.Get(sArtikelnummer) then
+            exit;
+
+        if Format(Item."Expiration Calculation") <> '' then begin
+            dtHelp := CalcDate('<-' + Format(Item."Expiration Calculation") + '>', dtDate);
+            dtHelpToday := CalcDate('<+LM>', Today);
+            if dtHelp > dtHelpToday then begin
                 MESSAGE('Gemäß der Ablaufdatumsformel würde das Herstelldatum in der Zukunft liegen! Das kann nicht sein.\' +
                   'Das Datum wird zurückgesetzt.');
                 exit;
@@ -328,83 +329,60 @@ codeunit 50001 BASNaviPharmaPHA
             end;
     end;
 
-    procedure LagerStandFrei(artikelnummer: Code[20]) mengefrei: Decimal
+    procedure InventoryAvailable(ItemNo: Code[20]): Decimal
     var
         item: Record Item;
         LotNoInformation: Record "Lot No. InFormation";
+        AvailableQuantity: Decimal;
         Total: Decimal;
     begin
-        if item.Get(artikelnummer) then begin
-            item.CALCFIELDS(Inventory);
-            mengefrei := item.Inventory;
+        if item.Get(ItemNo) then begin
+            item.CalcFields(Inventory);
+            AvailableQuantity := item.Inventory;
         end;
-        LotNoInformation.SetFilter("Item No.", artikelnummer);
-        Total := LotNoInformation.COUNT();
+
+        LotNoInformation.SetFilter("Item No.", ItemNo);
+        Total := LotNoInformation.Count();
         if Total = 0 then
-            exit(0);
-        //-GL031
-        //chargenstamm.SetCurrentKey(Status,"Item No.","Lot No.");
-        //chargenstamm.SetFilter(Status,'Frei');
-        //nFrei := chargenstamm.COUNT();
-        //IF nFrei / nGesamt > 0.8 THEN BEGIN
-        //  chargenstamm.SetFilter(Status,'<>Frei');
-        //  chargenstamm.SetFilter(Inventory,'>0');
-        //  IF chargenstamm.FindSet() THEN
-        //     REPEAT
-        //       chargenstamm.CALCFIELDS(Inventory);
-        //       mengefrei := mengefrei - chargenstamm.Inventory;
-        //     UNTIL chargenstamm.NEXT = 0;
-        //END ELSE BEGIN
-        //  chargenstamm.SetFilter(Status,'=Frei');
-        //  chargenstamm.SetFilter(Inventory,'>0');
-        //  mengefrei := 0;
-        //  IF chargenstamm.FindSet() THEN
-        //     REPEAT
-        //       chargenstamm.CALCFIELDS(Inventory);
-        //       mengefrei := mengefrei + chargenstamm.Inventory;
-        //     UNTIL chargenstamm.NEXT = 0;
-        //END;
-        //+GL031
-        //-GL031 Ohne Duallogik:
-        LotNoInformation.SetFilter("Item No.", artikelnummer);
-        LotNoInformation.SetFilter(Status, '=Frei');
+            exit(Total);
+
+        LotNoInformation.SetAutoCalcFields(Inventory);
+        LotNoInformation.SetFilter("Item No.", ItemNo);
+        LotNoInformation.SetRange(BASStatusPHA, LotNoInformation.BASStatusPHA::Free);
         LotNoInformation.SetFilter(Inventory, '>0');
-        //GL-030
         LotNoInformation.SetFilter("Location Filter", '<>W-RÜL & <>W-GESPERRT & <>W-PE & <>W-ANALYTIK');
-        //GL+030
-        mengefrei := 0;
-        if LotNoInformation.FindSet() then begin
-            //mengefrei := 0;
+        if LotNoInformation.FindSet() then
             repeat
-                LotNoInformation.CALCFIELDS(Inventory);
-                mengefrei := mengefrei + LotNoInformation.Inventory;
-            until LotNoInformation.NEXT() = 0;
-        end;
-        //+GL031
+                AvailableQuantity += LotNoInformation.Inventory;
+            until LotNoInformation.Next() = 0;
+
+        exit(AvailableQuantity);
     end;
 
-    procedure LagerStandGesperrt(artikelnummer: Code[20]) mengegesperrt: Decimal
+    procedure InventoryBlocked(ItemNo: Code[20]): Decimal
     var
-        artikel: Record Item;
-        chargenstamm: Record "Lot No. InFormation";
+        LotNoInformation: Record "Lot No. InFormation";
+        BlockedQuantity: Decimal;
     begin
-        chargenstamm.SetCurrentKey(Status, "Item No.", "Lot No.");
-        chargenstamm.SetRange("Item No.", artikelnummer);
-        chargenstamm.SetRange(Status, chargenstamm.Status::Gesperrt);
-        if chargenstamm.FindSet() then
+        LotNoInformation.SetCurrentKey(BASStatusPHA, "Item No.", "Lot No.");
+        LotNoInformation.SetRange("Item No.", ItemNo);
+        LotNoInformation.SetRange(BASStatusPHA, LotNoInformation.BASStatusPHA::Blocked);
+        if LotNoInformation.FindSet() then
             repeat
-                chargenstamm.CALCFIELDS(Inventory);
-                mengegesperrt += chargenstamm.Inventory;
-            until chargenstamm.NEXT() = 0;
+                LotNoInformation.CalcFields(Inventory);
+                BlockedQuantity += LotNoInformation.Inventory;
+            until LotNoInformation.Next() = 0;
+
+        exit(BlockedQuantity);
     end;
 
-    procedure DatumsFilterVorjahr(datumsstring: Text[30]) neuerstring: Text[30]
+    procedure DateFilterPreviousYear(DateString: Text[30]): Text[30]
     var
-        artikel: Record Item;
+        Item: Record Item;
     begin
-        artikel.SetFilter("Date Filter", datumsstring);
-        neuerstring := Format(CalcDate('<-1Y>', artikel.GETRANGEMIN("Date Filter"))) + '..'
-                             + Format(CalcDate('<-1Y>', artikel.GETRANGEMAX("Date Filter")));
+        Item.SetFilter("Date Filter", DateString);
+        exit(Format(CalcDate('<-1Y>', Item.GetRangeMin("Date Filter"))) + '..' +
+                Format(CalcDate('<-1Y>', Item.GetRangeMax("Date Filter"))));
     end;
 
     procedure Permission(Action: Code[20]) ok: Boolean
@@ -500,106 +478,96 @@ codeunit 50001 BASNaviPharmaPHA
         evaluate(result, sResult);
     end;
 
-    procedure "PrüfeUnterstufeFrei"(sItemNr: Text[20]; sLotNr: Text[20]; bBulkOnly: Boolean; bLoop: Boolean; bWarnings: Boolean) bResult: Boolean
+    procedure "PrüfeUnterstufeFrei"(ItemNo: Text[20]; LotNo: Code[50]; BulkOnly: Boolean; Loop: Boolean; Warnings: Boolean): Boolean
     var
-        recItem: Record Item;
-        recItemLedgerEntry: Record "Item Ledger Entry";
-        recLotNoInFormation: Record "Lot No. InFormation";
-        bBulk: Boolean;
-        bCheck: Boolean;
-        sProdOrderNr: Text[20];
+        Item: Record Item;
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        LotNoInFormation: Record "Lot No. InFormation";
+        Bulk: Boolean;
+        Check: Boolean;
+        Result: Boolean;
+        ProdOrderNo: Text[20];
+        InfoTestMsg: Label '', comment = 'DEA="Die Prüfung des Status der Unterstufen wurde abgebrochen, da für Charge ''%1'' des ' +
+                                'Artikels ''%2'' keine Istmeldungsposten vorhanden sind! Dies deutet darauf hin, dass die Charge ''%1'' nicht ' +
+                                    'im Haus gefertigt wurde. Das System lässt die Freigabe daher ohne weitere Prüfung dieser Unterstufe zu."';
+        InfoTest2Msg: Label '', comment = 'DEA="Die Prüfung des Status der Unterstufen wurde abgebrochen, da für Charge ''%1'' des ' +
+                                'Artikels ''%2'' keine Herstellposten vorhanden sind! Das System lässt die Freigabe daher ohne Unterstufenprüfung zu.';
+        FreeChargeNotPosibleErr: Label '', comment = 'DEA="Die Freigabe der Charge ''%1'' des Artikels ''%2'' kann nicht gestattet werden, da ' +
+                                'mehrere Istmeldungen mit unterschiedlichen Fertigungsauftragsnummern verbucht sind. Bitte melden Sie diesen ' +
+                                    'Fehler dringend der obersten Qualitätssicherung!"';
     begin
-        recItemLedgerEntry.SetCurrentKey("Item No.", "Lot No.", "Posting Date");
-        recItemLedgerEntry.SetFilter("Lot No.", sLotNr);
-        recItemLedgerEntry.SetFilter("Item No.", sItemNr);
-        recItemLedgerEntry.SetRange("Entry Type", recItemLedgerEntry."Entry Type"::Output);
-        if not recItemLedgerEntry.FindSet() then begin
-            recItem.Get(sItemNr);
-            if (recItem."Replenishment System" = recItem."Replenishment System"::"Prod. Order") and
-                bWarnings then
-                MESSAGE('Die Prüfung des Status der Unterstufen wurde abgebrochen, da für Charge ''%1'' des ' +
-'Artikels ''%2'' keine Istmeldungsposten vorhanden sind! Dies deutet darauf hin, dass die Charge ''%1'' nicht ' +
-'im Haus gefertigt wurde. Das System lässt die Freigabe daher ohne weitere Prüfung dieser Unterstufe zu.',
-sLotNr, sItemNr);
+        ItemLedgerEntry.SetCurrentKey("Item No.", "Lot No.", "Posting Date");
+        ItemLedgerEntry.SetFilter("Lot No.", LotNo);
+        ItemLedgerEntry.SetFilter("Item No.", ItemNo);
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Output);
+        if not ItemLedgerEntry.FindSet() then begin
+            Item.Get(ItemNo);
+            if (Item."Replenishment System" = Item."Replenishment System"::"Prod. Order") and Warnings then
+                Message(InfoTestMsg, LotNo, ItemNo);
+
             exit(true);
         end;
 
-        sProdOrderNr := recItemLedgerEntry."Order No.";
-        if recItemLedgerEntry.COUNT > 1 then
+        ProdOrderNo := ItemLedgerEntry."Order No.";
+        if ItemLedgerEntry.Count > 1 then
             repeat
-                if sProdOrderNr <> recItemLedgerEntry."Order No." then begin
-                    if bWarnings then
-                        Error('Die Freigabe der Charge ''%1'' des Artikels ''%2'' kann nicht gestattet werden, da ' +
-        'mehrere Istmeldungen mit unterschiedlichen Fertigungsauftragsnummern verbucht sind. Bitte melden Sie diesen ' +
-        'Fehler dringend der obersten Qualitätssicherung! ', recItemLedgerEntry."Lot No.", recItemLedgerEntry."Item No.");
-                end;
-            until recItemLedgerEntry.NEXT() = 0;
+                if ProdOrderNo <> ItemLedgerEntry."Order No." then
+                    if Warnings then
+                        Error(FreeChargeNotPosibleErr, ItemLedgerEntry."Lot No.", ItemLedgerEntry."Item No.");
+            until ItemLedgerEntry.Next() = 0;
 
-        recItemLedgerEntry.RESET();
-        //+GL005
-        //recArtikelposten.SetCurrentKey("Prod. Order No.","Prod. Order Line No.","Prod. Order Comp. Line No.","Entry Type");
-        recItemLedgerEntry.SetCurrentKey("Order Type", "Order No.", "Order Line No.", "Entry Type", "Prod. Order Comp. Line No.");
-        //-GL005
-        recItemLedgerEntry.SetRange("Order Type", recItemLedgerEntry."Order Type"::Production);
-        recItemLedgerEntry.SetFilter("Order No.", sProdOrderNr);
-        recItemLedgerEntry.SetRange("Entry Type", recItemLedgerEntry."Entry Type"::Consumption);
-        recItemLedgerEntry.SetFilter("Source No.", sItemNr);
-        recItemLedgerEntry.SetFilter("Item No.", '<>TA*');      //GL022
-        if not recItemLedgerEntry.FindSet() then begin
-            if bWarnings then
-                MESSAGE('Die Prüfung des Status der Unterstufen wurde abgebrochen, da für Charge ''%1'' des ' +
-'Artikels ''%2'' keine Herstellposten vorhanden sind! Das System lässt die Freigabe daher ohne Unterstufenprüfung zu.',
-recItemLedgerEntry."Lot No.", recItemLedgerEntry."Item No.");
+        ItemLedgerEntry.Reset();
+        ItemLedgerEntry.SetCurrentKey("Order Type", "Order No.", "Order Line No.", "Entry Type", "Prod. Order Comp. Line No.");
+        ItemLedgerEntry.SetRange("Order Type", ItemLedgerEntry."Order Type"::Production);
+        ItemLedgerEntry.SetFilter("Order No.", ProdOrderNo);
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Consumption);
+        ItemLedgerEntry.SetFilter("Source No.", ItemNo);
+        ItemLedgerEntry.SetFilter("Item No.", '<>TA*');      //GL022
+        if not ItemLedgerEntry.FindSet() then begin
+            if Warnings then
+                Message(InfoTest2Msg, ItemLedgerEntry."Lot No.", ItemLedgerEntry."Item No.");
             exit(true);
         end;
 
-        bCheck := false;
-        //+GL007
-        bResult := true;
-        //-GL007
-        //+GL008
+        Check := false;
+
         repeat
-            recItem.Get(recItemLedgerEntry."Item No.");
-            bBulk := recItem.BASItemTypePHA = recItem.BASItemTypePHA::"Semifinished Product";
+            Item.Get(ItemLedgerEntry."Item No.");
+            Bulk := Item.BASItemTypePHA = Item.BASItemTypePHA::"Semifinished Product";
 
-            if ((not bBulkOnly) or (bBulk and bBulkOnly)) and (recItem."Item Tracking Code" <> '') then   //GL007 Tracking Code ergänzt
-            begin
-                bCheck := true;
-                if recItem."Als Unterstufe nicht prüfen" then
-                    bResult := true
+            if ((not BulkOnly) or (Bulk and BulkOnly)) and (Item."Item Tracking Code" <> '') then begin
+                Check := true;
+                if Item."Als Unterstufe nicht prüfen" then
+                    Result := true
                 else begin
-                    recLotNoInFormation.SetFilter("Item No.", recItemLedgerEntry."Item No.");
-                    recLotNoInFormation.SetFilter("Lot No.", recItemLedgerEntry."Lot No.");
-                    recLotNoInFormation.FindSet();
-                    bResult := recLotNoInFormation.Status = recLotNoInFormation.Status::Frei;
-                    if not bResult and bWarnings then
-                        MESSAGE('Charge %1 von Artikel %2 ist nicht freigegeben!',
-recItemLedgerEntry."Lot No.", recItemLedgerEntry."Item No.");
-                    //-GL026
-                    if recLotNoInFormation."HF Kommentar" <> '' then
-                        if not CONFIRM('Kommentar bei %1:\\%2\\Freigabe fortsetzen?', false, recItemLedgerEntry."Item No.", recLotNoInFormation."HF Kommentar") then
-                            Error('Freigabe aufgrund von HF Kommentar abgebrochen');
-                    //+GL026
+                    LotNoInFormation.SetFilter("Item No.", ItemLedgerEntry."Item No.");
+                    LotNoInFormation.SetFilter("Lot No.", ItemLedgerEntry."Lot No.");
+                    Result := LotNoInFormation.FindFirst();
+                    if Result then
+                        Result := LotNoInFormation.BASStatusPHA = LotNoInFormation.BASStatusPHA::Free;
 
+                    if not Result and Warnings then
+                        Message('Charge %1 von Artikel %2 ist nicht freigegeben!', ItemLedgerEntry."Lot No.", ItemLedgerEntry."Item No.");
+                    if LotNoInFormation.BASHFCommentPHA <> '' then
+                        if not CONFIRM('Kommentar bei %1:\\%2\\Freigabe fortsetzen?', false, ItemLedgerEntry."Item No.", LotNoInFormation."HF Kommentar") then
+                            Error('Freigabe aufgrund von HF Kommentar abgebrochen');
                 end;
 
-                if bResult and bBulk and bLoop then
-
-                    //-GL010
-                    if (sItemNr <> recItemLedgerEntry."Item No.") or (sLotNr <> recItemLedgerEntry."Lot No.") then
-                        bResult := PrüfeUnterstufeFrei(recItemLedgerEntry."Item No.", recItemLedgerEntry."Lot No.", bBulkOnly, bLoop, bWarnings)
+                if Result and Bulk and Loop then
+                    if (ItemNo <> ItemLedgerEntry."Item No.") or (LotNo <> ItemLedgerEntry."Lot No.") then
+                        Result := PrüfeUnterstufeFrei(ItemLedgerEntry."Item No.", ItemLedgerEntry."Lot No.", BulkOnly, Loop, Warnings)
                     else
-                        if bWarnings then
+                        if Warnings then
                             MESSAGE('Istmeldung und Verbrauchsbuchung zu gleichem Artikel in einem FA vorhanden! Unterstufenprüfung abgebrochen!');
                 //+GL010
 
             end;
-        until (recItemLedgerEntry.NEXT() = 0) or (not bResult);
+        until (ItemLedgerEntry.Next() = 0) or (not bResult);
         //-GL008
 
-        if bBulkOnly and not bCheck then begin
+        if BulkOnly and not Check then begin
             bResult := true;
-            if bWarnings then
+            if Warnings then
                 MESSAGE('Da in den Stücklisten kein Bulk enthalten ist, wurde keine Unterstufencharge auf ihren ' +
 'Status überprüft! Das System lässt die Freigabe daher ohne Unterstufenprüfung zu.');
         end;
@@ -651,7 +619,7 @@ recItemLedgerEntry."Lot No.", recItemLedgerEntry."Item No.");
         LotNoInformation.ChangeCompany('LANNACHER');
 
         if Item.Get(ItemNo) then begin
-            Item.CALCFIELDS(Inventory);
+            Item.CalcFields(Inventory);
             AvailableQuantity := Item.Inventory;
         end;
         LotNoInformation.SetCurrentKey("Item No.", "Variant Code", "Lot No.");
@@ -662,7 +630,7 @@ recItemLedgerEntry."Lot No.", recItemLedgerEntry."Item No.");
             repeat
                 LotNoInformation.CalcFields(Inventory);
                 AvailableQuantity -= LotNoInformation.Inventory;
-            until LotNoInformation.NEXT() = 0;
+            until LotNoInformation.Next() = 0;
 
         exit(AvailableQuantity);
     end;
@@ -769,7 +737,7 @@ recItemLedgerEntry."Lot No.", recItemLedgerEntry."Item No.");
                 LotNoInformation.SetFilter("Lot No.", ItemLedgerEntry."Lot No.");
                 if not LotNoInformation.IsEmpty then
                     AvailableQuantity += ItemLedgerEntry."Remaining Quantity";
-            until ItemLedgerEntry.NEXT() = 0;
+            until ItemLedgerEntry.Next() = 0;
 
         exit(AvailableQuantity);
     end;
@@ -837,7 +805,7 @@ recItemLedgerEntry."Lot No.", recItemLedgerEntry."Item No.");
             if recBin.FindFirst() then
                 repeat
 
-                    recBin.CALCFIELDS(Quantity, "Quantity (Base)");
+                    recBin.CalcFields(Quantity, "Quantity (Base)");
                     if recBin."Quantity (Base)" > 0 then begin
                         CLEAR(recTmpILE);
                         recTmpILE."Item No." := recBin."Item No.";
@@ -849,7 +817,7 @@ recItemLedgerEntry."Lot No.", recItemLedgerEntry."Item No.");
                         recTmpILE.INSERT();
                     end;
 
-                until (recBin.NEXT() = 0);
+                until (recBin.Next() = 0);
 
         end else begin
 
@@ -871,7 +839,7 @@ recItemLedgerEntry."Lot No.", recItemLedgerEntry."Item No.");
                     nCount += 1;
                     recTmpILE.INSERT();
 
-                until (recILE.NEXT() = 0);
+                until (recILE.Next() = 0);
 
         end;
     end;
@@ -903,7 +871,7 @@ recItemLedgerEntry."Lot No.", recItemLedgerEntry."Item No.");
                             if recBin.FindFirst() = false then
                                 bVorhanden := true;
                         end;
-                until (recLotVergleich.NEXT() = 0) or (bVorhanden = true);
+                until (recLotVergleich.Next() = 0) or (bVorhanden = true);
         end;
         //+GL036
     end;
@@ -918,7 +886,7 @@ recItemLedgerEntry."Lot No.", recItemLedgerEntry."Item No.");
         cItemNoReturn := '';
         if recItem_.Get(sItemNo) then begin
 
-            recItem_.CALCFIELDS("Substitutes Exist");
+            recItem_.CalcFields("Substitutes Exist");
             if recItem_."Substitutes Exist" = true then begin
                 recItemSubstitution.SetRange("No.", recItem_."No.");
                 if recItemSubstitution.FindFirst() then

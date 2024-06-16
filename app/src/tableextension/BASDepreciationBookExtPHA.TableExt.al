@@ -18,31 +18,31 @@ tableextension 50051 BASDepreciationBookExtPHA extends "Depreciation Book"
     // ------------------------------------------------------------------------------------------------------------------------------------
     fields
     {
-        field(50000; "BASAfa von WiederbeschaffungswertPHA"; Boolean)
+        field(50000; BASReplacmentAfaValuePHA; Boolean)
         {
-            Description = 'Petsch';
+
         }
-        field(50001; "BASIndexierung unter 0 zulassenPHA"; Boolean)
+        field(50001; BASAllowIndexUnderNull; Boolean)
         {
-            Description = 'Petsch';
+
         }
-        field(50002; "BASForce AFA below ZeroPHA"; Boolean)
+        field(50002; BASForceAfaBelowZeroPHA; Boolean)
         {
-            Description = 'Petsch';
+
         }
-        field(50003; "BASKORE Integration DepreciationPHA"; Boolean)
+        field(50003; BASKOREIntegrationDeprPHA; Boolean)
         {
             Caption = 'G/L Integration - Depreciation';
-            Description = 'MFU';
+
         }
         field(50004; BASBlockedPHA; Boolean)
         {
             Caption = 'Gesperrt';
-            Description = 'MFU';
+
         }
         field(50005; "BASAfa bis doppelte NutzungsdauerPHA"; Boolean)
         {
-            Description = 'MFU';
+
         }
     }
 }
