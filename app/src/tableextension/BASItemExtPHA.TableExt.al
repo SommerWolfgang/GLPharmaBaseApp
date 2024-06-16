@@ -640,15 +640,15 @@ tableextension 50009 BASItemExtPHA extends Item
 
     procedure LagerstandLannach(itemno: Code[20]) lagerstand: Decimal
     var
-        recitem: Record Item;
+        Item: Record Item;
         recManufacturingSetup: Record "Manufacturing Setup";
     begin
         //-GL001
-        if recitem.Get(itemno) then begin
+        if Item.Get(itemno) then begin
             if recManufacturingSetup.Get('LANNACH') then;
-            // recitem.SetFilter("Location Filter", recManufacturingSetup."Lagerbestand vor Ort Filter");
-            recitem.CalcFields(recitem.Inventory);
-            lagerstand := recitem.Inventory;
+            // Item.SetFilter("Location Filter", recManufacturingSetup."Lagerbestand vor Ort Filter");
+            Item.CalcFields(Item.Inventory);
+            lagerstand := Item.Inventory;
         end;
         //+GL001
     end;
@@ -662,7 +662,7 @@ tableextension 50009 BASItemExtPHA extends Item
     begin
         if Item.Get(itemNo) then begin
             if ManufacturingSetup.Get('WIEN') then;
-            // recitem.SetFilter("Location Filter", recManufacturingSetup."Lagerbestand vor Ort Filter");
+            // Item.SetFilter("Location Filter", recManufacturingSetup."Lagerbestand vor Ort Filter");
             Item.CalcFields(Item.Inventory);
             exit(Item.Inventory);
         end;
@@ -687,8 +687,8 @@ tableextension 50009 BASItemExtPHA extends Item
         SalesPrice.SetFilter("Item No.", artikelnummer);
         SalesPrice.SetRange("Sales Type", SalesPrice."Sales Type"::"Customer Price Group");
         SalesPrice.SetFilter("Sales Code", '1FAP');
-        SalesPrice.SetFilter("Starting Date", '..' + FORMAT(TODAY));
-        SalesPrice.SetFilter("Ending Date", '(' + FORMAT(TODAY) + '..)|''''');
+        SalesPrice.SetFilter("Starting Date", '..' + Format(TODAY));
+        SalesPrice.SetFilter("Ending Date", '(' + Format(TODAY) + '..)|''''');
         if SalesPrice.FindLast() then
             SalesPrice.SetRange("Starting Date", SalesPrice."Starting Date");
 
@@ -728,7 +728,7 @@ tableextension 50009 BASItemExtPHA extends Item
         SalesPrice.SetFilter("Item No.", ItemNo);
         SalesPrice.SetRange("Sales Type", SalesPrice."Sales Type"::"Customer Price Group");
         SalesPrice.SetFilter("Sales Code", '9HK');
-        SalesPrice.SetFilter("Starting Date", '<' + FORMAT(CalculationDate));
+        SalesPrice.SetFilter("Starting Date", '<' + Format(CalculationDate));
         SalesPrice.SetRange("Currency Code", '');
         if SalesPrice.FindLast() then
             exit(SalesPrice."Unit Price");
@@ -740,8 +740,8 @@ tableextension 50009 BASItemExtPHA extends Item
         SalesPrice.SetFilter("Item No.", ItemNo);
         SalesPrice.SetRange("Sales Type", SalesPrice."Sales Type"::"Customer Price Group");
         SalesPrice.SetFilter("Sales Code", '1FAP');
-        SalesPrice.SetFilter("Starting Date", '..' + FORMAT(TODAY));
-        SalesPrice.SetFilter("Ending Date", '(' + FORMAT(TODAY) + '..)|''''');
+        SalesPrice.SetFilter("Starting Date", '..' + Format(TODAY));
+        SalesPrice.SetFilter("Ending Date", '(' + Format(TODAY) + '..)|''''');
         if SalesPrice.FindLast() then begin
             SalesPrice.SetRange("Starting Date", SalesPrice."Starting Date");
             if SalesPrice.FindLast() then
@@ -760,7 +760,7 @@ tableextension 50009 BASItemExtPHA extends Item
         SalesPrice.SetFilter("Item No.", ItemNo);
         SalesPrice.SetRange("Sales Type", SalesPrice."Sales Type"::"Customer Price Group");
         SalesPrice.SetFilter("Sales Code", '1FAP');
-        SalesPrice.SetFilter("Starting Date", '..' + FORMAT(CalculateDate));
+        SalesPrice.SetFilter("Starting Date", '..' + Format(CalculateDate));
         if SalesPrice.FindLast() then
             UnitPrice := SalesPrice."Unit Price"
         else begin
@@ -773,7 +773,7 @@ tableextension 50009 BASItemExtPHA extends Item
         // if SalesPrice.IsEmpty() then
         //     if SalesPrice."Currency Code" <> '' then begin
         //         CurrencyExchangeRate.SetRange("Currency Code", SalesPrice."Currency Code");
-        //         CurrencyExchangeRate.SetFilter("Starting Date", '..' + FORMAT(CalculateDate));
+        //         CurrencyExchangeRate.SetFilter("Starting Date", '..' + Format(CalculateDate));
         //         if CurrencyExchangeRate.FindLast() then
         //             UnitPrice := Round(
         //                 "Unit Price" / CurrencyExchangeRate."Exchange Rate Amount", 0.00001);

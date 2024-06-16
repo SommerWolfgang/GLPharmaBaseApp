@@ -233,7 +233,7 @@ codeunit 50002 Chargenverwaltung
 
     procedure ChargenstammAnlegen(ItemJnlLine: Record "83")
     var
-        recItem: Record 27;
+        Item: Record 27;
         recPurchLine: Record 39;
         Chargenstamm: Record 6505;
         cuNavipharma: Codeunit 50001;
@@ -263,7 +263,7 @@ codeunit 50002 Chargenverwaltung
                 //ALT
                 //Chargenstamm.Description := STRSUBSTNO('%1 %2; %3',"Entry Type","Document No.","Posting Date");
                 //NEU: im Format 13.01.2017 statt 01/13/17 in Chargenstamm schreiben -> ERST NACH CHANGE AKTIVIEREN
-                Chargenstamm.Description := STRSUBSTNO('%1 %2; %3', "Entry Type", "Document No.", FORMAT("Posting Date", 0, '<day,2>.<month,2>.<year4>'));
+                Chargenstamm.Description := STRSUBSTNO('%1 %2; %3', "Entry Type", "Document No.", Format("Posting Date", 0, '<day,2>.<month,2>.<year4>'));
                 //+GL009
 
                 //-GL008
@@ -301,7 +301,7 @@ codeunit 50002 Chargenverwaltung
                 //+GL004
                 //Auf Wunsch von Dr. Muster wird die Standortweiche über das Lager gestellt
                 IF ("Location Code" <> '') AND (cuNavipharma.StandortWeiche('LOCATION_SITE_MANUFACTURING', "Location Code") = 'WIEN') THEN
-                    IF recItem.GET("Item No.") THEN Chargenstamm."Laetus-Code" := recItem."Laetus-Code";
+                    IF Item.GET("Item No.") THEN Chargenstamm."Laetus-Code" := Item."Laetus-Code";
                 //-GL004
 
                 //-GL011 - Nicht verwendet - Item Journal Line Spalten wurden wieder entfernt.
@@ -345,11 +345,11 @@ codeunit 50002 Chargenverwaltung
     begin
         //-LAN001
         IF Option = Option::BASSalesLotNoPHA THEN
-            IF NOT CONFIRM(Text001, FALSE, ItemLedgEntry.FIELDCAPTION(BASSalesLotNoPHA)) THEN
+            IF NOT Confirm(Text001, FALSE, ItemLedgEntry.FIELDCAPTION(BASSalesLotNoPHA)) THEN
                 ERROR(Text000);
 
         IF Option = Option::Haltbarkeitsdatum THEN
-            IF NOT CONFIRM(Text001, FALSE, ItemLedgEntry.FIELDCAPTION("Expiration Date")) THEN
+            IF NOT Confirm(Text001, FALSE, ItemLedgEntry.FIELDCAPTION("Expiration Date")) THEN
                 ERROR(Text000);
 
         ItemLedgEntry.SetCurrentKey("Item No.");
@@ -429,7 +429,7 @@ codeunit 50002 Chargenverwaltung
     procedure MakeChargenNr(iChargenArt: Integer; cChargennr: Code[20]; bFertigprodukt: Boolean; cItemNo: Code[20]) cReturnCharge: Code[20]
     var
         recProdOrder: Record "5405";
-        recLotNoInformation: Record "6505";
+        LotNoInformationNoInformation: Record "6505";
         bChargeFound: Boolean;
         chAsciiZeichen: Char;
         iAsciiWert: Integer;
@@ -466,7 +466,7 @@ codeunit 50002 Chargenverwaltung
                 //2009A001 -> 2009A001A, 2009A001-1 -> 2009A001B
                 IF StrLen(cReturnCharge) = 8 THEN BEGIN
                     chAsciiZeichen := 65 + iAsciiWertZusatz;
-                    cReturnCharge := cReturnCharge + FORMAT(chAsciiZeichen);
+                    cReturnCharge := cReturnCharge + Format(chAsciiZeichen);
                 END;
                 IF StrLen(cReturnCharge) > 9 THEN BEGIN
                     //-GL007
@@ -474,7 +474,7 @@ codeunit 50002 Chargenverwaltung
                     EVALUATE(iAsciiWert, CopyStr(cReturnCharge, StrLen(cReturnCharge), 1));
                     //-GL007
                     chAsciiZeichen := 65 + iAsciiWert + iAsciiWertZusatz;  //z.B. aus den 1 ein B machen
-                    cReturnCharge := CopyStr(cReturnCharge, 1, 8) + FORMAT(chAsciiZeichen);
+                    cReturnCharge := CopyStr(cReturnCharge, 1, 8) + Format(chAsciiZeichen);
                 END;
 
                 //Sicherheitsabfragen
@@ -520,8 +520,8 @@ codeunit 50002 Chargenverwaltung
     procedure GetLastChargeNr(cChargennr: Code[20]; cItemNo: Code[20]) cReturnCharge: Code[20]
     var
         recProdOrder: Record "5405";
-        recLotNoInformation: Record "6505";
-        recItem: Record Item;
+        LotNoInformationNoInformation: Record "6505";
+        Item: Record Item;
     begin
         //+017
         //MFU 02.12.2009
@@ -534,20 +534,20 @@ codeunit 50002 Chargenverwaltung
         IF StrLen(cChargennr) = 8 THEN BEGIN
 
             //Die größte Chargennr aus dem Chargenstamm für ein Fertigprodukt holen
-            recLotNoInformation.RESET();
-            recLotNoInformation.SetCurrentKey("Lot No.", "Item No.");
-            recLotNoInformation.SetFilter("Lot No.", cChargennr + '*');
-            recLotNoInformation.SetFilter("Item No.", cItemNo);
-            IF recLotNoInformation.FindSet() THEN BEGIN
+            LotNoInformationNoInformation.RESET();
+            LotNoInformationNoInformation.SetCurrentKey("Lot No.", "Item No.");
+            LotNoInformationNoInformation.SetFilter("Lot No.", cChargennr + '*');
+            LotNoInformationNoInformation.SetFilter("Item No.", cItemNo);
+            IF LotNoInformationNoInformation.FindSet() THEN BEGIN
                 REPEAT
-                    IF StrLen(recLotNoInformation."Lot No.") < 11 THEN BEGIN    //MFU 07.10.2020
-                        recItem.RESET();
-                        IF recItem.GET(recLotNoInformation."Item No.") THEN
-                            IF recItem.Artikelart = recItem.Artikelart::Fertigprodukt THEN
-                                IF recLotNoInformation."Lot No." > cReturnCharge THEN
-                                    cReturnCharge := recLotNoInformation."Lot No.";
+                    IF StrLen(LotNoInformationNoInformation."Lot No.") < 11 THEN BEGIN    //MFU 07.10.2020
+                        Item.RESET();
+                        IF Item.GET(LotNoInformationNoInformation."Item No.") THEN
+                            IF Item.Artikelart = Item.Artikelart::Fertigprodukt THEN
+                                IF LotNoInformationNoInformation."Lot No." > cReturnCharge THEN
+                                    cReturnCharge := LotNoInformationNoInformation."Lot No.";
                     END;
-                UNTIL recLotNoInformation.Next() = 0;
+                UNTIL LotNoInformationNoInformation.Next() = 0;
             END;
 
 
@@ -559,7 +559,7 @@ codeunit 50002 Chargenverwaltung
     procedure GetLastChargeNrNew(cChargennr: Code[20]; cItemNo: Code[20]) cReturnCharge: Code[20]
     var
         recProdOrder: Record "5405";
-        recLotNoInformation: Record "6505";
+        LotNoInformationNoInformation: Record "6505";
         bChargeFound: Boolean;
         chAsciiZeichen: Char;
         iAsciiWert: Integer;
@@ -575,11 +575,11 @@ codeunit 50002 Chargenverwaltung
         REPEAT
 
             //Prüfen, ob die Chargennr schon im Chargenstamm existiert
-            recLotNoInformation.RESET();
-            recLotNoInformation.SetCurrentKey("Lot No.", "Item No.");
-            recLotNoInformation.SetRange("Lot No.", cChargennr);
-            recLotNoInformation.SetRange("Item No.", cItemNo);
-            bChargeFound := recLotNoInformation.FindSet();
+            LotNoInformationNoInformation.RESET();
+            LotNoInformationNoInformation.SetCurrentKey("Lot No.", "Item No.");
+            LotNoInformationNoInformation.SetRange("Lot No.", cChargennr);
+            LotNoInformationNoInformation.SetRange("Item No.", cItemNo);
+            bChargeFound := LotNoInformationNoInformation.FindSet();
 
 
 
@@ -592,7 +592,7 @@ codeunit 50002 Chargenverwaltung
                 chAsciiZeichen += 1;
 
                 cChargennr := CopyStr(cChargennr, 1, StrLen(cChargennr) - 1);  //erster Teil der Chargennummer
-                cChargennr := cChargennr + FORMAT(chAsciiZeichen);
+                cChargennr := cChargennr + Format(chAsciiZeichen);
 
             END;
 
@@ -607,20 +607,20 @@ codeunit 50002 Chargenverwaltung
     var
         recInventorySetup: Record "313";
         recManufacturingSetup: Record "99000765";
-        recItem: Record Item;
+        Item: Record Item;
     begin
 
-        recItem.GET(Artikelnummer);
+        Item.GET(Artikelnummer);
 
-        IF recItem."Site Manufacturing" = '' THEN BEGIN  //für Genericon
+        IF Item."Site Manufacturing" = '' THEN BEGIN  //für Genericon
             recInventorySetup.GET();
             recInventorySetup.TESTFIELD(Rohstoffchargennummern);
             Nummernserie := recInventorySetup.Rohstoffchargennummern;
             EXIT(Nummernserie);
         END;
 
-        IF recItem."Site Manufacturing" <> '' THEN BEGIN //GL-Pharma Standort Lannach/Wien
-            recManufacturingSetup.GET(recItem."Site Manufacturing");
+        IF Item."Site Manufacturing" <> '' THEN BEGIN //GL-Pharma Standort Lannach/Wien
+            recManufacturingSetup.GET(Item."Site Manufacturing");
             recManufacturingSetup.TESTFIELD(Rohstoffchargennummern);
             Nummernserie := recManufacturingSetup.Rohstoffchargennummern;
             EXIT(Nummernserie);

@@ -135,7 +135,7 @@ tableextension 50015 BASPurchaseLineExtPHA extends "Purchase Line"
         {
             DecimalPlaces = 0 : 5;
         }
-        field(50530; "BASExpiration DatePHA"; Date)
+        field(50530; BASExpirationDatePHA; Date)
         {
             Caption = 'Expiration Date';
             trigger OnValidate()
@@ -305,11 +305,11 @@ tableextension 50015 BASPurchaseLineExtPHA extends "Purchase Line"
 
     procedure Packungsgroesse() cPackungsgroesse: Text[20]
     var
-        recItem: Record Item;
+        Item: Record Item;
     begin
         if Type = Type::Item then
-            if recItem.Get("No.") then
-                cPackungsgroesse := recItem.BASPackageSizePHA;
+            if Item.Get("No.") then
+                cPackungsgroesse := Item.BASPackageSizePHA;
     end;
 
     procedure LotNoCheck()
@@ -332,7 +332,7 @@ tableextension 50015 BASPurchaseLineExtPHA extends "Purchase Line"
 
         if ("Document Type" in ["Document Type"::Order, "Document Type"::Invoice, "Document Type"::"Blanket Order"]) and
           (PreviousQuantity <> 0) and (Type = Type::Item) then
-            if StrMenu(StrSubstNo('Ursprüngliche Menge auf %1 setzen?', CONVERTSTR(FORMAT(PreviousQuantity), ',', '.')), 1) = 1 then
+            if StrMenu(StrSubstNo('Ursprüngliche Menge auf %1 setzen?', CONVERTSTR(Format(PreviousQuantity), ',', '.')), 1) = 1 then
                 BASQuantityPHA := PreviousQuantity;
 
     end;
@@ -374,9 +374,9 @@ tableextension 50015 BASPurchaseLineExtPHA extends "Purchase Line"
         //         Error('DataMatrix Ablaufdatum muss Format JJMMTT (YYMMDD) haben!');
 
         //     if Rec.BASExpirationDateDMPHA <> '' then begin
-        //         tYearHelp := FORMAT(DATE2DMY(BASExpirationDateDMPHA, 3));
+        //         tYearHelp := Format(DATE2DMY(BASExpirationDateDMPHA, 3));
         //         tYearHelpDM := '20' + CopyStr("Expiration Date DM", 1, 2);
-        //         tMonHelp := Codesammlung.TextAuffuellen(FORMAT(DATE2DMY(BASExpirationDateDMPHA, 2)), 2, '0');
+        //         tMonHelp := Codesammlung.TextAuffuellen(Format(DATE2DMY(BASExpirationDateDMPHA, 2)), 2, '0');
         //         tMonHelpDM := CopyStr("Expiration Date DM", 3, 2);
         //         if (tYearHelp <> tYearHelpDM) or (tMonHelp <> tMonHelpDM) then
         //             if not Confirm('DataMatrix Ablaufdatum: %1-%2 weicht von Ablaufdatum: %3-%4 ab. Trotzdem übernehmen?', false, tMonHelp, tYearHelp, tMonHelpDM, tYearHelpDM) then

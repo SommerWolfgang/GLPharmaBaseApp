@@ -109,7 +109,7 @@ codeunit 50004 BASCodesammlungGLDEPHA
 
     procedure AblaufDatumPlausibel(sArtikelnummer: Text[20]; dtDate: Date): boolean
     var
-        recItem: Record Item;
+        Item: Record Item;
         bResult: Boolean;
         dtHelp: Date;
         dtHelpToday: Date;
@@ -121,10 +121,10 @@ codeunit 50004 BASCodesammlungGLDEPHA
             Message('Das Ablaufdatum muss in der Zukunft liegen!\Das Datum wird zurückgesetzt.');
             EXIT;
         END;
-        IF NOT recItem.GET(sArtikelnummer) THEN EXIT;
-        IF (FORMAT(recItem."Expiration Calculation") <> '') THEN BEGIN
+        IF NOT Item.GET(sArtikelnummer) THEN EXIT;
+        IF (Format(Item."Expiration Calculation") <> '') THEN BEGIN
 
-            dtHelp := CALCDATE('<-' + FORMAT(recItem."Expiration Calculation") + '>', dtDate);
+            dtHelp := CALCDATE('<-' + Format(Item."Expiration Calculation") + '>', dtDate);
             dtHelpToday := CALCDATE('+LM', TODAY); //Auf Monatsletzten setzen
 
             IF (dtHelp > dtHelpToday) THEN BEGIN

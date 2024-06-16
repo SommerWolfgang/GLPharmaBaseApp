@@ -5,21 +5,18 @@ tableextension 50027 BASLotNoInformatioNextPHA extends "Lot No. Information"
         field(50000; BASExpirationDatePHA; Date)
         {
             Caption = 'Expiration Date';
-
-
+            // ToDo
             trigger OnValidate()
-            var
-                ChargenVerw: Codeunit BASChargeMgtPHA;
+            // var
+            //     ChargenVerw: Codeunit BASChargeMgtPHA;
             begin
-
-                // ToDo
                 // if Rec.BASExpirationDatePHA <> xRec.BASExpirationDatePHA then
                 //     ChargenVerw."Aktualisiere Verkaufscharge"("Item No.", BASLotNoPHA, 1, BASSalesLotNoPHA, BASExpirationDatePHA);
 
                 ChangeStatus('E');
             end;
         }
-        field(50001; BASSalesLotNoPHA; Code[20])
+        field(50001; BASSalesLotNoPHA; Code[50])
         {
             trigger OnValidate()
             // var
@@ -359,7 +356,7 @@ tableextension 50027 BASLotNoInformatioNextPHA extends "Lot No. Information"
                         if LotNoInformation.BASStatusPHA <> LotNoInformation.BASStatusPHA::Free then begin
                             if not ItemIsBulk(ItemNo) and ItemIsBulk(LotNoInformation."Item No.") then
                                 cMeldung := cMeldung + '\' + 'Artikel ' + LotNoInformation."Item No." + ' Chargennr. ' + LotNoInformation.BASSalesLotNoPHA + ' ist ';
-                            cMeldung := cMeldung + FORMAT(LotNoInformation.BASStatusPHA) + ' ';
+                            cMeldung := cMeldung + Format(LotNoInformation.BASStatusPHA) + ' ';
                         end;
                     CountChecked += 1;
                 until ItemLedgerEntry2.Next() = 0;
@@ -403,10 +400,10 @@ tableextension 50027 BASLotNoInformatioNextPHA extends "Lot No. Information"
                 Error('DataMatrix Ablaufdatum muss Format JJMMTT (YYMMDD) haben!');
 
             if (BASExpirationDatePHA <> 0D) then begin
-                tYearHelp := FORMAT(DATE2DMY(BASExpirationDatePHA, 3));
+                tYearHelp := Format(DATE2DMY(BASExpirationDatePHA, 3));
                 tYearHelpDM := '20' + CopyStr(BASExpirationDateDMPHA, 1, 2);
                 // ToDo
-                // tMonHelp := cuCodesammlung.TextAuffuellen(FORMAT(DATE2DMY(BASExpirationDatePHA, 2)), 2, '0');
+                // tMonHelp := cuCodesammlung.TextAuffuellen(Format(DATE2DMY(BASExpirationDatePHA, 2)), 2, '0');
                 tMonHelpDM := CopyStr(BASExpirationDateDMPHA, 3, 2);
                 if (tYearHelp <> tYearHelpDM) or (tMonHelp <> tMonHelpDM) then
                     if not Confirm('DataMatrix Ablaufdatum: %1-%2 weicht von Ablaufdatum: %3-%4 ab. Trotzdem übernehmen?', false, tMonHelp, tYearHelp, tMonHelpDM, tYearHelpDM) then

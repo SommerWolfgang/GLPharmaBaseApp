@@ -442,200 +442,92 @@ codeunit 50000 BASCodeCollPHA
         HasBeenInitialized := true;
     end;
 
-    procedure Fakturenkontrolle(EinkKopf: Record "38"): Boolean
+    procedure InvoiceControl(PurchaseHeader: Record "Purchase Header"): Boolean
     var
-        EinkZeile: Record "39";
+        PurchaseLine: Record "Purchase Line";
     begin
-        EinkZeile.SetRange("Document Type", EinkKopf."Document Type");
-        EinkZeile.SetRange("Document No.", EinkKopf."No.");
-        EinkZeile.SetRange(Type, EinkZeile.Type::Item);
-        if EinkZeile.FindSet() then
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
+        if PurchaseLine.FindSet() then
             repeat
-                if (EinkZeile."Qty. to Receive" > 0) or (EinkZeile."Qty. to Invoice" > 0) then
-                    if Artikelprüfen(EinkZeile, 20) then
+                if (PurchaseLine."Qty. to Receive" > 0) or (PurchaseLine."Qty. to Invoice" > 0) then
+                    if CheckItem(PurchaseLine, 20) then
                         exit(false);
-            until EinkZeile.Next() = 0;
+            until PurchaseLine.Next() = 0;
+
         exit(true);
-
-        //false heißt: nicht buchen in CU 91
     end;
 
-    procedure Suchtgiftliste()
-    begin
-        /*
-        //Update2013 - Wird nicht mehr benötigt
-        ReportSuchtgiftliste.Starten;
-        ReportSuchtgiftliste.RUNMODAL;
-        IF ReportSuchtgiftliste."alles gedruckt" THEN
-          IF CONFIRM('Wurde der Druck ohne Fehler durchgeführt?',TRUE) THEN
-            ReportSuchtgiftliste.ArtikelModify;
-        */
-
-    end;
-
-    procedure "Artikelprüfen"(EinkkaufszeileRec: Record "39"; Warnwert: Decimal): Boolean
+    procedure CheckItem(PurchaseLine: Record "Purchase Line"; WarningValue: Decimal): Boolean
     var
-        EinkRechZeile: Record "123";
-        artikel: Record Item;
+        Item: Record Item;
+        PurchInvLine: Record "Purch. Inv. Line";
+        chilf: Decimal;
         nhilf: Decimal;
-        cHilf: Text[150];
     begin
-
-        //-GL019
-        //neu: Nur mehr den Einstandspreis Abfragen  (Erstbestellung funkt dann auch)
-
-        if artikel.GET(EinkkaufszeileRec."No.") then begin
-            if CopyStr(EinkRechZeile."No.", 1, 2) = 'DI' then  //Diverse Artikel nicht abprüfen
-                if FORMAT(artikel.Artikelart) = ' ' then
+        if Item.Get(PurchaseLine."No.") then begin
+            if CopyStr(PurchInvLine."No.", 1, 2) = 'DI' then  //Diverse Artikel nicht abprüfen
+                if Format(Item.BASItemTypePHA) = ' ' then
                     exit(false);
 
-            nhilf := Abweichung(artikel."Unit Cost",
-                               EinkkaufszeileRec."Unit Cost" / EinkkaufszeileRec."Qty. per Unit of Measure");    //GL020 "Unit Cost" statt "Unit Cost (LCY)" genommen
-            cHilf := 'bisher: ' + FORMAT(artikel."Unit Cost") + ' jetzt: ' + FORMAT(EinkkaufszeileRec."Unit Cost" / EinkkaufszeileRec."Qty. per Unit of Measure");
+            nhilf := Difference(Item."Unit Cost", PurchaseLine."Unit Cost" / PurchaseLine."Qty. per Unit of Measure");
+            // ToDo
+            // cHilf := 'bisher: ' + Format(Item."Unit Cost") + ' jetzt: ' + Format(PurchaseLine."Unit Cost" / PurchaseLine."Qty. per Unit of Measure");
             cHilf := '(' + cHilf + ')';
 
-            if artikel."Costing Method" = artikel."Costing Method"::Standard then begin
-                //Bei Fertigwaren/HF immer zum Einstandspreis genau Einkaufen, sonst Meldung
+            if Item."Costing Method" = Item."Costing Method"::Standard then begin
                 if ABS(nhilf) > 0 then
-                    if not CONFIRM(
+                    if not Confirm(
                       'Der Einstandspreis von %1 weicht um %2 Prozent ab.%3\' +
-                      'Wollen Sie trotzdem Buchen?', false, EinkkaufszeileRec."No.", ROUND(nhilf, 0.1), cHilf) then
+                      'Wollen Sie trotzdem Buchen?', false, PurchaseLine."No.", ROUND(nhilf, 0.1), cHilf) then
                         exit(true);
 
-            end else begin
-                //Bei FiFo-Artikel den Toleranzwert zulassen (Preiserhöhung)
-                if ABS(nhilf) >= Warnwert then
-                    if not CONFIRM(
+            end else
+                if ABS(nhilf) >= WarningValue then
+                    if not Confirm(
                       'Der Einstandspreis von %1 weicht um %2 Prozent ab.%3\' +
-                      'Wollen Sie trotzdem Buchen?', false, EinkkaufszeileRec."No.", ROUND(nhilf, 0.1), cHilf) then
+                      'Wollen Sie trotzdem Buchen?', false, PurchaseLine."No.", ROUND(nhilf, 0.1), cHilf)
+                    then
                         exit(true);
-            end;
         end;
 
         exit(false);
-
-
-        //alt (Nur prüfung, wenn schon EK-Rechnung vorhanden):
-        /*
-        EinkRechZeile.SetCurrentKey(Type,"No.");
-        EinkRechZeile.SetRange(Type,EinkRechZeile.Type::Item);
-        EinkRechZeile.SetRange("No.",EinkkaufszeileRec."No.");
-        EinkRechZeile.SetFilter(Quantity,'>0'); //keine RÜR!
-        IF EinkRechZeile.FIND('+') THEN BEGIN
-            IF CopyStr(EinkRechZeile."No.",1,2)='DI' THEN  //Diverse Artikel nicht abprüfen
-              IF artikel.GET(EinkRechZeile."No.") THEN
-                 IF FORMAT(artikel.Artikelart) = ' ' THEN
-                    EXIT(FALSE);
-            nhilf := Abweichung(EinkRechZeile."Unit Cost (LCY)"/EinkRechZeile."Qty. per Unit of Measure",
-                               EinkkaufszeileRec."Unit Cost (LCY)"/EinkkaufszeileRec."Qty. per Unit of Measure");
-            cHilf := 'bisher: '+FORMAT(EinkRechZeile."Unit Cost (LCY)") + ' jetzt: '+ FORMAT(EinkkaufszeileRec."Unit Cost (LCY)");
-            cHilf := '('+cHilf+')';
-            IF ABS(nhilf) >= Warnwert THEN
-              IF NOT CONFIRM(
-                'Der Einstandspreis von %1 weicht um %2 Prozent ab.%3\' +
-                'Wollen Sie trotzdem Buchen?',FALSE,EinkRechZeile."No.",ROUND(nhilf,0.1),cHilf) THEN
-                   EXIT(TRUE);
-        END;
-        EXIT(FALSE);
-        */
-        //+GL019
-
     end;
 
-    procedure Abweichung(Wert1: Decimal; Wert2: Decimal) Abweich: Decimal
+    procedure Difference(Value1: Decimal; Wert2: Decimal): Decimal
     begin
-        if Wert1 <> 0 then
-            Abweich := (Wert2 / Wert1 - 1) * 100
-        else
-            Abweich := 0;
-        //Abweich := abs(Abweich);
+        if Value1 <> 0 then
+            exit(Wert2 / Value1 - 1) * 100;
     end;
 
-    procedure Bereitstellungslager(var "Location Name": Code[10]) Result: Boolean
+    procedure Bereitstellungslager(var LocationName: Code[10]): Boolean
     var
-        LagerEinrichtung: Record "313";
+        InventorySetup: Record "Inventory Setup";
     begin
-        //Prüfe auf welches Lager die Komm. zugreifen soll (Verkaufslager)
-
-        LagerEinrichtung.GET();
-        Result := LagerEinrichtung.Bereitstellungslagerortcode <> '';
-        "Location Name" := LagerEinrichtung.Bereitstellungslagerortcode;
+        InventorySetup.Get();
+        LocationName := InventorySetup.BASBereitstellungslagerortcodePHA;
+        exit(InventorySetup.BASBereitstellungslagerortcodePHA <> '');
     end;
-    /* TODOPBA Benötigt?
-    procedure DimMatchCodeSuche(DimNo: Integer; Text: Text[1024]): Text[1024]
-    var
-        //recDepartment: Record "1001762";
-        //recProject: Record "1001763";
-        number: Integer;
-    begin
-        //-002
-        IF Text = '' THEN
-            EXIT(Text);
-        IF EVALUATE(number, Text) THEN
-            EXIT(Text);
 
-        CASE DimNo OF
-            1:
-                BEGIN
-                    recDepartment.Code := Text;
-                    IF recDepartment.FIND('=>') THEN
-                        IF CopyStr(recDepartment.Code, 1, StrLen(Text)) = UPPERCASE(Text) THEN BEGIN
-                            Text := recDepartment.Code;
-                            EXIT(Text);
-                        END;
-                    recDepartment.SetCurrentKey("Search Description");
-                    recDepartment."Search Description" := Text;
-                    recDepartment.Code := '';
-                    IF recDepartment.FIND('=>') THEN
-                        IF CopyStr(recDepartment."Search Description", 1, StrLen(Text)) = UPPERCASE(Text) THEN
-                            Text := recDepartment.Code;
-                END;
-        END;
-        CASE DimNo OF
-            2:
-                BEGIN
-                    recProject.Code := Text;
-                    IF recProject.FIND('=>') THEN
-                        IF CopyStr(recProject.Code, 1, StrLen(Text)) = UPPERCASE(Text) THEN BEGIN
-                            Text := recProject.Code;
-                            EXIT(Text);
-                        END;
-                    recProject.SetCurrentKey("Search Description");
-                    recProject."Search Description" := Text;
-                    recProject.Code := '';
-                    IF recProject.FIND('=>') THEN
-                        IF CopyStr(recProject."Search Description", 1, StrLen(Text)) = UPPERCASE(Text) THEN
-                            Text := recProject.Code;
-                END;
-        END;
-        EXIT(Text);
-        //+002
-    end;
-    */
-    procedure FAPDatum(artikelnummer: Code[20]; tDatum: Text[30]) fap: Decimal
+    procedure FAPDatum(ItemNo: Code[20]; Date: Text[30]): Decimal
     var
-        recCurrencyExchangeRate: Record "330";
-        ArtVKPreis: Record "7002";
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+        SalesPrice: Record "Sales Price";
     begin
-        //-GL006
-        fap := 0;
-        CLEAR(ArtVKPreis);
-        with ArtVKPreis do begin
-            SetFilter("Item No.", artikelnummer);
-            SetRange("Sales Type", ArtVKPreis."Sales Type"::"Customer Price Group");
-            SetFilter("Sales Code", '1FAP');
-            SetFilter("Starting Date", '<=' + tDatum);
-            SetFilter("Ending Date", '>' + tDatum + '|''''');
-            if FIND('+') then
-                fap := "Unit Price";
-            if "Currency Code" <> '' then begin
-                CLEAR(recCurrencyExchangeRate);
-                recCurrencyExchangeRate.SetRange("Currency Code", "Currency Code");
-                if recCurrencyExchangeRate.FindLast() then
-                    fap := ROUND("Unit Price" / recCurrencyExchangeRate."Exchange Rate Amount", 0.00001);  //Mit Tageskurs in EUR umrechnen
+        SalesPrice.SetFilter("Item No.", ItemNo);
+        SalesPrice.SetRange("Sales Type", SalesPrice."Sales Type"::"Customer Price Group");
+        SalesPrice.SetFilter("Sales Code", '1FAP');
+        SalesPrice.SetFilter("Starting Date", '<=' + Date);
+        SalesPrice.SetFilter("Ending Date", '>' + Date + '|''''');
+        if not SalesPrice.FindLast() then
+            if SalesPrice."Currency Code" <> '' then begin
+                CurrencyExchangeRate.SetRange("Currency Code", SalesPrice."Currency Code");
+                if CurrencyExchangeRate.FindLast() then
+                    exit(Round(SalesPrice."Unit Price" / CurrencyExchangeRate."Exchange Rate Amount", 0.00001));
             end;
-        end;
-        //+GL006
+
+        exit(SalesPrice."Unit Price");
     end;
 
     procedure ShowBelegKundenInfoBox(cKundenNr: Code[20])
@@ -793,351 +685,11 @@ codeunit 50000 BASCodeCollPHA
         recWarehouseEntry.SetFilter("Location Code", cLagerort);
         recWarehouseEntry.SetFilter("Bin Code", cLagerplatz);
         recWarehouseEntry.SetRange("Item No.", cItemNo);
-        recWarehouseEntry.SetFilter("Registering Date", '..' + FORMAT(dtStichtag_));
+        recWarehouseEntry.SetFilter("Registering Date", '..' + Format(dtStichtag_));
 
         recWarehouseEntry.CALCSUMS("Qty. (Base)");
         nReturn := recWarehouseEntry."Qty. (Base)";
-
-        //+GL015
     end;
-
-
-    /*TODOPBA
-    procedure PDFMailErstellen(recCRSalesHeader: Record "114"; recSalesInvHeader: Record "112"; tTyp: Code[20])
-    var
-        PurchaseHeader: Record "38";
-        recCustomer: Record "18";
-        recSalespersonPurchaser: Record "13";
-        tFileNameFrom: Text[250];
-        tFileNameTo: Text[250];
-        iRenameVersuche: Integer;
-        recGenLedSetup: Record "98";
-        recRechnungMailversand: Record "Rechnung Mailversand";
-        cuUserManagement: Codeunit "418";
-        bOK: Boolean;
-        recSalesInvHeader_: Record "112";
-        recSalesCRHeader_: Record "114";
-        iRechnungskopien_: Integer;
-        tMailToAdresse: Text[100];
-        recShipToAddress: Record "222";
-        cuFile_: Codeunit "419";
-        repGS: Report "Standard Sales - Credit Memo";
-        repRech: Report "Standard Sales - Invoice";
-        tPfadSpeicherort: Text[250];
-        bExportBeleg: Boolean;
-        //repRechExport: Report "50109";
-        //repGSExport: Report "50114";
-        cuNavipharma: Codeunit 50001;
-    begin
-
-        //-GL032
-        //IF cuNavipharma.IsTestEnvironment() THEN
-        //  ERROR('PDF-Mail im Testsystem nicht zulässig!');
-        //+GL032
-
-
-        bExportBeleg := FALSE;
-        recCRSalesHeader.SetRange("No.", recCRSalesHeader."No.");
-        recSalesInvHeader.SetRange("No.", recSalesInvHeader."No.");
-
-        //Ist Mail Adresse zum Rechnungskunden vorhanden?
-        IF tTyp = 'GUTSCHRIFT' THEN BEGIN
-            IF recCRSalesHeader."Responsibility Center" = 'EXPORT' THEN bExportBeleg := TRUE;  //GL028
-
-            bOK := recCustomer.GET(recCRSalesHeader."Bill-to Customer No.");
-            tMailToAdresse := recCustomer."E-Mail";
-            //Rechnung an Code abfangen
-            IF StrLen(recCRSalesHeader."Bill-to Code") > 0 THEN BEGIN
-                IF recShipToAddress.GET(recCRSalesHeader."Sell-to Customer No.", recCRSalesHeader."Bill-to Code") THEN
-                    tMailToAdresse := recShipToAddress."E-Mail";
-            END;
-        END;
-        IF tTyp = 'RECHNUNG' THEN BEGIN
-            IF recSalesInvHeader."Responsibility Center" = 'EXPORT' THEN bExportBeleg := TRUE;  //GL028
-
-            bOK := recCustomer.GET(recSalesInvHeader."Bill-to Customer No.");
-            tMailToAdresse := recCustomer."E-Mail";
-            //Rechnung an Code abfangen
-            IF StrLen(recSalesInvHeader."Bill-to Code") > 0 THEN BEGIN
-                IF recShipToAddress.GET(recSalesInvHeader."Sell-to Customer No.", recSalesInvHeader."Bill-to Code") THEN
-                    tMailToAdresse := recShipToAddress."E-Mail";
-            END;
-        END;
-
-
-
-        IF bOK = TRUE THEN BEGIN   //Bill-to Customer No.
-            IF StrLen(tMailToAdresse) > 0 THEN BEGIN
-
-                //-GL022
-                //Variante mit NAV-PDF-erstellung
-
-                //Dateipfade am Server
-                recGenLedSetup.GET;
-
-                //-GL028    //Export oder Inland Speicherort
-                tPfadSpeicherort := recGenLedSetup.PDFPfad;
-                IF bExportBeleg = TRUE THEN
-                    tPfadSpeicherort := recGenLedSetup.PDFPfadExport;
-                //+GL028
-
-                IF StrLen(tPfadSpeicherort) = 0 THEN
-                    ERROR('Kein Speicherpfad definiert!');
-
-                IF tTyp = 'GUTSCHRIFT' THEN
-                    tFileNameTo := tPfadSpeicherort + GetWFScompatibleString(recCRSalesHeader."No.") + '.pdf';
-                IF tTyp = 'RECHNUNG' THEN
-                    tFileNameTo := tPfadSpeicherort + GetWFScompatibleString(recSalesInvHeader."No.") + '.pdf';
-
-                //Speichern nur am \\Server1\Export zulassen -> Lokal müsste ein Stream Download gemacht werden
-                IF (CopyStr(tFileNameTo, 1, 9) = '\\server1') OR (CopyStr(tFileNameTo, 1, 9) = '\\SERVER1') THEN BEGIN
-
-                    //Existiert die PDF Datei schon? -> Dann löschen!
-                    IF cuFile_.ServerFileExists(tFileNameTo) = TRUE THEN
-                        cuFile_.DeleteServerFile(tFileNameTo);
-
-                    bOK := FALSE;  //Bool Variable wieder benutzer
-
-                    //PDF erstellen
-                    IF tTyp = 'GUTSCHRIFT' THEN BEGIN
-                        //Gutschriftkopien auf 0 Stellen
-                        CLEAR(recSalesCRHeader_);
-                        IF recSalesCRHeader_.GET(recCRSalesHeader."No.") THEN BEGIN
-                            iRechnungskopien_ := recSalesCRHeader_."invoice copies";
-                            recSalesCRHeader_."invoice copies" := 0;  //Keine Rechnungskopien in PDF erstellen
-                            recSalesCRHeader_.Modify;
-                        END;
-                        //-GL028
-                        IF bExportBeleg = TRUE THEN BEGIN
-                            repGSExport.SETTABLEVIEW(recCRSalesHeader);  //Datensatz dem Bericht zuweisen
-                            IF repGSExport.SAVEASPDF(tFileNameTo) = TRUE THEN
-                                bOK := TRUE;
-                        END ELSE BEGIN
-                            repGS.SETTABLEVIEW(recCRSalesHeader);  //Datensatz dem Bericht zuweisen
-                            IF repGS.SAVEASPDF(tFileNameTo) = TRUE THEN
-                                bOK := TRUE;
-                        END;
-                        //+GL028
-                    END;
-
-                    IF tTyp = 'RECHNUNG' THEN BEGIN
-
-                        //Rechnungskopien auf 0 Stellen
-                        CLEAR(recSalesInvHeader_);
-                        IF recSalesInvHeader_.GET(recSalesInvHeader."No.") THEN BEGIN
-                            iRechnungskopien_ := recSalesInvHeader_."invoice copies";
-                            recSalesInvHeader_."invoice copies" := 0;  //Keine Rechnungskopien in PDF erstellen
-                            recSalesInvHeader_.Modify;
-                        END;
-                        //-GL028
-                        IF bExportBeleg = TRUE THEN BEGIN
-                            repRechExport.SETTABLEVIEW(recSalesInvHeader);  //Datensatz dem Bericht zuweisen
-                            IF repRechExport.SAVEASPDF(tFileNameTo) = TRUE THEN
-                                bOK := TRUE;
-                        END ELSE BEGIN
-                            repRech.SETTABLEVIEW(recSalesInvHeader);  //Datensatz dem Bericht zuweisen
-                            IF repRech.SAVEASPDF(tFileNameTo) = TRUE THEN
-                                bOK := TRUE;
-                        END;
-                        //+GL028
-                    END;
-
-                    //Rechnung-/Gutschriftskopien wieder auf vorherigen Wert stellen
-                    IF tTyp = 'GUTSCHRIFT' THEN BEGIN
-                        recSalesCRHeader_.GET(recSalesCRHeader_."No.");
-                        recSalesCRHeader_."invoice copies" := iRechnungskopien_;
-                        recSalesCRHeader_.Modify;
-                    END;
-                    IF tTyp = 'RECHNUNG' THEN BEGIN
-                        recSalesInvHeader_.GET(recSalesInvHeader_."No.");
-                        recSalesInvHeader_."invoice copies" := iRechnungskopien_;
-                        recSalesInvHeader_.Modify;
-                    END;
-
-
-                    IF bOK = TRUE THEN BEGIN
-                        IF cuFile_.ServerFileExists(tFileNameTo) = FALSE THEN
-                            ERROR('PDF-Bestellung %1 wurde nicht erstellt!', tFileNameTo);
-
-                        //PDF vorhanFden -> Mailversand an Kunde wenn Datei erstellt wurde
-                        //Eintragen von Mailversand Informationen in einer Tabelle
-                        CLEAR(recRechnungMailversand);
-                        recRechnungMailversand.Init;
-                        recRechnungMailversand.EMailEmpfaenger := tMailToAdresse;
-                        recRechnungMailversand.Versendet := FALSE;
-                        IF tTyp = 'GUTSCHRIFT' THEN BEGIN
-                            recRechnungMailversand."Invoice No" := recCRSalesHeader."No.";
-                            recRechnungMailversand.Buchungsdatum := recCRSalesHeader."Posting Date";
-                            recRechnungMailversand.RechKdnNr := recCRSalesHeader."Bill-to Customer No.";
-                        END;
-                        IF tTyp = 'RECHNUNG' THEN BEGIN
-                            recRechnungMailversand."Invoice No" := recSalesInvHeader."No.";
-                            recRechnungMailversand.Buchungsdatum := recSalesInvHeader."Posting Date";
-                            recRechnungMailversand.RechKdnNr := recSalesInvHeader."Bill-to Customer No.";
-                        END;
-
-                        recRechnungMailversand.Insert;
-                        COMMIT;  //Damit RUNMODAL funktioniert
-
-                        //CLEAR(recRechnungMailversand);
-                        recRechnungMailversand.FILTERGROUP(2); //Versteckte Filter
-                                                               //recRechnungMailversand.SetRange(Buchungsdatum,PostingDateReq);
-                        recRechnungMailversand.SetRange(Versendet, FALSE);
-                        recRechnungMailversand.FILTERGROUP(0);
-                        PAGE.RUNMODAL(50188, recRechnungMailversand);
-
-
-
-                    END ELSE
-                        ERROR('Das PDF %1 konnte nicht erstellt werden!', tFileNameTo);
-
-                END ELSE
-                    ERROR('PDF-Datei kann nur am Server1 erstellt werden!');
-
-                /*
-                //Variante mit lokal Installierten PDF-Drucker
-                IF recSalespersonPurchaser.GET(USERID) THEN BEGIN
-
-                  recSalespersonPurchaser.PrintPDF := TRUE;
-                  recSalespersonPurchaser.Modify;
-
-                  //PDF erstellen
-                  IF tTyp = 'GUTSCHRIFT' THEN BEGIN
-                    //Gutschriftkopien auf 0 Stellen
-                    CLEAR(recSalesCRHeader_);
-                    IF recSalesCRHeader_.GET(recCRSalesHeader."No.") THEN BEGIN
-                      iRechnungskopien_ := recSalesCRHeader_."invoice copies";
-                      recSalesCRHeader_."invoice copies" := 0;  //Keine Rechnungskopien in PDF erstellen
-                      recSalesCRHeader_.Modify;
-                    END;
-
-                    REPORT.RUN(207,FALSE,FALSE,recCRSalesHeader);
-                  END;
-
-                  IF tTyp = 'RECHNUNG' THEN BEGIN
-
-                    //Rechnungskopien auf 0 Stellen
-                    CLEAR(recSalesInvHeader_);
-                    IF recSalesInvHeader_.GET(recSalesInvHeader."No.") THEN BEGIN
-                      iRechnungskopien_ := recSalesInvHeader_."invoice copies";
-                      recSalesInvHeader_."invoice copies" := 0;  //Keine Rechnungskopien in PDF erstellen
-                      recSalesInvHeader_.Modify;
-                    END;
-
-                    REPORT.RUN(206,FALSE,FALSE,recSalesInvHeader);
-                  END;
-
-                  recSalespersonPurchaser.PrintPDF := FALSE;
-                  recSalespersonPurchaser.Modify;
-
-
-                  //Rechnung-/Gutschriftskopien wieder auf vorherigen Wert stellen
-                  IF tTyp = 'GUTSCHRIFT' THEN BEGIN
-                    recSalesCRHeader_.GET(recSalesCRHeader_."No.");
-                    recSalesCRHeader_."invoice copies" := iRechnungskopien_;
-                    recSalesCRHeader_.Modify;
-                  END;
-                  IF tTyp = 'RECHNUNG' THEN BEGIN
-                    recSalesInvHeader_.GET(recSalesInvHeader_."No.");
-                    recSalesInvHeader_."invoice copies" := iRechnungskopien_;
-                    recSalesInvHeader_.Modify;
-                  END;
-
-
-                  //Dateinamen des erstellten PDF's definieren  (PDF-Drucker muss richtig eingerichtet sein, das der Ausgabename unterschiedlich ist: "%DOCNAME%" bei EDocPrintPro)
-                  recGenLedSetup.GET;
-                  IF tTyp = 'RECHNUNG' THEN
-                    tFileNameFrom := recGenLedSetup.PDFPfad+ 'Verkauf - Rechnung.pdf';
-                  IF tTyp = 'GUTSCHRIFT' THEN
-                    tFileNameFrom := recGenLedSetup.PDFPfad+ 'Verkauf - Gutschrift.pdf';
-
-                  IF tTyp = 'GUTSCHRIFT' THEN
-                    tFileNameTo := recGenLedSetup.PDFPfad+ GetWFScompatibleString(recCRSalesHeader."No.")+'.pdf';
-                  IF tTyp = 'RECHNUNG' THEN
-                    tFileNameTo := recGenLedSetup.PDFPfad+ GetWFScompatibleString(recSalesInvHeader."No.")+'.pdf';
-
-                  CREATE(WSHFile,TRUE,TRUE);
-
-                  //Ist die Datei schon vorhanden? Kann bei Ändern einer Bestellung und neu erstellen sein. Wenn vorhanden dann löschen
-                  IF WSHFile.FileExists(tFileNameTo) THEN BEGIN
-                    WSHFile.DeleteFile(tFileNameTo);
-                  END;
-
-                  //PDF-erstellung etwas Zeit geben
-                  SLEEP(4000);
-
-                  //Datei umbenennen
-                  IF WSHFile.FileExists(tFileNameFrom) THEN BEGIN
-
-                    iRenameVersuche := 0;
-                    REPEAT
-                      SLEEP(1000);
-                      iRenameVersuche += 1;
-                      WSHFile.MoveFile(tFileNameFrom, tFileNameTo)
-                    UNTIL (WSHFile.FileExists(tFileNameTo)) OR (iRenameVersuche>30);   //20 sec maximal warten   -> auf 30 erweitert
-
-                    //Ist die PDFGutschrift erstellt worden?
-                    IF WSHFile.FileExists(tFileNameTo) THEN BEGIN
-
-                      //Eintragen von Mailversand Informationen in einer Tabelle
-                      CLEAR(recRechnungMailversand);
-                      recRechnungMailversand.Init;
-                      recRechnungMailversand.EMailEmpfaenger := tMailToAdresse;
-                      recRechnungMailversand.Versendet := FALSE;
-                      IF tTyp = 'GUTSCHRIFT' THEN BEGIN
-                        recRechnungMailversand."Invoice No" := recCRSalesHeader."No.";
-                        recRechnungMailversand.Buchungsdatum := recCRSalesHeader."Posting Date";
-                        recRechnungMailversand.RechKdnNr := recCRSalesHeader."Bill-to Customer No.";
-                      END;
-                      IF tTyp = 'RECHNUNG' THEN BEGIN
-                        recRechnungMailversand."Invoice No" := recSalesInvHeader."No.";
-                        recRechnungMailversand.Buchungsdatum := recSalesInvHeader."Posting Date";
-                        recRechnungMailversand.RechKdnNr := recSalesInvHeader."Bill-to Customer No.";
-                      END;
-
-                      recRechnungMailversand.Insert;
-                      COMMIT;  //Damit RUNMODAL funktioniert
-
-                      //CLEAR(recRechnungMailversand);
-                      recRechnungMailversand.FILTERGROUP(2); //Versteckte Filter
-                      //recRechnungMailversand.SetRange(Buchungsdatum,PostingDateReq);
-                      recRechnungMailversand.SetRange(Versendet,FALSE);
-                      recRechnungMailversand.FILTERGROUP(0);
-                      PAGE.RUNMODAL(50188,recRechnungMailversand);
-
-                    END ELSE BEGIN
-                      Message('PDF-Gutschrift %1 wurde nicht erstellt!', tFileNameTo);
-                    END;
-
-                  END ELSE BEGIN
-            //        CREATE(WSHFile,TRUE,TRUE);
-            //        IF WSHFile.FileExists(tFileNameFrom) THEN
-            //          Message('Doch gefunden!')
-            //        ELSE
-                      Message('PDF-Gutschrift %1 wurde nicht gefunden!', tFileNameFrom);
-                  END;
-
-                  CLEAR(WSHFile);
-
-                  recSalespersonPurchaser.PrintPDF := FALSE;
-                  recSalespersonPurchaser.Modify;
-
-                  COMMIT;
-                  //Rec.FindLast;
-                  //CurrForm.Update;
-
-                END ELSE
-                  Message('Verkaufsperson Einrichtung für Benutzer %1 nicht vorhanden!', USERID);
-            
-                //+GL022
-
-            END ELSE
-                Message('E-Mail Adresse zu Rechnungskunde nicht vorhanden!');
-        END ELSE
-            Message('Rechnungskunde wurde nicht gefunden!');
-
-    end;
-    */
 
     procedure "Bestellzeile Kopieren"(Einkaufszeile: Record "39")
     var
@@ -1263,15 +815,15 @@ codeunit 50000 BASCodeCollPHA
 
         //Jahresanfang ermitteln
         //dtHelp := CALCDATE('-LJ',TODAY);
-        EVALUATE(dtHelp, '01.01.' + FORMAT(iJahr));
+        EVALUATE(dtHelp, '01.01.' + Format(iJahr));
 
         //Zur Ermittlung, ob 01.01 diesen Jahres KW1 oder KW53 ist
-        EVALUATE(iKWHelp, FORMAT(dtHelp, 0, '<Week,2><Filler Character,0>'));
+        EVALUATE(iKWHelp, Format(dtHelp, 0, '<Week,2><Filler Character,0>'));
 
         if iKWHelp = 1 then
-            dtReturn := CALCDATE('+' + FORMAT(iKW - 1) + 'W', dtHelp)
+            dtReturn := CALCDATE('+' + Format(iKW - 1) + 'W', dtHelp)
         else
-            dtReturn := CALCDATE('+' + FORMAT(iKW) + 'W', dtHelp);
+            dtReturn := CALCDATE('+' + Format(iKW) + 'W', dtHelp);
 
         //Auf Wochenanfang konvertieren
         dtReturn := CALCDATE('-LW', dtReturn);
@@ -1612,7 +1164,7 @@ codeunit 50000 BASCodeCollPHA
 
         bOK := recVendor.GET(recPurchHeader."Buy-from Vendor No.");
         IF recVendor.Bestellemail = '' THEN
-            IF DIALOG.CONFIRM('Kreditor %1 hat keine Bestell-Email hinterlegt. Kontakt Email (%2) verwenden?', FALSE, recPurchHeader."Buy-from Vendor No.", recVendor."E-Mail") THEN
+            IF DIALOG.Confirm('Kreditor %1 hat keine Bestell-Email hinterlegt. Kontakt Email (%2) verwenden?', FALSE, recPurchHeader."Buy-from Vendor No.", recVendor."E-Mail") THEN
                 tMailToAdresse := recVendor."E-Mail"
             ELSE
                 EXIT
@@ -1657,7 +1209,7 @@ codeunit 50000 BASCodeCollPHA
                                 bProceed := TRUE;
                             END
                             ELSE BEGIN
-                                IF DIALOG.CONFIRM('Zu Bestellung %1 wurde bereits ein Mail versandt. Erneut erstellen?', TRUE, recPurchHeader."No.") THEN BEGIN
+                                IF DIALOG.Confirm('Zu Bestellung %1 wurde bereits ein Mail versandt. Erneut erstellen?', TRUE, recPurchHeader."No.") THEN BEGIN
                                     recBestellungMailversand.DELETE;
                                     bProceed := TRUE;
                                 END;

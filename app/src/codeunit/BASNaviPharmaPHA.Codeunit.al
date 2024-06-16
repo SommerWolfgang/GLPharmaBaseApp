@@ -81,8 +81,9 @@ codeunit 50001 BASNaviPharmaPHA
                     if ExpirationDateDMP <= (WorkDate() - 14) then
                         Error('Artikel ' + ItemJnlLine."Item No." + ', Ch.Nr.' + ItemJnlLine."Lot No." + ' ist abgelaufen, kein Verkauf möglich');
                     if ExpirationDateDMP <= CalcDate('<CM-9M>', WorkDate()) then
-                        if CONFIRM('Artikel ' + ItemJnlLine."Item No." + ', Ch.Nr.' + ItemJnlLine."Lot No." + ' läuft in weniger als 9 '
-                             + 'Monaten ab, trotzdem verkaufen ?') = false then
+                        if not Confirm('Artikel ' + ItemJnlLine."Item No." + ', Ch.Nr.' + ItemJnlLine."Lot No." + ' läuft in weniger als 9 '
+                             + 'Monaten ab, trotzdem verkaufen ?')
+                        then
                             Error('Auftrag abgebrochen');
                 end;
             end;
@@ -544,7 +545,7 @@ codeunit 50001 BASNaviPharmaPHA
                     if not Result and Warnings then
                         Message('Charge %1 von Artikel %2 ist nicht freigegeben!', ItemLedgerEntry."Lot No.", ItemLedgerEntry."Item No.");
                     if LotNoInFormation.BASHFCommentPHA <> '' then
-                        if not CONFIRM('Kommentar bei %1:\\%2\\Freigabe fortsetzen?', false, ItemLedgerEntry."Item No.", LotNoInFormation.BASHFCommentPHA) then
+                        if not Confirm('Kommentar bei %1:\\%2\\Freigabe fortsetzen?', false, ItemLedgerEntry."Item No.", LotNoInFormation.BASHFCommentPHA) then
                             Error('Freigabe aufgrund von HF Kommentar abgebrochen');
                 end;
 

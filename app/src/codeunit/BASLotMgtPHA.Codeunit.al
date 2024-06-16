@@ -1,11 +1,5 @@
-
-//TASK53 TASK53.01   20.03.2024  MFU:  Verkaufschargennr von Artikelverfolgung mitbuchen
-//TASK59 TASK59.01   23.04.2024  MFU:  Zusätzliche Felder für Anzeige von Chargeninfos auf Page
-
-
-codeunit 50006 ChargenverwaltungPageApp
+codeunit 50006 BASLotMgtPHA
 {
-
     [EventSubscriber(ObjectType::Codeunit, 99000830, 'OnCreateReservEntryExtraFields', '', false, false)]
     local procedure CU99000830OnCreateReservEntryExtraFields(var InsertReservEntry: Record "Reservation Entry"; OldTrackingSpecification: Record "Tracking Specification"; NewTrackingSpecification: Record "Tracking Specification")
     begin
@@ -26,11 +20,11 @@ codeunit 50006 ChargenverwaltungPageApp
     [EventSubscriber(ObjectType::Page, 6510, 'OnAfterCollectPostedOutputEntries', '', false, false)]
     local procedure P6510OnAfterCollectPostedOutputEntries(ItemLedgerEntry: Record "Item Ledger Entry"; var TempTrackingSpecification: Record "Tracking Specification")
     var
-        recLot: Record "Lot No. Information";
+        LotNoInformation: Record "Lot No. Information";
     begin
         // >> TASK53.01
-        //IF recLot.Get(TempTrackingSpecification."Item No.", TempTrackingSpecification."Variant Code", TempTrackingSpecification."Lot No.") then begin
-        //    TempTrackingSpecification.BASSalesLotNoPHA := recLot.BASSalesLotNoPHA;
+        //IF LotNoInformation.Get(TempTrackingSpecification."Item No.", TempTrackingSpecification."Variant Code", TempTrackingSpecification."Lot No.") then begin
+        //    TempTrackingSpecification.BASSalesLotNoPHA := LotNoInformation.BASSalesLotNoPHA;
         //end;
         // << TASK53.01
     end;
@@ -59,97 +53,58 @@ codeunit 50006 ChargenverwaltungPageApp
     [EventSubscriber(ObjectType::Page, 6510, 'OnAfterAssignNewTrackingNo', '', false, false)]
     local procedure P6510OnAfterAssignNewTrackingNo(var TrkgSpec: Record "Tracking Specification"; xTrkgSpec: Record "Tracking Specification"; FieldID: Integer)
     var
-        recItem: Record Item;
-        recLot: Record "Lot No. Information";
+        Item: Record Item;
+        LotNoInformation: Record "Lot No. Information";
     begin
-        // >> TASK53.01
-        TrkgSpec.BASSalesLotNoPHA := TrkgSpec."Lot No.";  //Defaultzuweisung
-        IF recItem.GET(TrkgSpec."Item No.") then
-            if recItem.Artikelart = recItem.Artikelart::Fertigprodukt then begin
-                if recLot.Get(TrkgSpec."Item No.", TrkgSpec."Variant Code", TrkgSpec."Lot No.") then
-                    TrkgSpec.BASSalesLotNoPHA := recLot.BASSalesLotNoPHA;
-            end;
-
-        // << TASK53.01
+        TrkgSpec.BASSalesLotNoPHA := TrkgSpec."Lot No.";
+        if Item.Get(TrkgSpec."Item No.") then
+            if Item.BASItemTypePHA = Item.BASItemTypePHA::"Finished Product" then
+                if LotNoInformation.Get(TrkgSpec."Item No.", TrkgSpec."Variant Code", TrkgSpec."Lot No.") then
+                    TrkgSpec.BASSalesLotNoPHA := LotNoInformation.BASSalesLotNoPHA;
     end;
 
     [EventSubscriber(ObjectType::Page, 6510, 'OnBeforeLotNoOnAfterValidate', '', false, false)]
     local procedure P6510OnBeforeLotNoOnAfterValidate(var TempTrackingSpecification: Record "Tracking Specification" temporary; SecondSourceQuantityArray: array[3] of Decimal)
     var
-        recItem: Record Item;
-        recLot: Record "Lot No. Information";
+        LotNoInformation: Record "Lot No. Information";
     begin
-        // >> TASK53.01
-        //Gibt es zu der eingegebenen Chargennr einen Chargenstamm Eintrag? -> Wenn Ja VK-Charge setzen
-        if recLot.Get(TempTrackingSpecification."Item No.", '', TempTrackingSpecification."Lot No.") then begin
-            TempTrackingSpecification.BASSalesLotNoPHA := recLot.BASSalesLotNoPHA;
-        end;
-        // << TASK53.01
+        if LotNoInformation.Get(TempTrackingSpecification."Item No.", '', TempTrackingSpecification."Lot No.") then
+            TempTrackingSpecification.BASSalesLotNoPHA := LotNoInformation.BASSalesLotNoPHA;
     end;
-
-
-
 
     [EventSubscriber(ObjectType::Codeunit, 6500, 'OnAfterCreateLotInformation', '', false, false)]
     local procedure CU6500OnAfterCreateLotInformation(var LotNoInfo: Record "Lot No. Information"; var TrackingSpecification: Record "Tracking Specification")
     begin
-        // >> TASK53.01
-        //Beim Anlegen des Chargenstamm eigene Felder mitschreiben  !! -> Funkt noch nicht!
         LotNoInfo.BASSalesLotNoPHA := TrackingSpecification.BASSalesLotNoPHA;
-        LotNoInfo."Expiration Date" := TrackingSpecification."Expiration Date";
-        LotNoInfo.Modify(false);  //Sind hier schon nach dem Insert also nochmal speichern
-        // << TASK53.01
+        LotNoInfo.BASExpirationDatePHA := TrackingSpecification."Expiration Date";
+        LotNoInfo.Modify(false);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 22, 'OnAfterCheckItemTrackingInformation', '', false, false)]
     local procedure CU22OnAfterCheckItemTrackingInformation(var ItemJnlLine2: Record "Item Journal Line"; var TrackingSpecification: Record "Tracking Specification"; ItemTrackingSetup: Record "Item Tracking Setup"; Item: Record Item)
     var
-        recLot: Record "Lot No. Information";
+        LotNoInformation: Record "Lot No. Information";
     begin
-        // >> TASK53.01
-        IF recLot.GET(TrackingSpecification."Item No.", TrackingSpecification."Variant Code", TrackingSpecification."Lot No.") then begin
-            //Beim Anlegen des Chargenstamm eigene Felder mitschreiben  !! -> Funkt noch nicht!
-            if recLot.Description = '' then begin
-                recLot.Description := Format(ItemJnlLine2."Document Type") + ', ' + ItemJnlLine2."Document No." + ', ' + Format(ItemJnlLine2."Document Date");
-                recLot.Modify(false);  //Sind hier schon nach dem Insert also nochmal speichern
+        if LotNoInformation.GET(TrackingSpecification."Item No.", TrackingSpecification."Variant Code", TrackingSpecification."Lot No.") then
+            if LotNoInformation.Description = '' then begin
+                LotNoInformation.Description := Format(ItemJnlLine2."Document Type") + ', ' + ItemJnlLine2."Document No." + ', ' + Format(ItemJnlLine2."Document Date");
+                LotNoInformation.Modify(false);
             end;
-        end
-        // << TASK53.01
-    end;
-
-    [EventSubscriber(ObjectType::Table, 83, 'OnAfterCopyTrackingFromSpec', '', false, false)]
-    local procedure CU22OnAfterCopyTrackingFromSpec(var ItemJournalLine: Record "Item Journal Line"; TrackingSpecification: Record "Tracking Specification")
-    begin
-        // >> TASK53.01
-        /*
-                ItemJournalLine.BASSalesLotNoPHA := TrackingSpecification.BASSalesLotNoPHA;
-                //Infos vom Wareneingang über IJL in Chargenstamm schreiben
-                if ItemJournalLine."Entry Type" = ItemJournalLine."Entry Type"::Purchase then begin
-                    ItemJournalLine.BASSalesLotNoPHA := TrackingSpecification.BASSalesLotNoPHA;
-                end;
-        */
-        // << TASK53.01
-    end;
+    end
 
     [EventSubscriber(ObjectType::CodeUnit, 99000831, 'OnBeforeUpdateItemTracking', '', false, false)]
     local procedure CU9000831OnBeforeUpdateItemTracking(var ReservEntry: Record "Reservation Entry"; var TrackingSpecification: Record "Tracking Specification")
     begin
-        // >> TASK53.01
         ReservEntry.BASSalesLotNoPHA := TrackingSpecification.BASSalesLotNoPHA;
-        // << TASK53.01    
     end;
 
 
     [EventSubscriber(ObjectType::Page, 6510, 'OnAfterUpdateExpDateEditable', '', false, false)]
     local procedure P6510OnAfterUpdateExpDateEditable(var TrackingSpecification: Record "Tracking Specification"; var ExpirationDateEditable: Boolean; var ItemTrackingCode: Record "Item Tracking Code"; var NewExpirationDateEditable: Boolean; CurrentSignFactor: Integer)
     begin
-        // >> TASK53.01
-        //Ablaufdatum bei Bestellungen editierbar machen
-        if ExpirationDateEditable = false then begin
+        if not ExpirationDateEditable then
             if (TrackingSpecification."Source Type" = 39) and (TrackingSpecification."Source Subtype" = 1) then
                 ExpirationDateEditable := true;
-        end;
-        // << TASK53.01 
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 6500, 'OnBeforeTempHandlingSpecificationInsert', '', false, false)]
@@ -204,10 +159,10 @@ codeunit 50006 ChargenverwaltungPageApp
         recRes.SetRange("Location Code", NewItemJournalLine."Location Code");
 
         recRes.SetRange("Quantity (Base)", NewItemJournalLine."Quantity (Base)");
-        IF NewItemJournalLine."Entry Type" = NewItemJournalLine."Entry Type"::"Negative Adjmt." THEN
+        if NewItemJournalLine."Entry Type" = NewItemJournalLine."Entry Type"::"Negative Adjmt." then
             recRes.SetRange("Quantity (Base)", NewItemJournalLine."Quantity (Base)" * (-1));
         //recRes.SetRange("Reservation Status",recRes."Reservation Status"::Prospect);
-        IF recRes.FindFirst() then
+        if recRes.FindFirst() then
             IsHandled := true;  //MFU true !!
 
     end;
@@ -227,10 +182,10 @@ codeunit 50006 ChargenverwaltungPageApp
         recRes.SetRange("Location Code", NewItemJournalLine."Location Code");
 
         recRes.SetRange("Quantity (Base)", NewItemJournalLine."Quantity (Base)");
-        IF NewItemJournalLine."Entry Type" = NewItemJournalLine."Entry Type"::"Negative Adjmt." THEN
+        if NewItemJournalLine."Entry Type" = NewItemJournalLine."Entry Type"::"Negative Adjmt." then
             recRes.SetRange("Quantity (Base)", NewItemJournalLine."Quantity (Base)" * (-1));
         //recRes.SetRange("Reservation Status",recRes."Reservation Status"::Prospect);
-        IF recRes.FindFirst() then
+        if recRes.FindFirst() then
             IsHandled := true;  //MFU true !!
 
     end;
@@ -257,7 +212,7 @@ codeunit 50006 ChargenverwaltungPageApp
 
 
     // >> TASK58.01
-    procedure EingabeChargeForItemJnlLine(VAR ItemJnlLine: Record "Item Journal Line")
+    procedure EingabeChargeForItemJnlLine(var ItemJnlLine: Record "Item Journal Line")
     var
         ReservEntry: Record "Reservation Entry";
         recTrackingSpecification: Record "Tracking Specification";
@@ -274,7 +229,7 @@ codeunit 50006 ChargenverwaltungPageApp
 
     begin
 
-        WITH ItemJnlLine DO BEGIN
+        with ItemJnlLine do begin
 
             //Befüllen von Variablen für weitere Schritte
             ForType := 83;
@@ -306,14 +261,14 @@ codeunit 50006 ChargenverwaltungPageApp
 
 
 
-        END;
+        end;
 
-        IF ItemTrackMgt.IsOrderNetworkEntity(
+        if ItemTrackMgt.IsOrderNetworkEntity(
         ForType,
         ForSubtype)
-        THEN
+        then
             CurrentEntryStatus := CurrentEntryStatus::Surplus
-        ELSE
+        else
             CurrentEntryStatus := CurrentEntryStatus::Prospect;
 
         //Suche, ob Reservierungsposten zu Charge vorhanden
@@ -326,11 +281,11 @@ codeunit 50006 ChargenverwaltungPageApp
         ReservEntry.SetFilter(
         "Reservation Status", '%1|%2', ReservEntry."Reservation Status"::Surplus, ReservEntry."Reservation Status"::Prospect);
         ReservEntry.SetRange("Lot No.", ForLotNo);
-        IF ReservEntry.FINDFIRST() THEN BEGIN
-            IF CompareChargeToItemJnlLine(ReservEntry, ItemJnlLine) THEN
-                EXIT;
+        if ReservEntry.FINDFIRST() then begin
+            if CompareChargeToItemJnlLine(ReservEntry, ItemJnlLine) then
+                exit;
             LöscheCharge(ForType, ForSubtype, ForID, ForBatchName, ForProdOrderLine, ForRefNo, ForLotNo);
-        END;
+        end;
 
         //Anlegen einer Artikelverfolgung mit den eigenen Feldern
         CLEAR(ReservEntry);
@@ -360,7 +315,7 @@ codeunit 50006 ChargenverwaltungPageApp
     end;
     // << TASK58.01
 
-    procedure EingabeChargeForSalesLine(VAR SalesLine: Record "Sales Line")
+    procedure EingabeChargeForSalesLine(var SalesLine: Record "Sales Line")
     var
         ReservEntry: Record "Reservation Entry";
         recTrackingSpecification: Record "Tracking Specification";
@@ -377,7 +332,7 @@ codeunit 50006 ChargenverwaltungPageApp
 
     begin
 
-        WITH SalesLine DO BEGIN
+        with SalesLine do begin
 
             //Befüllen von Variablen für weitere Schritte
             ForType := 37;
@@ -407,14 +362,14 @@ codeunit 50006 ChargenverwaltungPageApp
             recTrackingSpecification."Expiration Date" := "Expiration Date";
             recTrackingSpecification."Location Code" := "Location Code";
 
-        END;
+        end;
 
-        IF ItemTrackMgt.IsOrderNetworkEntity(
+        if ItemTrackMgt.IsOrderNetworkEntity(
         ForType,
         ForSubtype)
-        THEN
+        then
             CurrentEntryStatus := CurrentEntryStatus::Surplus
-        ELSE
+        else
             CurrentEntryStatus := CurrentEntryStatus::Prospect;
 
         //Suche, ob Reservierungsposten zu Charge vorhanden
@@ -427,11 +382,11 @@ codeunit 50006 ChargenverwaltungPageApp
         ReservEntry.SetFilter(
         "Reservation Status", '%1|%2', ReservEntry."Reservation Status"::Surplus, ReservEntry."Reservation Status"::Prospect);
         ReservEntry.SetRange("Lot No.", ForLotNo);
-        IF ReservEntry.FINDFIRST() THEN BEGIN
+        if ReservEntry.FINDFIRST() then begin
             //IF CompareChargeToItemJnlLine(ReservEntry, ItemJnlLine) THEN
             //    EXIT;
             LöscheCharge(ForType, ForSubtype, ForID, ForBatchName, ForProdOrderLine, ForRefNo, ForLotNo);
-        END;
+        end;
 
         //Anlegen einer Artikelverfolgung mit den eigenen Feldern
         CLEAR(ReservEntry);
@@ -479,7 +434,7 @@ codeunit 50006 ChargenverwaltungPageApp
         //ReservEntry.SetRange("Lot No.", ForLotNo); //Nicht nach Charge Filtern, damit beim ändern der Charge die Reservierung gefunden wird
         ReservEntry.SetFilter(
           "Reservation Status", '%1|%2', ReservEntry."Reservation Status"::Surplus, ReservEntry."Reservation Status"::Prospect);
-        IF ReservEntry.FINDFIRST() THEN
+        if ReservEntry.FINDFIRST() then
             ReservEntry.DELETE();
 
     end;
@@ -490,27 +445,27 @@ codeunit 50006 ChargenverwaltungPageApp
     var
         recRE2: Record "337";
     begin
-        IF ReservationEntry."Item No." <> ItemJnlLine."Item No." THEN
-            EXIT(FALSE);
-        IF ReservationEntry."Lot No." <> ItemJnlLine."Lot No." THEN
-            EXIT(FALSE);
-        IF ReservationEntry."Variant Code" <> ItemJnlLine."Variant Code" THEN
-            EXIT(FALSE);
-        IF (ReservationEntry."Source Ref. No." <> ItemJnlLine."Line No.") THEN
-            EXIT(FALSE);
-        IF (ReservationEntry."Source Subtype" <> ItemJnlLine."Entry Type") THEN
-            EXIT(FALSE);
-        IF (ReservationEntry."Source ID" <> ItemJnlLine."Journal Template Name") THEN
-            EXIT(FALSE);
-        IF (ReservationEntry."Source Batch Name" <> ItemJnlLine."Journal Batch Name") THEN
-            EXIT(FALSE);
+        if ReservationEntry."Item No." <> ItemJnlLine."Item No." then
+            exit(false);
+        if ReservationEntry."Lot No." <> ItemJnlLine."Lot No." then
+            exit(false);
+        if ReservationEntry."Variant Code" <> ItemJnlLine."Variant Code" then
+            exit(false);
+        if (ReservationEntry."Source Ref. No." <> ItemJnlLine."Line No.") then
+            exit(false);
+        if (ReservationEntry."Source Subtype" <> ItemJnlLine."Entry Type") then
+            exit(false);
+        if (ReservationEntry."Source ID" <> ItemJnlLine."Journal Template Name") then
+            exit(false);
+        if (ReservationEntry."Source Batch Name" <> ItemJnlLine."Journal Batch Name") then
+            exit(false);
 
-        IF (ReservationEntry."Expiration Date" <> ItemJnlLine."Expiration Date") AND (ItemJnlLine."Expiration Date" <> 0D) THEN
-            EXIT(FALSE);
-        IF (ReservationEntry."Serial No." <> ItemJnlLine."Serial No.") AND (ItemJnlLine."Serial No." <> '') THEN
-            EXIT(FALSE);
-        IF (ReservationEntry."Lieferantenchargennr." <> ItemJnlLine."Lieferantenchargennr.") AND (ItemJnlLine."Lieferantenchargennr." <> '') THEN
-            EXIT(FALSE);
+        if (ReservationEntry."Expiration Date" <> ItemJnlLine."Expiration Date") and (ItemJnlLine."Expiration Date" <> 0D) then
+            exit(false);
+        if (ReservationEntry."Serial No." <> ItemJnlLine."Serial No.") and (ItemJnlLine."Serial No." <> '') then
+            exit(false);
+        if (ReservationEntry."Lieferantenchargennr." <> ItemJnlLine."Lieferantenchargennr.") and (ItemJnlLine."Lieferantenchargennr." <> '') then
+            exit(false);
         //IF (ReservationEntry.BASSalesLotNoPHA <> ItemJnlLine.ex) AND (ItemJnlLine."External Lot No." <> '') THEN
         //  EXIT(FALSE);
         //IF (ReservationEntry.Gebindeanzahl <> ItemJnlLine.Gebindeanzahl) AND (ItemJnlLine.Gebindeanzahl <> 0) THEN
@@ -528,23 +483,23 @@ codeunit 50006 ChargenverwaltungPageApp
         recRE2.SetRange("Source Ref. No.", ReservationEntry."Source Ref. No.");
         recRE2.SetFilter(
           "Reservation Status", '%1|%2', recRE2."Reservation Status"::Surplus, recRE2."Reservation Status"::Prospect);
-        IF recRE2.CALCSUMS("Quantity (Base)") THEN BEGIN
-            IF (recRE2."Quantity (Base)" <> ItemJnlLine."Quantity (Base)") THEN
-                EXIT(FALSE);
-        END;
+        if recRE2.CALCSUMS("Quantity (Base)") then begin
+            if (recRE2."Quantity (Base)" <> ItemJnlLine."Quantity (Base)") then
+                exit(false);
+        end;
 
-        EXIT(TRUE);
+        exit(true);
     end;
 
 
     procedure GetChargenStatus(cItemNo: Code[20]; cLotNo: Code[20]) tChargenStatus: Text[20]
     var
-        recLot: Record "Lot No. Information";
+        LotNoInformation: Record "Lot No. Information";
     begin
         tChargenStatus := '';
-        IF (StrLen(cItemNo) > 0) AND (StrLen(cLotNo) > 0) THEN
-            IF recLot.GET(cItemNo, '', cLotNo) THEN
-                tChargenStatus := FORMAT(recLot.Status);
+        if (StrLen(cItemNo) > 0) and (StrLen(cLotNo) > 0) then
+            if LotNoInformation.GET(cItemNo, '', cLotNo) then
+                tChargenStatus := Format(LotNoInformation.Status);
     end;
 
 
@@ -552,7 +507,7 @@ codeunit 50006 ChargenverwaltungPageApp
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Tracking Data Collection", 'OnAssistEditTrackingNoOnBeforeSetSources', '', false, false)]
     local procedure CU6501OnAssistEditTrackingNoOnBeforeSetSources(var TempTrackingSpecification: Record "Tracking Specification" temporary; var TempGlobalEntrySummary: Record "Entry Summary" temporary; var MaxQuantity: Decimal)
     var
-        recLot: Record "Lot No. Information";
+        LotNoInformation: Record "Lot No. Information";
         bOK: Boolean;
     begin
         /*
@@ -566,8 +521,8 @@ codeunit 50006 ChargenverwaltungPageApp
         if bOK then begin
             if TempGlobalEntrySummary.FindSet() then
                 repeat
-                    IF recLot.GET(TempTrackingSpecification."Item No.", TempTrackingSpecification."Variant Code", TempGlobalEntrySummary."Lot No.") then begin
-                        TempGlobalEntrySummary.Chargenstatus := Format(recLot.Status);
+                    if LotNoInformation.GET(TempTrackingSpecification."Item No.", TempTrackingSpecification."Variant Code", TempGlobalEntrySummary."Lot No.") then begin
+                        TempGlobalEntrySummary.Chargenstatus := Format(LotNoInformation.Status);
                         TempGlobalEntrySummary.Modify(false);
                     end;
                 until TempGlobalEntrySummary.Next() = 0;
