@@ -669,7 +669,7 @@ codeunit 50000 BASCodeCollectionPHA
         //-GL015
         nReturn := 0;
 
-        recWarehouseEntry.RESET();
+        recWarehouseEntry.Reset();
         recWarehouseEntry.SetCurrentKey("Location Code", "Bin Code", "Item No.", "Variant Code", "Registering Date", "Lot No.");
 
         recWarehouseEntry.SetFilter("Location Code", cLagerort);

@@ -260,7 +260,7 @@ codeunit 50006 BASLotMgtPHA
         // ReservEntry.SetFilter(
         // "Reservation Status", '%1|%2', ReservEntry."Reservation Status"::Surplus, ReservEntry."Reservation Status"::Prospect);
         // ReservEntry.SetRange("Lot No.", ForLotNo);
-        // if ReservEntry.FINDFIRST() then begin
+        // if ReservEntry.FindFirst() then begin
         //     if CompareChargeToItemJnlLine(ReservEntry, ItemJnlLine) then
         //         exit;
         //     LöscheCharge(ForType, ForSubtype, ForID, ForBatchName, ForProdOrderLine, ForRefNo, ForLotNo);
@@ -341,7 +341,7 @@ codeunit 50006 BASLotMgtPHA
         // ReservEntry.SetFilter(
         // "Reservation Status", '%1|%2', ReservEntry."Reservation Status"::Surplus, ReservEntry."Reservation Status"::Prospect);
         // ReservEntry.SetRange("Lot No.", ForLotNo);
-        // if ReservEntry.FINDFIRST() then begin
+        // if ReservEntry.FindFirst() then begin
         //     //IF CompareChargeToItemJnlLine(ReservEntry, ItemJnlLine) THEN
         //     //    EXIT;
         //     LöscheCharge(ForType, ForSubtype, ForID, ForBatchName, ForProdOrderLine, ForRefNo, ForLotNo);
@@ -439,8 +439,8 @@ codeunit 50006 BASLotMgtPHA
                 tChargenStatus := Format(LotNoInformation.BASStatusPHA);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Tracking Data Collection", 'OnAssistEditTrackingNoOnBeforeSetSources', '', false, false)]
-    local procedure CU6501OnAssistEditTrackingNoOnBeforeSetSources(var TempTrackingSpecification: Record "Tracking Specification" temporary; var TempGlobalEntrySummary: Record "Entry Summary" temporary; var MaxQuantity: Decimal)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Tracking Data Collection", 'OnAssistEditTrackingNoOnBefoResetSources', '', false, false)]
+    local procedure CU6501OnAssistEditTrackingNoOnBefoResetSources(var TempTrackingSpecification: Record "Tracking Specification" temporary; var TempGlobalEntrySummary: Record "Entry Summary" temporary; var MaxQuantity: Decimal)
     var
         LotNoInformation: Record "Lot No. Information";
     begin

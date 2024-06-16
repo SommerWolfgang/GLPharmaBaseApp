@@ -60,7 +60,7 @@ tableextension 50027 BASLotNoInformatioNextPHA extends "Lot No. Information"
 
                 //-GL012
                 //Prüfen, ob die Charge schon in einer Verbrauchsbuchung vorhanden ist, wenn ja dann eine Meldung mit Bestättigung anzeigen
-                ItemLedgEntry.RESET();
+                ItemLedgEntry.Reset();
                 ItemLedgEntry.SetCurrentKey("Item No.", BASSalesLotNoPHA);
                 ItemLedgEntry.SetRange("Item No.", "Item No.");
                 ItemLedgEntry.SetRange(BASSalesLotNoPHA, BASSalesLotNoPHA);

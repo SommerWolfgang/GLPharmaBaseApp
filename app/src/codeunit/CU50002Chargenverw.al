@@ -306,7 +306,7 @@ codeunit 50002 Chargenverwaltung
           "Reservation Status", '%1|%2', ReservEntry."Reservation Status"::Surplus, ReservEntry."Reservation Status"::Prospect);
         ReservEntry.SetRange("Lot No.", ForLotNo);
 
-        if ReservEntry.FINDFIRST() then begin
+        if ReservEntry.FindFirst() then begin
             CLEAR(ReservEntry_Insert);
             ReservEntry_Insert.COPY(ReservEntry);
             ReservEntry_Insert."Entry No." += 1;
@@ -416,7 +416,7 @@ codeunit 50002 Chargenverwaltung
         repeat
 
             //Prüfen, ob die Chargennr schon im Chargenstamm existiert
-            LotNoInformationNoInformation.RESET();
+            LotNoInformationNoInformation.Reset();
             LotNoInformationNoInformation.SetCurrentKey("Lot No.", "Item No.");
             LotNoInformationNoInformation.SetRange("Lot No.", cChargennr);
             LotNoInformationNoInformation.SetRange("Item No.", cItemNo);

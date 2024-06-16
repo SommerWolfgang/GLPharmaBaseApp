@@ -60,7 +60,7 @@ codeunit 50004 BASCodesammlungGLDEPHA
         bResult := FALSE;
         ActiveSession.SetRange("Server Instance ID", SERVICEINSTANCEID());
         ActiveSession.SetRange("Session ID", SESSIONID());
-        ActiveSession.FINDFIRST();
+        ActiveSession.FindFirst();
         cDatabasename := ActiveSession."Database Name";
 
         IF (UPPERCASE(cDatabasename) <> 'BC_ECHT') THEN
@@ -83,12 +83,12 @@ codeunit 50004 BASCodesammlungGLDEPHA
 
         recUser.SetCurrentKey("User Name");
         recUser.SetRange("User Name", USERID);
-        recUser.FINDFIRST();
+        recUser.FindFirst();
         UserSecurityID := recUser."User Security ID";
 
         recAccessControl.SetRange("User Security ID", UserSecurityID);
         recAccessControl.SetRange("Role ID", Aktion);
-        IF recAccessControl.FINDFIRST() THEN
+        IF recAccessControl.FindFirst() THEN
             ok := true;
 
         IF Aktion = '$MANDANTENCHECK' THEN BEGIN
@@ -98,7 +98,7 @@ codeunit 50004 BASCodesammlungGLDEPHA
 
         IF NOT ok THEN BEGIN  //bei Rolle Super alle Berechtigung für
             recAccessControl.SetRange("Role ID", 'SUPER');
-            IF recAccessControl.FINDFIRST() THEN
+            IF recAccessControl.FindFirst() THEN
                 EXIT(true);
         END;
 
