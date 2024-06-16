@@ -35,7 +35,7 @@ table 50008 "BASVerkauf_VAXPHA"
         field(7; GW; Decimal)
         {
         }
-        field(8; Verkaufsstatistikcode; Code[10])
+        field(8; VerkaufsBASStatisticCode2PHA; Code[10])
         {
         }
         field(9; Artikelpostennr; Integer)
@@ -45,7 +45,7 @@ table 50008 "BASVerkauf_VAXPHA"
 
     keys
     {
-        key(Key1; Kundennr, Artikelnr, Monat, Verkaufsstatistikcode, Artikelpostennr)
+        key(Key1; Kundennr, Artikelnr, Monat, VerkaufsBASStatisticCode2PHA, Artikelpostennr)
         {
         }
         key(Key2; Artikelnr, Monat)

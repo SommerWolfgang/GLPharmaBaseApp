@@ -16,7 +16,7 @@ table 50012 BASItemChargenTempPHA
             Caption = 'Item No.', comment = 'DEA="Artikelnr."';
             TableRelation = Item;
         }
-        field(3; "Lot No."; Code[20])
+        field(3; BASLotNoPHA; Code[20])
         {
             Caption = 'Lot No.', comment = 'DEA="Chargennr."';
         }
@@ -24,17 +24,17 @@ table 50012 BASItemChargenTempPHA
         {
             Caption = 'Item Type', comment = 'DEA="Artikelart"';
         }
-        // field(5; "Statistikcode I"; Code[10])
+        // field(5; "BASStatisticCode2PHA I"; Code[10])
         // {
-        //     TableRelation = Statistikcode2.Code where(Ebene = const(1));
+        //     TableRelation = BASStatisticCode2PHA.Code where(Level = const(1));
         // }
-        // field(6; "Statistikcode II"; Code[10])
+        // field(6; "BASStatisticCode2PHA II"; Code[10])
         // {
-        //     TableRelation = Statistikcode2.Code where(Ebene = const(2));
+        //     TableRelation = BASStatisticCode2PHA.Code where(Level = const(2));
         // }
-        // field(7; "Statistikcode III"; Code[10])
+        // field(7; "BASStatisticCode2PHA III"; Code[10])
         // {
-        //     TableRelation = Statistikcode2.Code where(Ebene = const(3));
+        //     TableRelation = BASStatisticCode2PHA.Code where(Level = const(3));
         // }
         field(8; "SG/PSY"; Boolean)
         {
@@ -66,7 +66,7 @@ table 50012 BASItemChargenTempPHA
 
     keys
     {
-        key(Key1; "User ID", "Item No.", "Lot No.")
+        key(Key1; "User ID", "Item No.", BASLotNoPHA)
         {
         }
     }

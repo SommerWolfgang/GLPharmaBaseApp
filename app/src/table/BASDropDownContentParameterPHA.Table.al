@@ -41,7 +41,7 @@ table 50106 BASDropDownContentParameterPHA
             Caption = 'Anlegen';
             InitValue = true;
         }
-        field(11; Allow_Modify; Boolean)
+        field(11; Allow_modify; Boolean)
         {
             Caption = 'Ändern';
             InitValue = true;

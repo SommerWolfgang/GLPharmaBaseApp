@@ -1,10 +1,10 @@
 
-table 50015 BASStatisticcode2PHA
+table 50015 BASStatisticcodePHA
 {
-    Caption = 'Statistikcode';
+    Caption = 'StatisticCode', comment = 'DEA="Statistikcode"';
     DataClassification = CustomerContent;
-    //LookupPageID = StatistikcodeList;
-    //DrillDownPageID = StatistikcodeList;
+    //lookupPageID = BASStatisticCode2PHAList;
+    //DrillDownPageID = BASStatisticCode2PHAList;
 
     fields
     {
@@ -18,12 +18,12 @@ table 50015 BASStatisticcode2PHA
         }
         field(3; Level; Integer)
         {
-            Caption = 'Level', comment = 'DEA="Ebene"';
+            Caption = 'Level', comment = 'DEA="Level"';
         }
         field(4; "Belongs to"; Code[10])
         {
             Caption = 'Belongs to', comment = 'DEA=" Gehört Zu"';
-            TableRelation = BASStatisticcode2PHA;
+            TableRelation = BASStatisticcodePHA;
         }
         field(5; PM; Code[10])
         {

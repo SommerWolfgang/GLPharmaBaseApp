@@ -2,14 +2,14 @@
 
 table 50001 BASStatTempPHA
 {
-    DataClassification = ToBeClassified;
+    DataClassification = CustomerContent;
 
     fields
     {
         field(1; artikelnr; Code[20])
         {
         }
-         field(2; menge; Decimal)
+        field(2; menge; Decimal)
         {
         }
         field(3; betrag; Decimal)
@@ -93,7 +93,7 @@ table 50001 BASStatTempPHA
         field(29; ID; Integer)
         {
         }
-        field(30; "Statistikcode III"; Code[10])
+        field(30; "BASStatisticCode2PHA III"; Code[10])
         {
         }
         field(31; "Global Dimension 1 Code"; Code[20])
@@ -126,7 +126,7 @@ table 50001 BASStatTempPHA
         field(41; HKBetrag; Decimal)
         {
         }
-        field(42; "Statistikcode III Text"; Text[30])
+        field(42; "BASStatisticCode2PHA III Text"; Text[30])
         {
         }
         field(43; "Global Dimension 1 Text"; Text[50])
@@ -158,28 +158,28 @@ table 50001 BASStatTempPHA
         key(Key5; benutzerID, artikelnr, EntryDate, ID)
         {
         }
-        key(Key6; benutzerID, artikelnr, "Statistikcode III", "Global Dimension 1 Code")
+        key(Key6; benutzerID, artikelnr, "BASStatisticCode2PHA III", "Global Dimension 1 Code")
         {
         }
-        key(Key7; benutzerID, "Statistikcode III", "Global Dimension 1 Code", artikelnr)
+        key(Key7; benutzerID, "BASStatisticCode2PHA III", "Global Dimension 1 Code", artikelnr)
         {
         }
-        key(Key8; benutzerID, "Global Dimension 1 Code", "Statistikcode III", artikelnr)
+        key(Key8; benutzerID, "Global Dimension 1 Code", "BASStatisticCode2PHA III", artikelnr)
         {
         }
-        key(Key9; benutzerID, "Statistikcode III Text", "Global Dimension 1 Text", artikelnr)
+        key(Key9; benutzerID, "BASStatisticCode2PHA III Text", "Global Dimension 1 Text", artikelnr)
         {
         }
-        key(Key10; benutzerID, "Global Dimension 1 Text", "Statistikcode III Text", artikelnr)
+        key(Key10; benutzerID, "Global Dimension 1 Text", "BASStatisticCode2PHA III Text", artikelnr)
         {
         }
-        key(Key11; benutzerID, "Manufacturing For", "Statistikcode III Text", artikelnr)
+        key(Key11; benutzerID, "Manufacturing For", "BASStatisticCode2PHA III Text", artikelnr)
         {
         }
-        key(Key12; benutzerID, "Statistikcode III Text", artikelnr, "Global Dimension 1 Text")
+        key(Key12; benutzerID, "BASStatisticCode2PHA III Text", artikelnr, "Global Dimension 1 Text")
         {
         }
-        key(Key13; benutzerID, "Global Dimension 1 Text", artikelnr, "Statistikcode III Text")
+        key(Key13; benutzerID, "Global Dimension 1 Text", artikelnr, "BASStatisticCode2PHA III Text")
         {
         }
     }
@@ -296,7 +296,7 @@ table 50020 StatTemp
         field(29; ID; Integer)
         {
         }
-        field(30; "Statistikcode III"; Code[10])
+        field(30; "BASStatisticCode2PHA III"; Code[10])
         {
         }
         field(31; "Global Dimension 1 Code"; Code[20])
@@ -329,7 +329,7 @@ table 50020 StatTemp
         field(41; HKBetrag; Decimal)
         {
         }
-        field(42; "Statistikcode III Text"; Text[30])
+        field(42; "BASStatisticCode2PHA III Text"; Text[30])
         {
         }
         field(43; "Global Dimension 1 Text"; Text[50])
@@ -360,28 +360,28 @@ table 50020 StatTemp
         key(Key5; benutzerID, artikelnr, EntryDate, ID)
         {
         }
-        key(Key6; benutzerID, artikelnr, "Statistikcode III", "Global Dimension 1 Code")
+        key(Key6; benutzerID, artikelnr, "BASStatisticCode2PHA III", "Global Dimension 1 Code")
         {
         }
-        key(Key7; benutzerID, "Statistikcode III", "Global Dimension 1 Code", artikelnr)
+        key(Key7; benutzerID, "BASStatisticCode2PHA III", "Global Dimension 1 Code", artikelnr)
         {
         }
-        key(Key8; benutzerID, "Global Dimension 1 Code", "Statistikcode III", artikelnr)
+        key(Key8; benutzerID, "Global Dimension 1 Code", "BASStatisticCode2PHA III", artikelnr)
         {
         }
-        key(Key9; benutzerID, "Statistikcode III Text", "Global Dimension 1 Text", artikelnr)
+        key(Key9; benutzerID, "BASStatisticCode2PHA III Text", "Global Dimension 1 Text", artikelnr)
         {
         }
-        key(Key10; benutzerID, "Global Dimension 1 Text", "Statistikcode III Text", artikelnr)
+        key(Key10; benutzerID, "Global Dimension 1 Text", "BASStatisticCode2PHA III Text", artikelnr)
         {
         }
-        key(Key11; benutzerID, "Manufacturing For", "Statistikcode III Text", artikelnr)
+        key(Key11; benutzerID, "Manufacturing For", "BASStatisticCode2PHA III Text", artikelnr)
         {
         }
-        key(Key12; benutzerID, "Statistikcode III Text", artikelnr, "Global Dimension 1 Text")
+        key(Key12; benutzerID, "BASStatisticCode2PHA III Text", artikelnr, "Global Dimension 1 Text")
         {
         }
-        key(Key13; benutzerID, "Global Dimension 1 Text", artikelnr, "Statistikcode III Text")
+        key(Key13; benutzerID, "Global Dimension 1 Text", artikelnr, "BASStatisticCode2PHA III Text")
         {
         }
     }
