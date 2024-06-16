@@ -13,7 +13,7 @@ tableextension 50014 BASPurchaseHeaderExtPHA extends "Purchase Header"
         }
         field(50002; "BASAuftragsbest. andruckenPHA"; Boolean)
         {
-            Caption = 'Print order confirmation';
+            Caption = 'Print order Confirmation';
 
         }
         field(50500; "BASExterne Rahmennr.PHA"; Code[20])
@@ -109,22 +109,6 @@ tableextension 50014 BASPurchaseHeaderExtPHA extends "Purchase Header"
         if "Expected Receipt Date" <> 0D then
             Kalenderwoche := DATE2DWY("Expected Receipt Date", 2);
         //+LAN005
-    end;
-
-    procedure SetTransportversicherungHakerl()
-    var
-        ShipmentMethod: Record "Shipment Method";
-    begin
-
-        //-GL011
-        /*
-        Transportversicherung := FALSE;
-        IF Rec."Document Type"=Rec."Document Type"::Order THEN    //Nur bei Bestellungen Vorschlagen
-          IF ShipmentMethod.Get("Shipment Method Code") THEN
-            IF ShipmentMethod.Transportversicherung = TRUE THEN
-              Transportversicherung := TRUE;
-        //+GL011
-        */
     end;
 
     procedure HoleGewuenschteLieferwoche() Kalenderwoche: Integer

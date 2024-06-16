@@ -1,4 +1,4 @@
-tableextension 50036 BAST91UserSetupPHA extends "User Setup"
+tableextension 50036 BASUserSetupPHA extends "User Setup"
 {
     fields
     {
@@ -102,7 +102,7 @@ tableextension 50036 BAST91UserSetupPHA extends "User Setup"
         {
             Caption = 'Site Assignment', comment = 'DEA="Standort Zuordnung"';
         }
-        field(50022; "BASDefault LocationPHA"; Code[10])
+        field(50022; BASDefaultLocationPHA; Code[10])
         {
             Caption = 'Standard Lagerort';
             Description = 'CCU12';
@@ -112,11 +112,11 @@ tableextension 50036 BAST91UserSetupPHA extends "User Setup"
             else
             if (BASSiteAssignmentPHA = filter('')) Location.Code;
         }
-        field(50023; "BASDefault BinPHA"; Code[20])
+        field(50023; BASDefaultBinPHA; Code[20])
         {
-            Caption = 'Standard Lagerplatz';
-            Description = 'CCU12';
-            TableRelation = if ("Default Location" = filter(<> '')) Bin.Code where("Location Code" = field("Default Location"));
+            Caption = 'Default Bin Code', comment = 'DEA="Standard Lagerplatz"';
+            TableRelation = if (BASDefaultLocationPHA = filter(<> '')) Bin.Code
+                where("Location Code" = field(BASDefaultLocationPHA));
         }
     }
 
@@ -133,7 +133,7 @@ tableextension 50036 BAST91UserSetupPHA extends "User Setup"
                 Value := Rec.BASBenutzerEinstellungenPHA;
                 Value[Pos] := ch[1];
                 Rec.BASBenutzerEinstellungenPHA := Value;
-                Rec.Modify();
+                Rec.modify();
             end;
     end;
 

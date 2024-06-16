@@ -71,7 +71,7 @@ tableextension 50013 BASSalesLineExtPHA extends "Sales Line"
         field(50010; BASLotNoPHA; Code[20])
         {
             Caption = 'Lot No.';
-            TableRelation = if (Type = const(Item)) "Lot No. Information"."Lot No." where("Item No." = field("No."),
+            TableRelation = if (Type = const(Item)) "Lot No. Information".BASLotNoPHA where("Item No." = field("No."),
                                                                                          "Variant Code" = field("Variant Code"));
             ValidateTableRelation = false;
         }
@@ -203,7 +203,7 @@ tableextension 50013 BASSalesLineExtPHA extends "Sales Line"
                         //TODOPBA ActionReturn := PAGE.RUNMODAL(PAGE::Page50169, tempRecItemLedgerEntry);
                         if (ActionReturn = ACTION::LookupOK) or (ActionReturn = ACTION::OK) then begin
 
-                            Validate("Lot No.", tempRecItemLedgerEntry."Lot No.");
+                            Validate(BASLotNoPHA, tempRecItemLedgerEntry.BASLotNoPHA);
                             "Verkaufschargennr." := tempRecItemLedgerEntry."Verkaufschargennr.";
                             //IF "Entry Type" = "Entry Type"::Transfer THEN
                             Validate(Teilmenge, tempRecItemLedgerEntry."Remaining Quantity");
@@ -296,7 +296,7 @@ tableextension 50013 BASSalesLineExtPHA extends "Sales Line"
             DecimalPlaces = 0 : 5;
 
         }
-        field(50515; BASVerkaufsBASStatisticCode2PHAPHA; Code[10])
+        field(50515; BASVerkaufsBASStatisticCode2PHA; Code[10])
         {
 
 
@@ -341,8 +341,8 @@ tableextension 50013 BASSalesLineExtPHA extends "Sales Line"
 
             trigger OnValidate()
             var
-                recLotNoInformation: Record "6505";
                 recItem: Record Item;
+                recLotNoInformation: Record "Lot No. Information";
             begin
                 //-LAN006
                 if "Document Type" <> "Document Type"::"Credit Memo" then begin
@@ -358,18 +358,18 @@ tableextension 50013 BASSalesLineExtPHA extends "Sales Line"
                             recLotNoInformation.SetRange("Variant Code", "Variant Code");
                             recLotNoInformation.SetRange("Verkaufschargennr.", "Verkaufschargennr.");
                             if recLotNoInformation.FIND('-') then begin
-                                "Lot No." := recLotNoInformation."Lot No.";
+                                BASLotNoPHA := recLotNoInformation.BASLotNoPHA;
                                 "Verkaufschargennr." := recLotNoInformation."Verkaufschargennr.";
                                 "Expiration Date" := recLotNoInformation."Expiration Date";
                                 "LöscheCharge"();
                                 EingabeCharge();
                             end else begin
-                                MESSAGE('FEHLENDE TEXTVARIABLE T37');
+                                Message('FEHLENDE TEXTVARIABLE T37');
                                 "LöscheCharge"();
                                 EingabeCharge();
                             end;
                         end;
-                        Validate("Lot No.");
+                        Validate(BASLotNoPHA);
                     end;
                 end;
                 //+LAN006
@@ -409,20 +409,20 @@ tableextension 50013 BASSalesLineExtPHA extends "Sales Line"
         /*
         //-LAN006
         IF SuspendLotCreation THEN
-            EXIT;
+            exit;
         IF "Line No." = 0 THEN
-            EXIT;
-        IF "Lot No." = '' THEN
-            EXIT;
+            exit;
+        IF BASLotNoPHA = '' THEN
+            exit;
         IF Type <> Type::Item THEN
-            EXIT;
+            exit;
         IF "No." = '' THEN
-            EXIT;
+            exit;
         TestField("Quantity Shipped", 0);
 
         cuChargenverwaltung.EingabeCharge(
           DATABASE::"Sales Line", "Document Type", "Document No.", '', 0, "Line No.",
-          "Qty. per Unit of Measure", "Quantity (Base)", "Qty. to Invoice (Base)", "Lot No.",
+          "Qty. per Unit of Measure", "Quantity (Base)", "Qty. to Invoice (Base)", BASLotNoPHA,
           "Verkaufschargennr.", '', '', "Expiration Date", "No.", "Variant Code", "Location Code", "Shipment Date");
         //+LAN006
         */
@@ -434,14 +434,14 @@ tableextension 50013 BASSalesLineExtPHA extends "Sales Line"
         /*
         //-LAN006
         IF SuspendLotCreation THEN
-            EXIT;
+            exit;
         IF "Line No." = 0 THEN
-            EXIT;
+            exit;
         IF Type <> Type::Item THEN
-            EXIT;
+            exit;
 
         cuChargenverwaltung.LöscheCharge(
-          DATABASE::"Sales Line", "Document Type", "Document No.", '', 0, "Line No.", "Lot No.");
+          DATABASE::"Sales Line", "Document Type", "Document No.", '', 0, "Line No.", BASLotNoPHA);
         //+LAN006
         */
     end;
@@ -455,7 +455,7 @@ tableextension 50013 BASSalesLineExtPHA extends "Sales Line"
             exit;
         if "Line No." = 0 then
             exit;
-        if "Lot No." = '' then
+        if BASLotNoPHA = '' then
             exit;
         if Type <> Type::Item then
             exit;
@@ -463,7 +463,7 @@ tableextension 50013 BASSalesLineExtPHA extends "Sales Line"
             exit;
 
         LotMgt.FaktMengeCharge(
-          DATABASE::"Sales Line", "Document Type", "Document No.", '', 0, "Line No.", "Lot No.", "Qty. to Invoice (Base)");
+          DATABASE::"Sales Line", "Document Type", "Document No.", '', 0, "Line No.", BASLotNoPHA, "Qty. to Invoice (Base)");
         //+LAN006
     end;
 
@@ -477,7 +477,7 @@ tableextension 50013 BASSalesLineExtPHA extends "Sales Line"
         Item.TestField("Item Tracking Code");
         //Chargenstamm."Item No." := "No.";
         //Chargenstamm."Variant Code" := "Variant Code";
-        //Chargenstamm."Lot No." := "Lot No.";
+        //Chargenstamm.BASLotNoPHA := BASLotNoPHA;
         
         CLEAR(Chargenstamm);   //GL036
         
@@ -492,8 +492,8 @@ tableextension 50013 BASSalesLineExtPHA extends "Sales Line"
           Chargenstamm.SetRange(Open,TRUE);
         
         //-GL036
-          IF STRLEN("Lot No.")>0 THEN
-            Chargenstamm.SetRange("Lot No.","Lot No.");
+          IF STRLEN(BASLotNoPHA)>0 THEN
+            Chargenstamm.SetRange(BASLotNoPHA,BASLotNoPHA);
           Chargenstamm."Item No." := "No.";
         //+GL036
         END;
@@ -503,12 +503,12 @@ tableextension 50013 BASSalesLineExtPHA extends "Sales Line"
         //pChargenUebersicht.SETRECORD(Chargenstamm);
         ActionReturn := PAGE.RUNMODAL(PAGE::Page50512,Chargenstamm);
         IF (ActionReturn = ACTION::LookupOK) OR (ActionReturn = ACTION::OK) THEN BEGIN  //Bei OK wird erste Zeile geliefert
-          "Lot No." := Chargenstamm."Lot No.";
+          BASLotNoPHA := Chargenstamm.BASLotNoPHA;
           "Verkaufschargennr." := Chargenstamm."Verkaufschargennr.";
           "Expiration Date" := Chargenstamm."Expiration Date";
           IF Item.Artikelart = Item.Artikelart::Fertigprodukt THEN
             TestField("Verkaufschargennr.");
-          Validate("Lot No.");
+          Validate(BASLotNoPHA);
         END;
         //+UPDATE2013
         
@@ -520,31 +520,31 @@ tableextension 50013 BASSalesLineExtPHA extends "Sales Line"
         Item.TestField("Item Tracking Code");
         Chargenstamm."Item No." := "No.";
         Chargenstamm."Variant Code" := "Variant Code";
-        Chargenstamm."Lot No." := "Lot No.";
+        Chargenstamm.BASLotNoPHA := BASLotNoPHA;
         IF "Document Type" <> "Document Type"::"Credit Memo" THEN BEGIN
           Chargenstamm."Location Filter" := "Location Code";
           Chargenstamm."Bin Filter" := "Bin Code";
           Chargenstamm.SETFILTER(Inventory, '<>0');
           IF LotMgt.Chargenpostenwählen(Chargenstamm) THEN BEGIN
-            "Lot No." := Chargenstamm."Lot No.";
+            BASLotNoPHA := Chargenstamm.BASLotNoPHA;
             "Verkaufschargennr." := Chargenstamm."Verkaufschargennr.";
             "Expiration Date" := Chargenstamm."Expiration Date";
             IF Item.Artikelart = Item.Artikelart::Fertigprodukt THEN
               TestField("Verkaufschargennr.");
-            Validate("Lot No.");
+            Validate(BASLotNoPHA);
           END;
         END ELSE BEGIN  //Gutschriften: Zugriff auch auf Chargen mit Lagerstand null
           recCharge.SetRange("Item No.",Chargenstamm."Item No.");
           recCharge."Item No." := Chargenstamm."Item No.";
-          recCharge."Lot No." := Chargenstamm."Lot No.";
+          recCharge.BASLotNoPHA := Chargenstamm.BASLotNoPHA;
           recCharge."Variant Code" := Chargenstamm."Variant Code";
           IF PAGE.RUNMODAL(PAGE::"Chargenstamm Übersicht",recCharge)=ACTION::LookupOK THEN BEGIN
-            "Lot No." := recCharge."Lot No.";
+            BASLotNoPHA := recCharge.BASLotNoPHA;
             "Verkaufschargennr." := recCharge."Verkaufschargennr.";
             "Expiration Date" := recCharge."Expiration Date";
             IF Item.Artikelart = Item.Artikelart::Fertigprodukt THEN
               TestField("Verkaufschargennr.");
-            Validate("Lot No.");
+            Validate(BASLotNoPHA);
           END;
         END;
         //+LAN006
@@ -605,7 +605,7 @@ tableextension 50013 BASSalesLineExtPHA extends "Sales Line"
             SalesItemCharge."Applies-to Doc. Line No." := SalesShipmentLines."Line No.";
             SalesItemCharge."Applies-to Doc. Line Amount" := 0;
             if not SalesItemCharge.INSERT() then
-                SalesItemCharge.Modify();
+                SalesItemCharge.modify();
         end;
         //+GL013
     end;
@@ -635,7 +635,7 @@ tableextension 50013 BASSalesLineExtPHA extends "Sales Line"
             SalesItemCharge."Applies-to Doc. Line No." := SalesInvoiceLines."Line No.";
             SalesItemCharge."Applies-to Doc. Line Amount" := 0;
             if not SalesItemCharge.INSERT() then
-                SalesItemCharge.Modify();
+                SalesItemCharge.modify();
         end;
         //+GL013
     end;
@@ -671,7 +671,7 @@ tableextension 50013 BASSalesLineExtPHA extends "Sales Line"
                     //Prüfen, ob noch genügend Stück am Rahmenauftrag offen sind
                     if (RSalesLine.Quantity - RSalesLine."Quantity Shipped") < dMenge then begin
                         bReturnOK := false;   //GL028
-                        MESSAGE('Am Rahmenauftrag %1 sind %2 Stk offen!', cRahmenNr,
+                        Message('Am Rahmenauftrag %1 sind %2 Stk offen!', cRahmenNr,
                           (RSalesLine.Quantity - RSalesLine."Quantity Shipped"));
 
                     end else begin
@@ -693,7 +693,7 @@ tableextension 50013 BASSalesLineExtPHA extends "Sales Line"
                         //Ist die offene Menge und die Menge in den Aufträgen kleiner als die Angefordete Menge, dann Meldung
                         if ((RSalesLine.Quantity - RSalesLine."Quantity Shipped") - ShipmentQuantity) < dMenge then begin
                             bReturnOK := false;   //GL028
-                            MESSAGE('Für den Rahmenauftrag %1 sind %2 Stk offen und %3 Stk in Aufträgen vorgesehen!',
+                            Message('Für den Rahmenauftrag %1 sind %2 Stk offen und %3 Stk in Aufträgen vorgesehen!',
                               cRahmenNr, (RSalesLine.Quantity - RSalesLine."Quantity Shipped"), ShipmentQuantity + dMenge);
                         end;
                     end;
@@ -703,7 +703,7 @@ tableextension 50013 BASSalesLineExtPHA extends "Sales Line"
                 //-GL029
             end else begin
                 bReturnOK := false;
-                MESSAGE('Der Rahmenauftrag %1 ist fertig geliefert!', cRahmenNr);
+                Message('Der Rahmenauftrag %1 ist fertig geliefert!', cRahmenNr);
             end;
             //+GL029
 
@@ -754,12 +754,12 @@ tableextension 50013 BASSalesLineExtPHA extends "Sales Line"
                 //Lagerstand auf VKL ermitteln
                 CLEAR(ItemLedgerEntry);
                 ItemLedgerEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date",
-                  "Expiration Date", "Lot No.", "Serial No.");
+                  "Expiration Date", BASLotNoPHA, "Serial No.");
                 ItemLedgerEntry.SetRange(Open, true);
                 ItemLedgerEntry.SetRange("Item No.", cItemNo);
                 ItemLedgerEntry.SETFILTER("Location Code", 'VKL');
-                ItemLedgerEntry.SetRange("Lot No.", cLotNo);
-                if ItemLedgerEntry.FINDFIRST() then begin
+                ItemLedgerEntry.SetRange(BASLotNoPHA, cLotNo);
+                if ItemLedgerEntry.FindFirst() then begin
                     Inventory := 0;
                     repeat
                         Inventory += ItemLedgerEntry."Remaining Quantity";
@@ -769,9 +769,9 @@ tableextension 50013 BASSalesLineExtPHA extends "Sales Line"
                 //Menge in Aufträge, nicht geliefert, ermitteln
                 SalesLine.SetRange(Type, SalesLine.Type::Item);
                 SalesLine.SetRange("No.", cItemNo);
-                SalesLine.SetRange("Lot No.", cLotNo);
+                SalesLine.SetRange(BASLotNoPHA, cLotNo);
                 SalesLine.SETFILTER("Document No.", '<>' + cAuftragNr);      //Eigenen Auftrag ausnehmen
-                if SalesLine.FINDFIRST() then
+                if SalesLine.FindFirst() then
                     repeat
                         QuantityInOrder += SalesLine."Qty. to Ship";
                     until SalesLine.NEXT() = 0;
@@ -780,7 +780,7 @@ tableextension 50013 BASSalesLineExtPHA extends "Sales Line"
 
                 //Genug offene Menge vorhanden?
                 if dMengeBedarf > (Inventory - QuantityInOrder) then
-                    MESSAGE('Keine Ausreichende Menge auf VKL der Charge %1 vorhanden!', cLotNo);
+                    Message('Keine Ausreichende Menge auf VKL der Charge %1 vorhanden!', cLotNo);
 
             end;
         end;

@@ -21,7 +21,7 @@ tableextension 50009 BASItemExtPHA extends Item
 
             Editable = false;
         }
-        field(50004; BASKreditornamePHA; Text[50])
+        field(50004; BASKreditornamePHA; Text[100])
         {
             CalcFormula = lookup(Vendor.Name where("No." = field("Vendor No.")));
             Caption = 'Vendor Name';
@@ -369,7 +369,7 @@ tableextension 50009 BASItemExtPHA extends Item
                 if xRec.BASItemTypePHA = BASItemTypePHA then
                     exit;
 
-                if not CONFIRM(Text50000, false, BASItemTypePHA) then
+                if not Confirm(Text50000, false, BASItemTypePHA) then
                     BASItemTypePHA := xRec.BASItemTypePHA;
                 //+LAN001
             end;
@@ -522,34 +522,34 @@ tableextension 50009 BASItemExtPHA extends Item
             DecimalPlaces = 5 : 5;
 
         }
-        field(50552; "BASGewicht VP KunststofffoliePHA"; Decimal)
+        field(50552; BASWeightVPPlasticSheetPHA; Decimal)
         {
+            Caption = 'Weight VP Plastic Sheet', comment = 'DEA="Gewicht VP Kunststofffolie"';
             DecimalPlaces = 5 : 5;
-
         }
-        field(50553; "BASGewicht VP MetallPHA"; Decimal)
+        field(50553; BASWeightVPMetalicPHA; Decimal)
         {
+            Caption = 'Weight VP Metalic', comment = 'DEA="Gewicht VP Metall"';
             DecimalPlaces = 5 : 5;
-
         }
-        field(50554; "BASSales (Qty.) Deb FilterPHA"; Decimal)
-        {
-            CalcFormula = - sum("Item Ledger Entry"."Invoiced Quantity" where("Entry Type" = const(Sale),
-                                                                              "Item No." = field("No."),
-                                                                              "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
-                                                                              "Global Dimension 2 Code" = field("Global Dimension 2 Filter"),
-                                                                              "Location Code" = field("Location Filter"),
-                                                                              "Drop Shipment" = field("Drop Shipment Filter"),
-                                                                              "Variant Code" = field("Variant Filter"),
-                                                                              "Posting Date" = field("Date Filter"),
-                                                                              "Lot No." = field("Lot No. Filter"),
-                                                                              "Serial No." = field("Serial No. Filter"),
-                                                                              "Source No." = filter(< 50004)));
-            Caption = 'Verkauf (Menge) Kunden Filter';
-            Description = 'GL';
-            FieldClass = FlowField;
-
-        }
+        // ToDo hardcoded!!! Source No.
+        // field(50554; "BASSales (Qty.) Deb FilterPHA"; Decimal)
+        // {
+        //     CalcFormula = - sum("Item Ledger Entry"."Invoiced Quantity" where("Entry Type" = const(Sale),
+        //                                                                       "Item No." = field("No."),
+        //                                                                       "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
+        //                                                                       "Global Dimension 2 Code" = field("Global Dimension 2 Filter"),
+        //                                                                       "Location Code" = field("Location Filter"),
+        //                                                                       "Drop Shipment" = field("Drop Shipment Filter"),
+        //                                                                       "Variant Code" = field("Variant Filter"),
+        //                                                                       "Posting Date" = field("Date Filter"),
+        //                                                                       BASLotNoPHA = field("Lot No. Filter"),
+        //                                                                       "Serial No." = field("Serial No. Filter"),
+        //                                                                       "Source No." = filter(< 50004)));
+        //     Caption = 'Verkauf (Menge) Kunden Filter';
+        //     Description = 'GL';
+        //     FieldClass = FlowField;
+        // }
         field(50555; "BASSales (LCY) Deb FilterPHA"; Decimal)
         {
             CalcFormula = sum("Value Entry"."Sales Amount (Actual)" where("Item Ledger Entry Type" = const(Sale),
@@ -579,14 +579,10 @@ tableextension 50009 BASItemExtPHA extends Item
         field(50560; "BASManufacturing AreaPHA"; Code[20])
         {
             Caption = 'Herstellungsbereich';
-
-
         }
-        field(50561; "BASSite ManufacturingPHA"; Code[20])
+        field(50561; BASSiteManufacturingPHA; Code[20])
         {
-            Caption = 'Standort Herstellung';
-
-
+            Caption = 'Site Manufacturing', comment = 'DEA="Standort Herstellung"';
         }
         field(50562; "BASSite Batch ReleasePHA"; Code[20])
         {
@@ -675,14 +671,12 @@ tableextension 50009 BASItemExtPHA extends Item
         item: Record Item;
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        //-GL001
         if item.Get(itemno) then begin
-            if ManufacturingSetup.Get(item."BASSite ManufacturingPHA") then;
+            if ManufacturingSetup.Get(item.BASSiteManufacturingPHA) then;
             // item.SetFilter("Location Filter", ManufacturingSetup."Lagerbestand vor Ort Filter");
             item.CalcFields(item.Inventory);
             lagerstand := item.Inventory;
         end;
-        //+GL001
     end;
 
     procedure LagerstandLannach(itemno: Code[20]) lagerstand: Decimal
@@ -867,7 +861,7 @@ tableextension 50009 BASItemExtPHA extends Item
                 DefaultDimension."Dimension Code" := 'TYP';
                 DefaultDimension."Dimension Value Code" := 'ARTIKEL';
                 if DefaultDimension.Insert(true) = false then
-                    MESSAGE('Dimension Zuweisung %1 konnte nicht angelegt werden!', ItemNo);
+                    Message('Dimension Zuweisung %1 konnte nicht angelegt werden!', ItemNo);
             end;
         end;
     end;
@@ -885,7 +879,7 @@ tableextension 50009 BASItemExtPHA extends Item
             // DefaultDimension.SetRange("Dimension Value Code", 'ARTIKEL');
             if DefaultDimension.FindFirst() then
                 if not DefaultDimension.Delete() then
-                    MESSAGE(AssignDimensionTxt, ItemNo);
+                    Message(AssignDimensionTxt, ItemNo);
         end;
     end;
 

@@ -38,9 +38,8 @@ tableextension 50046 BASSalesHeaderArchiveExtPHA extends "Sales Header Archive"
         //     TableRelation = "Ship-to Address".Code where("Customer No." = field("Bill-to Customer No."),
         //                                                   Type = filter(<> Shipment));
         // }
-        field(50007; BASVerkaufsBASStatisticCode2PHAPHA; Code[10])
+        field(50007; BASSalesStatisticCode2PHA; Code[10])
         {
-
         }
         field(50008; BASSammelrechnungstypPHA; Option)
         {

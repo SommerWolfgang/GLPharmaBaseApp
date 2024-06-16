@@ -24,7 +24,7 @@ tableextension 50047 BASSalesLineArchiveExtPHA extends "Sales Line Archive"
         field(50010; BASLotNoPHA; Code[20])
         {
             Caption = 'Lot No.', comment = 'DEA="Serialno."';
-            TableRelation = if (Type = const(Item)) "Lot No. Information"."Lot No." where("Item No." = field("No."),
+            TableRelation = if (Type = const(Item)) "Lot No. Information".BASLotNoPHA where("Item No." = field("No."),
                                                                                          "Variant Code" = field("Variant Code"));
         }
         field(50506; BASArtikelgruppePHA; Code[10])
@@ -51,7 +51,7 @@ tableextension 50047 BASSalesLineArchiveExtPHA extends "Sales Line Archive"
 
             TableRelation = Item;
         }
-        field(50511; "BASValue Corr. Item Ledg. EntryPHA"; Integer)
+        field(50511; BASValueCorrItemLedgEntryPHA; Integer)
         {
             Caption = 'Value Corr. Item Ledg. Entry', comment = 'DEA="Wertkorrektur zu Artikelposten"';
 
@@ -72,9 +72,8 @@ tableextension 50047 BASSalesLineArchiveExtPHA extends "Sales Line Archive"
             Caption = '', comment = 'DEA=" Naturalrabattmenge geliefert"';
             DecimalPlaces = 0 : 5;
         }
-        field(50515; BASVerkaufsBASStatisticCode2PHAPHA; Code[10])
+        field(50515; BASSalesStatisticCode2PHA; Code[10])
         {
-
         }
         field(50516; "BASExpiration DatePHA"; Date)
         {

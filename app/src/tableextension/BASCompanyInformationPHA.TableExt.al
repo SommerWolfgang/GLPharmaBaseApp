@@ -1,4 +1,4 @@
-tableextension 50028 BAST79CompanyInformationPHA extends "Company Information"
+tableextension 50028 BASCompanyInformationPHA extends "Company Information"
 {
     fields
     {
@@ -54,11 +54,9 @@ tableextension 50028 BAST79CompanyInformationPHA extends "Company Information"
         }
         field(50012; "BASGen. Bus. Posting GroupPHA"; Code[10])
         {
-            Description = 'Fürbaß';
         }
         field(50013; BASEORIPHA; Code[20])
         {
-            Description = 'Fürbaß';
         }
     }
 }

@@ -1,4 +1,4 @@
-tableextension 50035 BAST84AccScheduleNamePHA extends "Acc. Schedule Name"
+tableextension 50035 BASAccScheduleNamePHA extends "Acc. Schedule Name"
 {
     fields
     {

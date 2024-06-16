@@ -33,7 +33,7 @@ table 50000 BASItemAdditivePHA
     // ------------------------------------------------------------------------------------------------------------------------------------
 
     DataCaptionFields = ItemDescription;
-    DataClassification = ToBeClassified;
+    DataClassification = CustomerContent;
     //DrillDownPageID = 50038;
     //LookupPageID = 50038;
 
@@ -202,7 +202,7 @@ table 50000 BASItemAdditivePHA
     {
     }
 
-    trigger OnModify()
+    trigger Onmodify()
     begin
 
         // if (Rec.Suchtgiftgruppe <> xRec.Suchtgiftgruppe) then

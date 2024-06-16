@@ -16,7 +16,7 @@ table 50012 BASItemChargenTempPHA
             Caption = 'Item No.', comment = 'DEA="Artikelnr."';
             TableRelation = Item;
         }
-        field(3; "Lot No."; Code[20])
+        field(3; BASLotNoPHA; Code[20])
         {
             Caption = 'Lot No.', comment = 'DEA="Chargennr."';
         }
@@ -66,7 +66,7 @@ table 50012 BASItemChargenTempPHA
 
     keys
     {
-        key(Key1; "User ID", "Item No.", "Lot No.")
+        key(Key1; "User ID", "Item No.", BASLotNoPHA)
         {
         }
     }

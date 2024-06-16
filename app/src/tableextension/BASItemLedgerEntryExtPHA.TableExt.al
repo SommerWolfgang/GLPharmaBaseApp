@@ -18,7 +18,7 @@ tableextension 50011 BASItemLedgerEntryExtPHA extends "Item Ledger Entry"
             CalcFormula = count("Warehouse Entry" where("Location Code" = field("Location Code"),
                                                          "Item No." = field("Item No."),
                                                          "Variant Code" = field("Variant Code"),
-                                                         "Lot No." = field("Lot No.")));
+                                                         BASLotNoPHA = field(BASLotNoPHA)));
             FieldClass = FlowField;
         }
         field(50003; BASLagerplatzhilfsfeldPHA; Code[20])
@@ -27,7 +27,7 @@ tableextension 50011 BASItemLedgerEntryExtPHA extends "Item Ledger Entry"
         // field(50004; BASChargen_LaetusCodePHA; Text[15])
         // {
         //     CalcFormula = lookup("Lot No. Information"."Laetus-Code" where("Item No." = field("Item No."),
-        //                                                                   "Lot No." = field("Lot No.")));
+        //                                                                   BASLotNoPHA = field(BASLotNoPHA)));
         //     FieldClass = FlowField;
         // }
         field(50500; "BASExterne Rahmennr.PHA"; Code[20])
@@ -93,11 +93,9 @@ tableextension 50011 BASItemLedgerEntryExtPHA extends "Item Ledger Entry"
         field(50516; BASNaturalrabattmengePHA; Decimal)
         {
             DecimalPlaces = 0 : 5;
-
         }
-        field(50517; BASVerkaufsBASStatisticCode2PHAPHA; Code[10])
+        field(50517; BASSalessStatisicCode2PHA; Code[10])
         {
-
         }
         field(50521; "BASSuchtgift/PsychotropPHA"; Text[1])
         {
@@ -145,7 +143,7 @@ tableextension 50011 BASItemLedgerEntryExtPHA extends "Item Ledger Entry"
             CalcFormula = lookup(
                 "Warehouse Entry"."Bin Code"
                     where("Location Code" = const('RÜL'),
-                        "Item No." = field("Item No."), "Variant Code" = field("Variant Code"), "Lot No." = field("Lot No."),
+                        "Item No." = field("Item No."), "Variant Code" = field("Variant Code"), BASLotNoPHA = field(BASLotNoPHA),
                             "Registering Date" = field("Posting Date"), "Location Code" = field("Location Code"), Quantity = field(Quantity)));
             FieldClass = FlowField;
 

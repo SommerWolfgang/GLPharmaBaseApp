@@ -4,68 +4,58 @@ tableextension 50015 BASPurchaseLineExtPHA extends "Purchase Line"
     {
         field(50000; BASPreisfaktorPHA; Decimal)
         {
-
         }
         field(50001; BASPackmittelversionPHA; Code[20])
         {
-
             TableRelation = if (Type = const(Item)) "Item Variant".Code where("Item No." = field("No."));
-
             trigger OnValidate()
-            var
-                Chargenstamm: Record "Lot No. Information";
             begin
-                //-LAN005
-                Chargenstamm.SetRange("Item No.", "No.");
-                Chargenstamm.SetRange("Variant Code", "Variant Code");
-                Chargenstamm.SetRange("Lot No.", "Lot No.");
-                if Chargenstamm.FINDFIRST() then begin
-                    Packmittelversion := Chargenstamm.Packmittelversion;
-                    MESSAGE('Keine Textvariable T39', "No.", FieldCaption(Packmittelversion), Packmittelversion);
+                LotNoInformation.Reset();
+                LotNoInformation.SetRange("Item No.", "No.");
+                LotNoInformation.SetRange("Variant Code", "Variant Code");
+                LotNoInformation.SetRange(BASLotNoPHA, BASLotNoPHA);
+                if LotNoInformation.FindFirst() then begin
+                    BASPackmittelversionPHA := LotNoInformation.BASPackmittelversionPHA;
+                    Message('Keine Textvariable T39', "No.", FieldCaption(BASPackmittelversionPHA), BASPackmittelversionPHA);
                 end;
 
-                Validate("Lot No.");
-                //+LAN005
+                Validate(BASLotNoPHA);
             end;
         }
         field(50002; "DruckUnterlagenPrüfung"; Option)
         {
-
             OptionMembers = " ",offen,erledigt;
         }
         field(50003; "Einkäufercode"; Code[20])
         {
-            CalcFormula = lookup("Purchase Header"."Purchaser Code" where("Document Type" = field("Document Type"),
-                                                                           "No." = field("Document No.")));
+            CalcFormula = lookup("Purchase Header"."Purchaser Code" where("Document Type" = field("Document Type"), "No." = field("Document No.")));
             FieldClass = FlowField;
         }
         field(50004; BASBestelldatumPHA; Date)
         {
-            CalcFormula = lookup("Purchase Header"."Order Date" where("Document Type" = field("Document Type"),
-                                                                       "No." = field("Document No.")));
+            CalcFormula = lookup("Purchase Header"."Order Date" where("Document Type" = field("Document Type"), "No." = field("Document No.")));
             FieldClass = FlowField;
         }
         field(50005; BASHerstellerNrPHA; Code[20])
         {
 
         }
-        field(50006; "BASCEP NrPHA"; Code[50])
+        field(50006; BASCEPNoPHA; Code[50])
         {
-
         }
-        field(50010; "BASLot No.PHA"; Code[20])
+        field(50010; BASLotNoPHA; Code[20])
         {
             Caption = 'Lot No.';
 
-            TableRelation = if (Type = const(Item)) "Lot No. Information"."Lot No." where("Item No." = field("No."),
-                                                                                         "Variant Code" = field("Variant Code"));
-            ValidateTableRelation = false;
+            // ToDo
+            // TableRelation = if (Type = const(Item)) BASLotSerialNoInformationPHA.BASLotNoPHA where("Item No." = field("No."),
+            //                                                                              "Variant Code" = field("Variant Code"));
+            // ValidateTableRelation = false;
         }
-        field(50500; "BASOff. Gesamtmenge in BestellungPHA"; Decimal)
+        field(50500; BASTotalQuantityInOrderPHA; Decimal)
         {
-            CalcFormula = sum("Purchase Line"."Outstanding Qty. (Base)" where("Document Type" = const("Order"),
-                                                                               Type = const(Item),
-                                                                               "No." = field("No.")));
+            CalcFormula = sum("Purchase Line"."Outstanding Qty. (Base)"
+                where("Document Type" = const("Order"), Type = const(Item), "No." = field("No.")));
             DecimalPlaces = 0 : 5;
 
             Editable = false;
@@ -123,65 +113,44 @@ tableextension 50015 BASPurchaseLineExtPHA extends "Purchase Line"
         }
         field(50526; "BASLieferantenchargennr.PHA"; Code[20])
         {
-
-
-            trigger OnValidate()
-            var
-                Chargenstamm: Record "6505";
-                Artikel: Record Item;
-            begin
-            end;
         }
-        field(50528; "BASVerkaufschargennr.PHA"; Code[20])
+        field(50528; BASSalesChargePHA; Code[20])
         {
-
-
             trigger OnValidate()
-            var
-                Chargenstamm: Record "6505";
-                Artikel: Record Item;
             begin
-                //-LAN005
-                Artikel.Get("No.");
-                Chargenstamm.SetRange("Item No.", "No.");
-                Chargenstamm.SetRange("Variant Code", "Variant Code");
-                Chargenstamm.SetRange("Lot No.", "Lot No.");
-                if Chargenstamm.FINDFIRST() then begin
-                    "Verkaufschargennr." := Chargenstamm."Verkaufschargennr.";
-                    MESSAGE('KEINE TEXTVARIABLE T39', "No.", FieldCaption("Verkaufschargennr."), "Verkaufschargennr.");
+                Item.Get("No.");
+                LotNoInformation.Reset();
+                LotNoInformation.SetRange("Item No.", "No.");
+                LotNoInformation.SetRange("Variant Code", "Variant Code");
+                LotNoInformation.SetRange(BASLotNoPHA, BASLotNoPHA);
+                if LotNoInformation.FindFirst() then begin
+                    BASSalesChargePHA := LotNoInformation."Verkaufschargennr.";
+                    Message('KEINE TEXTVARIABLE T39', "No.", FieldCaption(BASSalesChargePHA), "Verkaufschargennr.");
                 end;
 
-                Validate("Lot No.");
-                //+LAN005
+                Validate(BASLotNoPHA);
             end;
         }
-        field(50529; "BASUrspr. MengePHA"; Decimal)
+        field(50529; BASQuantityPHA; Decimal)
         {
             DecimalPlaces = 0 : 5;
-
         }
         field(50530; "BASExpiration DatePHA"; Date)
         {
             Caption = 'Expiration Date';
-
-
             trigger OnValidate()
-            var
-                chargenstamm: Record "6505";
-                artikel: Record Item;
             begin
-
-
-                artikel.Get("No.");
-                chargenstamm.SetRange("Item No.", "No.");
-                chargenstamm.SetRange("Variant Code", "Variant Code");
-                chargenstamm.SetRange("Lot No.", "Lot No.");
-                if chargenstamm.FINDFIRST() then begin
-                    "Expiration Date" := chargenstamm."Expiration Date";
-                    MESSAGE('KEINE TEXTVARIABLE T39', "No.", FieldCaption("Expiration Date"), "Expiration Date");
+                Item := GetItem();
+                LotNoInformation.SetRange("Item No.", "No.");
+                LotNoInformation.SetRange("Variant Code", "Variant Code");
+                LotNoInformation.SetRange(BASLotNoPHA, BASLotNoPHA);
+                if LotNoInformation.FindFirst() then begin
+                    // ToDo
+                    // BASExpirationDateDMPHA := LotNoInformation.BASExpirationDateDMPHA;
+                    // Message('KEINE TEXTVARIABLE T39', "No.", FieldCaption(BASExpirationDateDMPHA), BASExpirationDateDMPHA);
                 end;
 
-                Validate("Lot No.");
+                Validate(BASLotNoPHA);
 
             end;
         }
@@ -239,7 +208,7 @@ tableextension 50015 BASPurchaseLineExtPHA extends "Purchase Line"
             Description = 'MFU';
         }
 
-        field(50587; "BASExpiration Date DMPHA"; Text[6])
+        field(50587; BASExpirationDateDMPHA; Text[6])
         {
             Description = 'GL015,EUHUB';
             Numeric = true;
@@ -252,20 +221,20 @@ tableextension 50015 BASPurchaseLineExtPHA extends "Purchase Line"
         }
     }
     var
-        Chargenstamm: Record "Lot No. Information";
+        Item: record Item;
+        LotNoInformation: Record "Lot No. Information";
         PurchHeader: Record "Purchase Header";
-        Codesammlung: Codeunit "50000";
-        cuNaviPharma: Codeunit "50001";
-        LotMgt: Codeunit "50002";
+        // Codesammlung: Codeunit "50000";
+        // cuNaviPharma: Codeunit "50001";
+        // LotMgt: Codeunit "50002";
         "BemerkungsmeldungUnterdrücken": Boolean;
-        bFFAAactive: Boolean;
         SpeichernGefragt: Boolean;
 
     procedure FaktMengeCharge()
     begin
         if "Line No." = 0 then
             exit;
-        if "Lot No." = '' then
+        if BASLotNoPHA = '' then
             exit;
         if Type <> Type::Item then
             exit;
@@ -273,7 +242,7 @@ tableextension 50015 BASPurchaseLineExtPHA extends "Purchase Line"
             exit;
 
         LotMgt.FaktMengeCharge(
-          DATABASE::"Purchase Line", "Document Type", "Document No.", '', 0, "Line No.", "Lot No.", "Qty. to Invoice (Base)");
+          DATABASE::"Purchase Line", "Document Type", "Document No.", '', 0, "Line No.", BASLotNoPHA, "Qty. to Invoice (Base)");
     end;
 
     procedure LiefMengeCharge()
@@ -283,7 +252,7 @@ tableextension 50015 BASPurchaseLineExtPHA extends "Purchase Line"
         //-LAN005
         if "Line No." = 0 then
             exit;
-        if "Lot No." = '' then
+        if BASLotNoPHA = '' then
             exit;
         if Type <> Type::Item then
             exit;
@@ -291,7 +260,7 @@ tableextension 50015 BASPurchaseLineExtPHA extends "Purchase Line"
             exit;
 
         LotMgt.LiefMengeCharge(
-          DATABASE::"Purchase Line", "Document Type", "Document No.", '', 0, "Line No.", "Lot No.", "Qty. to Receive (Base)");
+          DATABASE::"Purchase Line", "Document Type", "Document No.", '', 0, "Line No.", BASLotNoPHA, "Qty. to Receive (Base)");
         //+LAN005
     end;
 
@@ -302,7 +271,7 @@ tableextension 50015 BASPurchaseLineExtPHA extends "Purchase Line"
     procedure NeueCharge(): Boolean
     begin
         //-LAN005
-        if not Chargenstamm.Get("No.", "Variant Code", "Lot No.") then
+        if not LotNoInformation.Get("No.", "Variant Code", BASLotNoPHA) then
             exit(true);
         //+LAN005
     end;
@@ -328,7 +297,7 @@ tableextension 50015 BASPurchaseLineExtPHA extends "Purchase Line"
 
         SpeichernGefragt := true;
 
-        if not CONFIRM(MsgText, true) then
+        if not Confirm(MsgText, true) then
             Error('Änderungen wurden nicht gespeichert');
         //+LAN007
     end;
@@ -360,84 +329,75 @@ tableextension 50015 BASPurchaseLineExtPHA extends "Purchase Line"
 
     procedure LotNoCheck()
     var
-        recLotNoInfo: Record "6505";
-        recItem: Record Item;
+        Item2: Record Item;
     begin
-
-        recItem.Get("No.");
-        if recItem.Artikelart in [recItem.Artikelart::Rohstoff, recItem.Artikelart::Verpackungsstoff] then begin
-            recLotNoInfo.SetCurrentKey("Lot No.");
-            recLotNoInfo.SetRange("Lot No.", "Lot No.");
-            if recLotNoInfo.FINDFIRST() then
+        Item2 := GetItem();
+        Item2.Get("No.");
+        if Item2.BASItemTypePHA in [Item2.BASItemTypePHA::"Row Material", Item2.BASItemTypePHA::"Package Material"] then begin
+            LotNoInformation.SetCurrentKey(BASLotNoPHA);
+            LotNoInformation.SetRange(BASLotNoPHA, BASLotNoPHA);
+            if LotNoInformation.FindFirst() then
                 if recLotNoInfo."Item No." <> "No." then
                     Error('Rohstoffcharge wurde schon zu anderer Artikelnummer vergeben!');
         end;
 
     end;
 
-    procedure UrspMenge(nMengeBisher: Decimal)
+    procedure UrspMenge(PreviousQuantity: Decimal)
     begin
 
         if ("Document Type" in ["Document Type"::Order, "Document Type"::Invoice, "Document Type"::"Blanket Order"]) and
-          (nMengeBisher <> 0) and (Type = Type::Item) then begin
+          (PreviousQuantity <> 0) and (Type = Type::Item) then
+            if STRMENU(STRSUBSTNO('Ursprüngliche Menge auf %1 setzen?', CONVERTSTR(FORMAT(PreviousQuantity), ',', '.')), 1) = 1 then
+                BASQuantityPHA := PreviousQuantity;
 
-            if STRMENU(STRSUBSTNO('Ursprüngliche Menge auf %1 setzen?', CONVERTSTR(FORMAT(nMengeBisher), ',', '.')), 1) = 1 then
-                "Urspr. Menge" := nMengeBisher;
-
-        end;
     end;
 
-    procedure CheckProjektArtikel(cItemNo: Code[20]; cJobNo: Code[20])
-    var
-        recItem: Record Item;
+    procedure CheckProjektArtikel(ItemNo: Code[20]; JobNo: Code[20])
     begin
-
-        if (STRLEN(cItemNo) > 1) and (STRLEN(cJobNo) > 1) then
-            if recItem.Get(cItemNo) then
-                if recItem."Inventory Value Zero" = false then
+        GetItem();
+        if (StrLen(ItemNo) > 1) and (StrLen(JobNo) > 1) then
+            if Item.Get(ItemNo) then
+                if Item."Inventory Value Zero" = false then
                     Error('Eine Projektnummer ist nicht zulässig, wenn ein Artikel mit Lagerwert Bestellt wird!');
     end;
 
 
+    // ToDo all
     local procedure CheckExpDate()
-    var
-        iDayHelp: Integer;
-        iMonHelp: Integer;
-        tMonHelp: Text[2];
-        tMonHelpDM: Text[2];
-        tYearHelp: Text[4];
-        tYearHelpDM: Text[4];
+    // var
+    //     iDayHelp: Integer;
+    //     iMonHelp: Integer;
+    //     tMonHelp: Text[2];
+    //     tMonHelpDM: Text[2];
+    //     tYearHelp: Text[4];
+    //     tYearHelpDM: Text[4];
     begin
-        //-GL015
-        if ("Expiration Date DM" <> '') then begin
-            if STRLEN("Expiration Date DM") < 6 then
-                Error('DataMatrix Ablaufdatum muss Format JJMMTT (YYMMDD) haben!');
+        // if ("Expiration Date DM" <> '') then begin
+        //     if StrLen("Expiration Date DM") < 6 then
+        //         Error('DataMatrix Ablaufdatum muss Format JJMMTT (YYMMDD) haben!');
 
-            if EVALUATE(iMonHelp, CopyStr("Expiration Date DM", 3, 2)) then begin
-                if (iMonHelp < 1) or (iMonHelp > 12) then
-                    Error('DataMatrix Ablaufdatum muss Format JJMMTT (YYMMDD) haben!');
-            end else
-                Error('DataMatrix Ablaufdatum muss Format JJMMTT (YYMMDD) haben!');
+        //     if EVALUATE(iMonHelp, CopyStr("Expiration Date DM", 3, 2)) then begin
+        //         if (iMonHelp < 1) or (iMonHelp > 12) then
+        //             Error('DataMatrix Ablaufdatum muss Format JJMMTT (YYMMDD) haben!');
+        //     end else
+        //         Error('DataMatrix Ablaufdatum muss Format JJMMTT (YYMMDD) haben!');
 
-            if EVALUATE(iDayHelp, CopyStr("Expiration Date DM", 5, 2)) then begin
-                if (iDayHelp < 0) or (iDayHelp > 31) then
-                    Error('DataMatrix Ablaufdatum muss Format JJMMTT (YYMMDD) haben!');
-            end else
-                Error('DataMatrix Ablaufdatum muss Format JJMMTT (YYMMDD) haben!');
+        //     if EVALUATE(iDayHelp, CopyStr("Expiration Date DM", 5, 2)) then begin
+        //         if (iDayHelp < 0) or (iDayHelp > 31) then
+        //             Error('DataMatrix Ablaufdatum muss Format JJMMTT (YYMMDD) haben!');
+        //     end else
+        //         Error('DataMatrix Ablaufdatum muss Format JJMMTT (YYMMDD) haben!');
 
-            if ("Expiration Date" <> 0D) then begin
-                tYearHelp := FORMAT(DATE2DMY("Expiration Date", 3));
-                tYearHelpDM := '20' + CopyStr("Expiration Date DM", 1, 2);
-                tMonHelp := Codesammlung.TextAuffuellen(FORMAT(DATE2DMY("Expiration Date", 2)), 2, '0');
-                tMonHelpDM := CopyStr("Expiration Date DM", 3, 2);
-                if (tYearHelp <> tYearHelpDM) or (tMonHelp <> tMonHelpDM) then
-                    if not CONFIRM('DataMatrix Ablaufdatum: %1-%2 weicht von Ablaufdatum: %3-%4 ab. Trotzdem übernehmen?', false, tMonHelp, tYearHelp, tMonHelpDM, tYearHelpDM) then
-                        Error('Abgebrochen: DataMatrix Ablaufdatum weicht ab!');
-            end;
-        end;
-        //+GL015
+        //     if Rec.BASExpirationDateDMPHA <> '' then begin
+        //         tYearHelp := FORMAT(DATE2DMY(BASExpirationDateDMPHA, 3));
+        //         tYearHelpDM := '20' + CopyStr("Expiration Date DM", 1, 2);
+        //         tMonHelp := Codesammlung.TextAuffuellen(FORMAT(DATE2DMY(BASExpirationDateDMPHA, 2)), 2, '0');
+        //         tMonHelpDM := CopyStr("Expiration Date DM", 3, 2);
+        //         if (tYearHelp <> tYearHelpDM) or (tMonHelp <> tMonHelpDM) then
+        //             if not Confirm('DataMatrix Ablaufdatum: %1-%2 weicht von Ablaufdatum: %3-%4 ab. Trotzdem übernehmen?', false, tMonHelp, tYearHelp, tMonHelpDM, tYearHelpDM) then
+        //                 Error('Abgebrochen: DataMatrix Ablaufdatum weicht ab!');
+        //     end;
+        // end;
     end;
 }
-
-
-

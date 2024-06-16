@@ -2,7 +2,7 @@
 
 table 50001 BASStatTempPHA
 {
-    DataClassification = ToBeClassified;
+    DataClassification = CustomerContent;
 
     fields
     {
