@@ -5,7 +5,7 @@ tableextension 50045 BASReservationEntryExtPHA extends "Reservation Entry"
     // 
     // GL001
     // Feld Lot No 5400: Table Relation:
-    //                   "Lot No. Information"."Lot No." WHERE (Item No.=FIELD(Item No.),Variant Code=FIELD(Variant Code))
+    //                   "Lot No. Information"."Lot No." where (Item No.=FIELD(Item No.),Variant Code=FIELD(Variant Code))
     //                   ValidateTableRelation: No
     // 
     // GL: Key erweitert

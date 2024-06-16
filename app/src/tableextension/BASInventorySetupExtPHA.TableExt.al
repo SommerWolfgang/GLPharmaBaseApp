@@ -82,7 +82,7 @@ tableextension 50031 BASInventorySetupExtPHA extends "Inventory Setup"
         field(50504; BASKonsignationslagerfachcodePHA; Code[10])
         {
             Description = 'LAN1.00';
-            TableRelation = Bin.Code WHERE("Location Code" = FIELD(Konsignationslagerortcode));
+            TableRelation = Bin.Code where("Location Code" = FIELD(Konsignationslagerortcode));
         }
         field(50505; "BASLagerbestand vor Ort FilterPHA"; Code[20])
         {
@@ -92,7 +92,7 @@ tableextension 50031 BASInventorySetupExtPHA extends "Inventory Setup"
         {
             Description = 'Petsch';
             InitValue = 0;
-            TableRelation = AllObj."Object ID" WHERE("Object Type" = CONST(Report));
+            TableRelation = AllObj."Object ID" where("Object Type" = const(Report));
         }
         field(50507; BASBereitstellungslagerortcodePHA; Code[10])
         {
@@ -103,7 +103,7 @@ tableextension 50031 BASInventorySetupExtPHA extends "Inventory Setup"
             Caption = 'KommscheinObjekt';
             Description = 'Petsch';
             InitValue = 0;
-            TableRelation = AllObj."Object ID" WHERE("Object Type" = CONST("Report"));
+            TableRelation = AllObj."Object ID" where("Object Type" = const("Report"));
         }
     }
 }

@@ -42,7 +42,7 @@ tableextension 50023 BASPurchaseReceiptLineExtPHA extends "Purch. Rcpt. Line"
         {
             Caption = 'Lot No.';
             Description = 'LAN1.00';
-            TableRelation = IF (Type = CONST(Item)) "Lot No. Information"."Lot No." WHERE("Item No." = FIELD("No."),
+            TableRelation = IF (Type = const(Item)) "Lot No. Information"."Lot No." where("Item No." = FIELD("No."),
                                                                                          "Variant Code" = FIELD("Variant Code"));
         }
         field(50506; BASArtikelgruppePHA; Code[10])
@@ -54,19 +54,19 @@ tableextension 50023 BASPurchaseReceiptLineExtPHA extends "Purch. Rcpt. Line"
         {
             Description = 'LAN1.00';
             Editable = false;
-            TableRelation = Statistikcode2 WHERE(Ebene = CONST(1));
+            TableRelation = BASStatisticCodePHA where(Level = const(1));
         }
         field(50508; "BASStatistikcode IIPHA"; Code[10])
         {
             Description = 'LAN1.00';
             Editable = false;
-            TableRelation = Statistikcode2 WHERE(Ebene = CONST(2));
+            TableRelation = BASStatisticCodePHA where(Level = const(2));
         }
         field(50509; "BASStatistikcode IIIPHA"; Code[10])
         {
             Description = 'LAN1.00';
             Editable = false;
-            TableRelation = Statistikcode2 WHERE(Ebene = CONST(3));
+            TableRelation = BASStatisticCodePHA where(Level = const(3));
         }
         field(50510; "BASCountry/Region CodePHA"; Code[10])
         {

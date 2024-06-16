@@ -5,7 +5,7 @@ tableextension 50050 BASFASetupExtPHA extends "FA Setup"
         field(50000; BASKontoNrLogikPHA; Option)
         {
             Caption = '';
-            DataClassification = ToBeClassified;
+            DataClassification = CustomerContent;
             OptionMembers = "5 Stellen der Anlagenr","Anlagenbuchungsgruppe des Standard Afa-Buches";
 
         }

@@ -37,7 +37,7 @@ tableextension 50037 BASSalesCrMemoLineExtPHA extends "Sales Cr.Memo Line"
         {
             Caption = 'Lot No.';
             Description = 'LAN1.00';
-            TableRelation = IF (Type = CONST(Item)) "Lot No. Information"."Lot No." WHERE("Item No." = FIELD("No."),
+            TableRelation = IF (Type = const(Item)) "Lot No. Information"."Lot No." where("Item No." = FIELD("No."),
                                                                                          "Variant Code" = FIELD("Variant Code"));
         }
         field(50011; "BASZuordnung zu LieferungPHA"; Code[20])
@@ -58,26 +58,26 @@ tableextension 50037 BASSalesCrMemoLineExtPHA extends "Sales Cr.Memo Line"
         {
             Description = 'LAN1.00';
             Editable = false;
-            TableRelation = Statistikcode2 WHERE(Ebene = CONST(1));
+            TableRelation = BASStatisticCodePHA where(Level = const(1));
         }
         field(50508; "BASStatistikcode IIPHA"; Code[10])
         {
             Description = 'LAN1.00';
             Editable = false;
-            TableRelation = Statistikcode2 WHERE(Ebene = CONST(2));
+            TableRelation = BASStatisticCodePHA where(Level = const(2));
         }
         field(50509; "BASStatistikcode IIIPHA"; Code[10])
         {
             Description = 'LAN1.00';
             Editable = false;
-            TableRelation = Statistikcode2 WHERE(Ebene = CONST(3));
+            TableRelation = BASStatisticCodePHA where(Level = const(3));
         }
         field(50510; "BASZuordnung zu Artikelnr.PHA"; Code[20])
         {
             Description = 'LAN1.00';
             TableRelation = Item;
         }
-        field(50511; "BASWertkorrektur zu ArtikelpostenPHA"; Integer)
+        field(50511; BASValueCorItemLedgEntryPHA; Integer)
         {
             Description = 'LAN1.00';
         }

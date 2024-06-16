@@ -13,7 +13,7 @@ tableextension 50015 BASPurchaseLineExtPHA extends "Purchase Line"
                 LotNoInformation.Reset();
                 LotNoInformation.SetRange("Item No.", "No.");
                 LotNoInformation.SetRange("Variant Code", "Variant Code");
-                LotNoInformation.SetRange(BASLotNoPHA, BASLotNoPHA);
+                LotNoInformation.SetRange(BASSalesLotNoPHA, BASLotNoPHA);
                 if LotNoInformation.FindFirst() then begin
                     BASPackmittelversionPHA := LotNoInformation.BASPackmittelversionPHA;
                     Message('Keine Textvariable T39', "No.", FieldCaption(BASPackmittelversionPHA), BASPackmittelversionPHA);
@@ -122,11 +122,11 @@ tableextension 50015 BASPurchaseLineExtPHA extends "Purchase Line"
                 LotNoInformation.Reset();
                 LotNoInformation.SetRange("Item No.", "No.");
                 LotNoInformation.SetRange("Variant Code", "Variant Code");
-                LotNoInformation.SetRange(BASLotNoPHA, BASLotNoPHA);
-                if LotNoInformation.FindFirst() then begin
-                    BASSalesChargePHA := LotNoInformation."Verkaufschargennr.";
-                    Message('KEINE TEXTVARIABLE T39', "No.", FieldCaption(BASSalesChargePHA), "Verkaufschargennr.");
-                end;
+                // LotNoInformation.SetRange(BASSalesChargePHA, BASLotNoPHA);
+                // if LotNoInformation.FindFirst() then begin
+                //     BASSalesChargePHA := LotNoInformation.BASSalesLotNoPHA;
+                //     Message('KEINE TEXTVARIABLE T39', "No.", FieldCaption(BASSalesChargePHA), BASLotNoPHA);
+                // end;
 
                 Validate(BASLotNoPHA);
             end;
@@ -143,15 +143,14 @@ tableextension 50015 BASPurchaseLineExtPHA extends "Purchase Line"
                 Item := GetItem();
                 LotNoInformation.SetRange("Item No.", "No.");
                 LotNoInformation.SetRange("Variant Code", "Variant Code");
-                LotNoInformation.SetRange(BASLotNoPHA, BASLotNoPHA);
-                if LotNoInformation.FindFirst() then begin
-                    // ToDo
-                    // BASExpirationDateDMPHA := LotNoInformation.BASExpirationDateDMPHA;
-                    // Message('KEINE TEXTVARIABLE T39', "No.", FieldCaption(BASExpirationDateDMPHA), BASExpirationDateDMPHA);
-                end;
+                // LotNoInformation.SetRange(BASLotNoPHA, BASLotNoPHA);
+                // if LotNoInformation.FindFirst() then begin
+                // ToDo
+                // BASExpirationDateDMPHA := LotNoInformation.BASExpirationDateDMPHA;
+                // Message('KEINE TEXTVARIABLE T39', "No.", FieldCaption(BASExpirationDateDMPHA), BASExpirationDateDMPHA);
+                // end;
 
                 Validate(BASLotNoPHA);
-
             end;
         }
         field(50550; BASGebindeanzahlPHA; Decimal)
@@ -198,7 +197,7 @@ tableextension 50015 BASPurchaseLineExtPHA extends "Purchase Line"
             trigger OnValidate()
             begin
                 //-LAN010
-                "Wertkorrektur zu Artikelposten" := 0;
+                // "Wertkorrektur zu Artikelposten" := 0;
                 Wertgutschrift();
                 //+LAN010
             end;
@@ -241,13 +240,13 @@ tableextension 50015 BASPurchaseLineExtPHA extends "Purchase Line"
         if "No." = '' then
             exit;
 
-        LotMgt.FaktMengeCharge(
-          DATABASE::"Purchase Line", "Document Type", "Document No.", '', 0, "Line No.", BASLotNoPHA, "Qty. to Invoice (Base)");
+        // LotMgt.FaktMengeCharge(
+        //   DATABASE::"Purchase Line", "Document Type", "Document No.", '', 0, "Line No.", BASLotNoPHA, "Qty. to Invoice (Base)");
     end;
 
     procedure LiefMengeCharge()
-    var
-        CurrentSignFactor: Integer;
+    // var
+    //     CurrentSignFactor: Integer;
     begin
         //-LAN005
         if "Line No." = 0 then
@@ -259,8 +258,8 @@ tableextension 50015 BASPurchaseLineExtPHA extends "Purchase Line"
         if "No." = '' then
             exit;
 
-        LotMgt.LiefMengeCharge(
-          DATABASE::"Purchase Line", "Document Type", "Document No.", '', 0, "Line No.", BASLotNoPHA, "Qty. to Receive (Base)");
+        // LotMgt.LiefMengeCharge(
+        //   DATABASE::"Purchase Line", "Document Type", "Document No.", '', 0, "Line No.", BASLotNoPHA, "Qty. to Receive (Base)");
         //+LAN005
     end;
 
@@ -287,11 +286,11 @@ tableextension 50015 BASPurchaseLineExtPHA extends "Purchase Line"
             exit;
 
         Rec.GetPurchHeader();
-        if PurchHeader.Bestellstatus = PurchHeader.Bestellstatus::Versendet then begin
+        if PurchHeader.BASBestellstatusPHA = PurchHeader.BASBestellstatusPHA::Versendet then begin
             if ("Line No." = 0) then
-                MsgText := STRSUBSTNO('Bestellstatus ist %1!. Wollen Sie trotzdem neue Zeilen erfassen?', PurchHeader.Bestellstatus)
+                MsgText := STRSUBSTNO('Bestellstatus ist %1!. Wollen Sie trotzdem neue Zeilen erfassen?', PurchHeader.BASBestellstatusPHA)
             else
-                MsgText := STRSUBSTNO('Bestellstatus ist %1!. Wollen Sie Ihre Änderung trotzdem speichern?', PurchHeader.Bestellstatus);
+                MsgText := STRSUBSTNO('Bestellstatus ist %1!. Wollen Sie Ihre Änderung trotzdem speichern?', PurchHeader.BASBestellstatusPHA);
         end else
             exit;
 
@@ -299,7 +298,6 @@ tableextension 50015 BASPurchaseLineExtPHA extends "Purchase Line"
 
         if not Confirm(MsgText, true) then
             Error('Änderungen wurden nicht gespeichert');
-        //+LAN007
     end;
 
     procedure Wertgutschrift()
@@ -307,10 +305,7 @@ tableextension 50015 BASPurchaseLineExtPHA extends "Purchase Line"
         localRecItem: Record Item;
         localRecPurchaseLine: Record "Purchase Line";
     begin
-
-        "Wertkorrektur zu Artikelposten" := 0;
-
-
+        // "Wertkorrektur zu Artikelposten" := 0;
     end;
 
     procedure BlockeBemerkungsmeldung(newSetzeBemerkungsMeldung: Boolean)
@@ -334,13 +329,12 @@ tableextension 50015 BASPurchaseLineExtPHA extends "Purchase Line"
         Item2 := GetItem();
         Item2.Get("No.");
         if Item2.BASItemTypePHA in [Item2.BASItemTypePHA::"Row Material", Item2.BASItemTypePHA::"Package Material"] then begin
-            LotNoInformation.SetCurrentKey(BASLotNoPHA);
-            LotNoInformation.SetRange(BASLotNoPHA, BASLotNoPHA);
+            LotNoInformation.SetCurrentKey(BASSalesLotNoPHA);
+            LotNoInformation.SetRange(BASSalesLotNoPHA, BASLotNoPHA);
             if LotNoInformation.FindFirst() then
-                if recLotNoInfo."Item No." <> "No." then
+                if LotNoInformation."Item No." <> "No." then
                     Error('Rohstoffcharge wurde schon zu anderer Artikelnummer vergeben!');
         end;
-
     end;
 
     procedure UrspMenge(PreviousQuantity: Decimal)
@@ -348,7 +342,7 @@ tableextension 50015 BASPurchaseLineExtPHA extends "Purchase Line"
 
         if ("Document Type" in ["Document Type"::Order, "Document Type"::Invoice, "Document Type"::"Blanket Order"]) and
           (PreviousQuantity <> 0) and (Type = Type::Item) then
-            if STRMENU(STRSUBSTNO('Ursprüngliche Menge auf %1 setzen?', CONVERTSTR(FORMAT(PreviousQuantity), ',', '.')), 1) = 1 then
+            if StrMenu(StrSubstNo('Ursprüngliche Menge auf %1 setzen?', CONVERTSTR(FORMAT(PreviousQuantity), ',', '.')), 1) = 1 then
                 BASQuantityPHA := PreviousQuantity;
 
     end;

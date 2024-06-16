@@ -22,7 +22,7 @@ tableextension 50046 BASSalesHeaderArchiveExtPHA extends "Sales Header Archive"
         }
         field(50004; "BASPacking InformationPHA"; Integer)
         {
-            //CalcFormula = Count("Packing Information" WHERE (Type=CONST('Order'),
+            //CalcFormula = Count("Packing Information" where (Type=const('Order'),
             //                                                 "Document Type"=FIELD("Document Type"),
             //                                                 "Document No."=FIELD("No.")));
             //FieldClass = FlowField;

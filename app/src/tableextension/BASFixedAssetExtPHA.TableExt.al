@@ -73,33 +73,33 @@ tableextension 50049 BASFixedAssetExtPHA extends "Fixed Asset"
         }
         field(50009; "BASAnschaffungskosten SteuerlichPHA"; Decimal)
         {
-            CalcFormula = Sum("FA Ledger Entry".Amount WHERE("FA Posting Type" = const("Acquisition Cost"),
+            CalcFormula = Sum("FA Ledger Entry".Amount where("FA Posting Type" = const("Acquisition Cost"),
                                                               "FA No." = FIELD("No."),
                                                               "Depreciation Book Code" = const('STEUERLICH')));
             FieldClass = FlowField;
         }
         field(50010; "BASAnschaffungskosten BetriebPHA"; Decimal)
         {
-            CalcFormula = Sum("FA Ledger Entry".Amount WHERE("FA Posting Type" = CONST("Acquisition Cost"),
+            CalcFormula = Sum("FA Ledger Entry".Amount where("FA Posting Type" = const("Acquisition Cost"),
                                                                "FA No." = FIELD("No."),
-                                                              "Depreciation Book Code" = CONST('BETRIEB')));
+                                                              "Depreciation Book Code" = const('BETRIEB')));
             FieldClass = FlowField;
         }
         field(50011; "BASNutzungsdauer SteuerlichPHA"; Decimal)
         {
-            CalcFormula = Lookup("FA Depreciation Book"."No. of Depreciation Years" WHERE("FA No." = FIELD("No."),
-                                                              "Depreciation Book Code" = CONST('STEUERLICH')));
+            CalcFormula = Lookup("FA Depreciation Book"."No. of Depreciation Years" where("FA No." = FIELD("No."),
+                                                              "Depreciation Book Code" = const('STEUERLICH')));
             FieldClass = FlowField;
         }
         field(50012; "BASNutzungsdauer BetriebPHA"; Decimal)
         {
-            CalcFormula = Lookup("FA Depreciation Book"."No. of Depreciation Years" WHERE("FA No." = FIELD("No."),
-                                                              "Depreciation Book Code" = CONST('BETRIEB')));
+            CalcFormula = Lookup("FA Depreciation Book"."No. of Depreciation Years" where("FA No." = FIELD("No."),
+                                                              "Depreciation Book Code" = const('BETRIEB')));
             FieldClass = FlowField;
         }
         field(50013; "BASFA Posting Group LinePHA"; Code[20])
         {
-            CalcFormula = Lookup("FA Depreciation Book"."FA Posting Group" WHERE("FA No." = FIELD("No.")));
+            CalcFormula = Lookup("FA Depreciation Book"."FA Posting Group" where("FA No." = FIELD("No.")));
             Caption = 'Anlagenbuchungsgruppe';
             FieldClass = FlowField;
         }

@@ -39,41 +39,41 @@ tableextension 50052 BASFADepreciationBookExtPHA extends "FA Depreciation Book"
         field(50000; "BASKst-AufteilungenPHA"; Integer)
         {
             /*TODOPBA benötigt?
-            CalcFormula = Count(AfaBuchKostenstelle WHERE(Anlagennr.=FIELD(FA No.),
+            CalcFormula = Count(AfaBuchKostenstelle where(Anlagennr.=FIELD(FA No.),
                                                            Afa buchcode=FIELD(Depreciation Book Code)));
             FieldClass = FlowField;
             */
         }
         field(50001; "Förderung"; Text[30])
         {
-            CalcFormula = Lookup("Fixed Asset".Förderung WHERE("No." = FIELD("FA No.")));
+            CalcFormula = Lookup("Fixed Asset".Förderung where("No." = FIELD("FA No.")));
             FieldClass = FlowField;
         }
         field(50002; BASInbetriebnahmedatumPHA; Date)
         {
             /*TODOPBA benötigt?
-            CalcFormula = Lookup("Fixed Asset". WHERE (No.=FIELD(FA No.)));
+            CalcFormula = Lookup("Fixed Asset". where (No.=FIELD(FA No.)));
             FieldClass = FlowField;
             */
         }
         field(50003; BASAnlagenbezeichnungPHA; Text[100])
         {
-            CalcFormula = Lookup("Fixed Asset".Description WHERE("No." = FIELD("FA No.")));
+            CalcFormula = Lookup("Fixed Asset".Description where("No." = FIELD("FA No.")));
             FieldClass = FlowField;
         }
         field(50004; BASAnlagenkostenstellePHA; Code[20])
         {
-            CalcFormula = Lookup("Fixed Asset"."Global Dimension 1 Code" WHERE("No." = FIELD("FA No.")));
+            CalcFormula = Lookup("Fixed Asset"."Global Dimension 1 Code" where("No." = FIELD("FA No.")));
             FieldClass = FlowField;
         }
         field(50005; BASGesperrtPHA; Boolean)
         {
-            CalcFormula = Lookup("Fixed Asset".Blocked WHERE("No." = FIELD("FA No.")));
+            CalcFormula = Lookup("Fixed Asset".Blocked where("No." = FIELD("FA No.")));
             FieldClass = FlowField;
         }
         field(50006; BASInaktivPHA; Boolean)
         {
-            CalcFormula = Lookup("Fixed Asset".Inactive WHERE("No." = FIELD("FA No.")));
+            CalcFormula = Lookup("Fixed Asset".Inactive where("No." = FIELD("FA No.")));
             FieldClass = FlowField;
         }
     }

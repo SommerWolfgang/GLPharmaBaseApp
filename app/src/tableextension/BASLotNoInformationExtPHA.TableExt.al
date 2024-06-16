@@ -16,10 +16,7 @@ tableextension 50027 BASLotNoInformationExtPHA extends "Lot No. Information"
                 // if Rec.BASExpirationDatePHA <> xRec.BASExpirationDatePHA then
                 //     ChargenVerw."Aktualisiere Verkaufscharge"("Item No.", BASLotNoPHA, 1, BASSalesLotNoPHA, BASExpirationDatePHA);
 
-                // ToDo
-                if StrPos(BASChangeStatusPHA, 'E') = 0 then
-                    BASChangeStatusPHA := BASChangeStatusPHA + 'E';
-
+                ChangeStatus('E');
             end;
         }
         field(50001; BASSalesLotNoPHA; Code[20])
@@ -30,38 +27,30 @@ tableextension 50027 BASLotNoInformationExtPHA extends "Lot No. Information"
             begin
                 ChargenVerw."Aktualisiere Verkaufscharge"("Item No.", BASLotNoPHA, 0, BASSalesLotNoPHA, BASExpirationDatePHA);
 
-                if StrPos(BASChangeStatusPHA, 'V') = 0 then
-                    Evaluate(BASChangeStatusPHA, BASChangeStatusPHA + 'V');
+                ChangeStatus('Y');
             end;
         }
-        field(50002; "BASLief. Chargennr.PHA"; Code[20])
+        field(50002; BASShipmentLotNoPHA; Code[20])
         {
-            Description = 'LAN1.00';
-
             trigger OnValidate()
             begin
-                //-GL009
-                if StrPos(BASChangeStatusPHA, 'D') = 0 then
-                    BASChangeStatusPHA := BASChangeStatusPHA + 'D';
-                //+GL009
+                ChangeStatus('D');
             end;
         }
-        field(50003; "BASLief. AblaufdatumPHA"; Date)
+        field(50003; BASShipmentFinishedDatePHA; Date)
         {
-            Description = 'LAN1.00';
         }
         field(50004; BASOpenPHA; Boolean)
         {
-            Caption = 'Open';
-            Description = 'LAN1.00';
+            Caption = 'Open', comment = 'DEA="Offen"';
         }
-        field(50005; BASFreigabedatumPHA; Date)
+        field(50005; BASReleaseDatePHA; Date)
         {
-            Description = 'LAN1.00';
+            Caption = 'Release Date', comment = 'DEA="Freigabedatum"';
         }
-        field(50006; BASFreigabenamePHA; Text[50])
+        field(50006; BASReleaseNamePHA; Text[50])
         {
-            Description = 'LAN1.00';
+            Caption = 'Release Name', comment = 'DEA="Freigabename"';
         }
         field(50007; BASGehaltPHA; Decimal)
         {
@@ -108,173 +97,106 @@ tableextension 50027 BASLotNoInformationExtPHA extends "Lot No. Information"
                 Item: Record Item;
                 uNaviPharma: Codeunit BASNaviPharmaPHA;
                 bLotStatusMismatch: Boolean;
-
                 cInfoText: Text;
-
                 cText: Text;
             begin
-                //-GL038
-                /*
-                //-LAN002
-                IF (Status = Status::Frei) AND (xRec.Status <> Status::Frei) THEN BEGIN
-                  IF Freigabedatum = 0D THEN
-                    Freigabedatum := TODAY;
-                  IF Freigabename = '' THEN
-                    Freigabename := USERID;
-                END;
-                //+LAN002
-                */
-                //+GL038
-
-                //-GL039
                 bLotStatusMismatch := false;
-                case Rec.Status of
-                    Rec.Status::Frei:
-                        begin
-                            if StrPos(UPPERCASE(Rec.LimsStatus), 'FREI') = 0 then //FREI, FREIGEGEBEN
-                                bLotStatusMismatch := true;
-                        end;
-                    Rec.Status::Quarantäne:
-                        begin
-                            if StrPos(UPPERCASE(Rec.LimsStatus), 'QUARANT') = 0 then //QUARANTINE, QUARANTÄNE
-                                bLotStatusMismatch := true;
-                        end;
-                    Rec.Status::Gesperrt:
-                        begin
-                            if StrPos(UPPERCASE(Rec.LimsStatus), 'GESPERRT') = 0 then
-                                bLotStatusMismatch := true;
-                        end;
+
+                case Rec.BASStatusPHA of
+                    Rec.BASStatusPHA::Free:
+                        if StrPos(UPPERCASE(Rec.BASLimsStatusPHA), 'FREI') = 0 then //FREI, FREIGEGEBEN
+                            bLotStatusMismatch := true;
+                    Rec.BASStatusPHA::Quarantine:
+                        if StrPos(UPPERCASE(Rec.BASLimsStatusPHA), 'QUARANT') = 0 then //QUARANTINE, QUARANTÄNE
+                            bLotStatusMismatch := true;
+                    Rec.BASStatusPHA::Blocked:
+                        if StrPos(UPPERCASE(Rec.BASLimsStatusPHA), 'GESPERRT') = 0 then
+                            bLotStatusMismatch := true;
                 end;
-                if bLotStatusMismatch then begin
+
+                if bLotStatusMismatch then
                     if not Confirm('Neuer Chargenstatus: ''%1'' entspricht nicht dem Lims-Chargenstatus: ''%2''. Trotzdem übernehmen?', false, FORMAT(Rec.Status), Rec.LimsStatus) then
-                        ERROR('');
-                end;
-                //+GL039
+                        Error('');
 
-                //-GL010
-                //IF cuNaviPharma.StandortWeiche('ITEM_SITE_BATCH_RELEASE',"Item No.") = 'WIEN' THEN        //GL023
-                if Rec.Status = Rec.Status::Frei then begin
-                    if (BASExpirationDatePHA < TODAY) then
-                        ERROR('Bevor Sie den Freigabestatus ' +
-' auf "Frei" setzen können, muss die Charge mit einem gültigen Ablaufdatum versehen werden!');
+                if Rec.BASStatusPHA = Rec.BASStatusPHA::Free then begin
+                    if (BASExpirationDatePHA < Today) then
+                        Error('Bevor Sie den Freigabestatus auf "Frei" setzen können, muss die Charge mit einem gültigen Ablaufdatum versehen werden!');
 
-                    if not Item.GET("Item No.") then ERROR('Artikel %1 ist nicht im Artikelstamm angelegt!', "Item No.");
-                    //+GL011
-                    //    IF NOT cuNaviPharma.PrüfeUnterstufeFrei(Rec."Item No.", Rec.BASLotNoPHA,
-                    //        recItem.Artikelart <> recItem.Artikelart::Fertigprodukt, FALSE, TRUE) THEN
-                    if not uNaviPharma.PrüfeUnterstufeFrei(Rec."Item No.", Rec.BASLotNoPHA, false, true, true) then
-                        //-GL011
-                        //-GL018
-                        //-GL017
-                        //ERROR('Bevor Sie den Freigabestatus auf ''Frei'' setzen können, müssen die Unterstufen freigegeben sein!');
-                        //Message('Das System lässt die Freigabe dieser Charge zu. Bitte beachten Sie jedoch, dass ' +
-                        //  ' zumindest eine unfreie Unterstufe erkannt wurde! \'+
-                        //  'Bitte kontrollieren Sie die Stati mit "Übersicht unfreie Artikel"');
+                    if not Item.GET("Item No.") then
+                        Error('Artikel %1 ist nicht im Artikelstamm angelegt!', "Item No.");
 
-                        if Confirm('Das System lässt die Freigabe dieser Charge zu. Bitte beachten Sie jedoch, dass ' +
+                    if not uNaviPharma.PrüfeUnterstufeFrei(Rec."Item No.", Rec.BASSalesLotNoPHA, false, true, true) then
+                        if not Confirm('Das System lässt die Freigabe dieser Charge zu. Bitte beachten Sie jedoch, dass ' +
                         ' zumindest eine unfreie Unterstufe erkannt wurde! \' +
                         'Bitte kontrollieren Sie die Stati mit "Gesamtübersicht beteiligte Artikel"\' +
-                        'CHARGE FREIGEBEN?') = false then begin
-                            Status := xRec.Status;
+                        'CHARGE FREIGEBEN?')
+                        then begin
+                            BASStatusPHA := xRec.BASStatusPHA;
                             exit;
                         end;
-
-                    //frmChargenfreigabeWien.ZeigeBeteiligteStufen; //28.11.13 JP
-                    //+GL017
-                    //+GL018
                 end;
-                //+GL010
 
-                //-GL009
-                if (xRec.Status = xRec.Status::Frei) and (xRec.Status <> Rec.Status) then
-                    if StrPos(BASChangeStatusPHA, 'S') = 0 then BASChangeStatusPHA := BASChangeStatusPHA + 'S';
-                //+GL009
+                if (xRec.BASStatusPHA = xRec.BASStatusPHA::Free) and (xRec.BASStatusPHA <> Rec.BASStatusPHA) then
+                    ChangeStatus('S');
 
-
-                //-GL022
-                if (Status = Status::Frei) and (xRec.Status <> Status::Frei) then
-                    if Item.GET("Item No.") then
-                        if Item.Artikelart = Item.Artikelart::Fertigprodukt then
-                            if Item."Patentschutz bis" >= TODAY then
+                if (BASStatusPHA = BASStatusPHA::Free) and (xRec.BASStatusPHA <> BASStatusPHA::Free) then
+                    if Item.Get("Item No.") then
+                        if Item.BASItemTypePHA = Item.BASItemTypePHA::"Finished Product" then
+                            if Item."BASPatentschutz bisPHA" >= Today then
                                 if Confirm('Patentschutz für Artikel %1 ist bis zum %2 eingetragen! Trotzdem Freigeben?', false, "Item No.", Item."Patentschutz bis") = false then
-                                    ERROR('Chargenfreigabe wurde abgebrochen!');
-                //+GL022
+                                    Error('Chargenfreigabe wurde abgebrochen!');
 
-                //-GL033
-                if (Status = Status::Frei) and (xRec.Status <> Status::Frei) then
-                    if Item.GET("Item No.") then
-                        if Item.Artikelart = Item.Artikelart::Fertigprodukt then
-                            if Item."Vermarktungsexklusivität bis" >= TODAY then
+                if (BASStatusPHA = BASStatusPHA::Free) and (xRec.BASStatusPHA <> BASStatusPHA::Free) then
+                    if Item.Get("Item No.") then
+                        if Item.BASItemTypePHA = Item.BASItemTypePHA::"Finished Product" then
+                            if Item."Vermarktungsexklusivität bis" >= Today then
                                 if Confirm('Vermarktungsexklusivität für Artikel %1 ist bis zum %2 eingetragen! Trotzdem Freigeben?', false, "Item No.", Item."Vermarktungsexklusivität bis") = false then
-                                    ERROR('Chargenfreigabe wurde abgebrochen!');
-                //+GL033
+                                    Error('Chargenfreigabe wurde abgebrochen!');
 
-
-
-                //-GL026
-                if Rec.Status = Rec.Status::Frei then begin
+                if Rec.BASStatusPHA = Rec.BASStatusPHA::Free then begin
                     if Rec.BASExpirationDatePHA = 0D then
-                        ERROR('Bitte vergeben Sie ein Ablaufdatum für die Charge!');
+                        Error('Bitte vergeben Sie ein Ablaufdatum für die Charge!');
                     if not uNaviPharma.AblaufDatumPlausibel("Item No.", BASExpirationDatePHA) then
-                        Rec.Status := xRec.Status;
+                        Rec.BASStatusPHA := xRec.BASStatusPHA;
                 end;
-
 
                 cInfoText := '';
-                cText := CheckComponents(Rec."Item No.", Rec.BASLotNoPHA, false, cInfoText);
-                if (cText <> '') and (Status = Status::Frei) then
+                cText := CheckComponents(Rec."Item No.", Rec.BASSalesLotNoPHA, false, cInfoText);
+                if (cText <> '') and (BASStatusPHA = BASStatusPHA::Free) then
                     if not Confirm(cText + '- trotzdem freigeben?') then
-                        ERROR('Freigabe wird abgebrochen');
+                        Error('Freigabe wird abgebrochen');
 
+                if not Item.Get("Item No.") then
+                    Error('Artikel %1 ist nicht im Artikelstamm angelegt!', "Item No.");
 
-                if not Item.GET("Item No.") then ERROR('Artikel %1 ist nicht im Artikelstamm angelegt!', "Item No.");
-
-                //Bei Freigabe von Fertigartikel das Recht $MARKTFREIGABE prüfen
-                if (Item.Artikelart = Item.Artikelart::Fertigprodukt) then
+                if (Item.BASItemTypePHA = Item.BASItemTypePHA::"Finished Product") then
                     if uNaviPharma.Permission('$MARKTFREIGABE') = false then
-                        ERROR('Berechtigung für Marktfreigabe nicht vorhanden!');
+                        Error('Berechtigung für Marktfreigabe nicht vorhanden!');
 
-                //+GL026
-
-
-
-                //-GL021
-                //Marktfreigabe Pin bei Fertigartikel Abfragen
-                if Rec.Status <> xRec.Status then //GL025  Wenn vorher schon abgebrochen wurde, keinen Pin mehr prüfen
+                if Rec.BASStatusPHA <> xRec.BASStatusPHA then
                     CheckMarktfreigabePin();
-                //+GL021
-                //Message('Einkommentieren!');
 
-                //-GL038
-                if (Status = Status::Frei) and (xRec.Status <> Status::Frei) then begin
-                    Freigabedatum := TODAY;
-                    Freigabename := USERID;
-                end;
-                //+GL038
-
-
+                // if (BASStatusPHA = BASStatusPHA::Free) and (xRec.BASStatusPHA <> BASStatusPHA::Free) then begin
+                //     BASFreigabedatumPHA := Today;
+                //     Freigabename := UserId;
+                // end;
             end;
         }
         field(50011; BASPackmittelversionPHA; Code[20])
         {
-
             trigger OnValidate()
             begin
-                //-GL009
-                if StrPos(BASChangeStatusPHA, 'P') = 0 then
-                    BASChangeStatusPHA := BASChangeStatusPHA + 'P';
-                //+GL009
-
+                ChangeStatus('P');
             end;
         }
-        field(50012; BASLagerstandPHA; Decimal)
-        {
-            CalcFormula = sum("Item Ledger Entry".Quantity where("Item No." = field("Item No."),
-                                                                  BASLotNoPHA = field(BASLotNoPHA)));
-            DecimalPlaces = 0 : 5;
-            Editable = false;
-            FieldClass = FlowField;
-        }
+        // field(50012; BASLagerstandPHA; Decimal)
+        // {
+        //     CalcFormula = sum("Item Ledger Entry".Quantity where("Item No." = field("Item No."),
+        //                                                           BASLotNoPHA = field(BASLotNoPHA)));
+        //     DecimalPlaces = 0 : 5;
+        //     Editable = false;
+        //     FieldClass = FlowField;
+        // }
         field(50013; "Rückstellmuster"; Integer)
         {
 
@@ -284,12 +206,10 @@ tableextension 50027 BASLotNoInformationExtPHA extends "Lot No. Information"
             CalcFormula = lookup(Item.Description where("No." = field("Item No.")));
             FieldClass = FlowField;
         }
-        field(50015; BASArtikelartPHA; Option)
+        field(50015; BASArtikelartPHA; enum BASItemTypePHA)
         {
-            CalcFormula = lookup(Item.Artikelart where("No." = field("Item No.")));
+            CalcFormula = lookup(Item.BASItemTypePHA where("No." = field("Item No.")));
             FieldClass = FlowField;
-            OptionCaption = ' ,Rohstoff,Halbfabrikat,Fertigprodukt,Verpackungsstoff,Arbeitsschritt';
-            OptionMembers = " ",Rohstoff,Halbfabrikat,Fertigprodukt,Verpackungsstoff,Arbeitsschritt;
         }
         field(50016; BASMIBIPHA; Boolean)
         {
@@ -334,7 +254,7 @@ tableextension 50027 BASLotNoInformationExtPHA extends "Lot No. Information"
             CalcFormula = count("Change Log Entry" where("Table No." = const(6505),
                                                           "Primary Key Field 1 Value" = field("Item No."),
                                                           "Primary Key Field 3 Value" = field(BASLotNoPHA),
-                                                          //"New Value" = CONST(1),
+                                                          //"New Value" = const(1),
                                                           "Field No." = const(50010)));
             Description = 'GL038';
             Editable = false;
@@ -360,35 +280,35 @@ tableextension 50027 BASLotNoInformationExtPHA extends "Lot No. Information"
         }
         field(50507; "BASStatistikcode IPHA"; Code[10])
         {
-            CalcFormula = lookup(Item."Statistikcode I" where("No." = field("Item No.")));
+            CalcFormula = lookup(Item.BASStatisticCodeIPHA where("No." = field("Item No.")));
             Editable = false;
             FieldClass = FlowField;
-            TableRelation = Statistikcode2.Code where(Ebene = const(1));
+            TableRelation = BASStatisticCodePHA.Code where(Level = const(1));
         }
         field(50508; "BASStatistikcode IIPHA"; Code[10])
         {
-            CalcFormula = lookup(Item."Statistikcode II" where("No." = field("Item No.")));
+            CalcFormula = lookup(Item.BASStatisticCodeIIPHA where("No." = field("Item No.")));
             Editable = false;
             FieldClass = FlowField;
-            TableRelation = Statistikcode2.Code where(Ebene = const(2));
+            TableRelation = BASStatisticCodePHA.Code where(Level = const(2));
         }
         field(50509; "BASStatistikcode IIIPHA"; Code[10])
         {
-            CalcFormula = lookup(Item."Statistikcode III" where("No." = field("Item No.")));
+            CalcFormula = lookup(Item.BASStatisticCodeIIIPHA where("No." = field("Item No.")));
             Editable = false;
             FieldClass = FlowField;
-            TableRelation = Statistikcode2.Code where(Ebene = const(3));
+            TableRelation = BASStatisticCodePHA.Code where(Level = const(3));
         }
-        field(50510; BASChangeDatePHA; DateTime)
-        {
-            CalcFormula = max("Change Log Entry"."Date and Time" where("Table No." = const(6505),
-                                                                        "Primary Key Field 1 Value" = field("Item No."),
-                                                                        "Primary Key Field 2 Value" = field("Variant Code"),
-                                                                        "Primary Key Field 3 Value" = field(BASLotNoPHA),
-                                                                        "Type of Change" = filter(Modification)));
-            Editable = false;
-            FieldClass = FlowField;
-        }
+        // field(50510; BASChangeDatePHA; DateTime)
+        // {
+        //     CalcFormula = max("Change Log Entry"."Date and Time" where("Table No." = const(6505),
+        //                                                                 "Primary Key Field 1 Value" = field("Item No."),
+        //                                                                 "Primary Key Field 2 Value" = field("Variant Code"),
+        //                                                                 "Primary Key Field 3 Value" = field(BASLotNoPHA),
+        //                                                                 "Type of Change" = filter(Modification)));
+        //     Editable = false;
+        //     FieldClass = FlowField;
+        // }
         field(50511; BASErstablaufdatumPHA; Date)
         {
             Description = 'CCU553';
@@ -408,17 +328,17 @@ tableextension 50027 BASLotNoInformationExtPHA extends "Lot No. Information"
 
     procedure LotNoCheck()
     var
-        recItem: Record Item;
-        recLotNoInfo: Record "Lot No. Information";
+        Item: Record Item;
+        LotNoInformation: Record "Lot No. Information";
     begin
-        //Eindeutigkeit der Rohstoffchargennr. (darf nie zweimal vergeben werden)
-        recItem.GET("Item No.");
-        if recItem.Artikelart in [recItem.Artikelart::Rohstoff, recItem.Artikelart::Verpackungsstoff] then begin
-            recLotNoInfo.SETCURRENTKEY(BASLotNoPHA);
-            recLotNoInfo.SetRange(BASLotNoPHA, BASLotNoPHA);
-            if recLotNoInfo.FindSet() then
-                if recLotNoInfo."Item No." <> "Item No." then
-                    ERROR('Rohstoffcharge wurde schon zu anderer Artikelnummer vergeben!');
+        Item.GET("Item No.");
+        if Item.BASItemTypePHA in [Item.BASItemTypePHA::"Row Material", Item.BASItemTypePHA::"Package Material"] then begin
+            ;
+            // LotNoInformation.SetCurrentKey(BASLotNoPHA);
+            // LotNoInformation.SetRange(BASLotNoPHA, BASLotNoPHA);
+            if LotNoInformation.FindFirst() then
+                if LotNoInformation."Item No." <> "Item No." then
+                    Error('Rohstoffcharge wurde schon zu anderer Artikelnummer vergeben!');
         end;
     end;
 
@@ -435,13 +355,13 @@ tableextension 50027 BASLotNoInformationExtPHA extends "Lot No. Information"
 
         //Funktion für Unterstufenprüfung
         if recItem.GET(ItemNo) then
-            if recItem.Artikelart = recItem.Artikelart::Rohstoff then begin
+            if recItem.BASItemTypePHA = recItem.BASItemTypePHA::"Row Material" then begin
                 cInfoText := 'Rohstoffe werden nicht geprüft!';  //UPDATE2013
                 exit;
             end;
         nCountChecked := 0;
         recItemLedgerEntry.SETCURRENTKEY("Item No.", BASLotNoPHA, "Posting Date");
-        recItemLedgerEntry.SETFILTER(BASLotNoPHA, LotNo);
+        // recItemLedgerEntry.SETFILTER(BASLotNoPHA, LotNo);
         recItemLedgerEntry.SETFILTER("Item No.", ItemNo);
         recItemLedgerEntry.SetRange("Entry Type", recItemLedgerEntry."Entry Type"::Output);
         if recItemLedgerEntry.FindSet() then begin
@@ -460,114 +380,24 @@ tableextension 50027 BASLotNoInformationExtPHA extends "Lot No. Information"
                 repeat
                     recLotNoInformation.SETFILTER("Item No.", recItemLedgerEntry1."Item No.");
                     recLotNoInformation.SETFILTER(BASLotNoPHA, recItemLedgerEntry1.BASLotNoPHA);
-                    if recLotNoInformation.FindSet() then begin
-                        if recLotNoInformation.Status <> recLotNoInformation.Status::Frei then begin
-                            if ItemIsBulk(ItemNo) and ItemIsBulk(recLotNoInformation."Item No.") then begin
-                                //TA-Artikel (Tablettenkerne) werden nie freigegeben
-                            end else begin
+                    if recLotNoInformation.FindFirst() then
+                        if recLotNoInformation.BASStatusPHA <> recLotNoInformation.BASStatusPHA::Free then begin
+                            if not ItemIsBulk(ItemNo) and ItemIsBulk(recLotNoInformation."Item No.") then
                                 cMeldung := cMeldung + '\' + 'Artikel ' + recLotNoInformation."Item No." + ' Chargennr. ' + recLotNoInformation.BASLotNoPHA + ' ist ';
-                                cMeldung := cMeldung + FORMAT(recLotNoInformation.Status) + ' ';
-                            end;
+                            cMeldung := cMeldung + FORMAT(recLotNoInformation.Status) + ' ';
                         end;
-                    end;
                     nCountChecked += 1;
-
-                until (recItemLedgerEntry1.NEXT = 0);
-
-            //-GL016
-            //Ist im FA als Validierungscharge eingetragen?
-            //recProductionOrder.SetRange("No.", recItemLedgerEntry."Order No.");
-            //IF recProductionOrder.FINDSET THEN
-            //    IF recProductionOrder.Validierungscharge = TRUE THEN
-            //        Message(Text50001);
-            /*
-                  //-GL019
-                  //Chargenplanung laden
-                  CLEAR(recChargenPlanung_);
-                  IF recItem.Artikelart = recItem.Artikelart::Fertigprodukt THEN BEGIN
-                    recChargenPlanung_.GET(COPYSTR(LotNo,1,8));
-                  END ELSE BEGIN
-                    recChargenPlanung_.GET(LotNo);
-                  END;
-
-                  //Kommt die Validierungscharge von der Chargenplanung, dann vom HF kommend
-                  IF (recChargenPlanung_.Validierungscharge=TRUE) AND (recChargenPlanung_.ValidierungschargeFertig=FALSE) THEN
-                    Message(Text50001);
-
-                  //Kommt die Validierungscharge nur vom FA, dann vom Fertigartikel kommend
-                  IF (recChargenPlanung_.Validierungscharge=FALSE) THEN
-                    Message(Text50002);
-            */
-            //+GL019
-
-            //+GL016
-
+                until recItemLedgerEntry1.Next() = 0;
         end;
-        cInfoText := FORMAT(nCountChecked) + ' Komponenten geprüft' + ' ' + cMeldung;
-
+        Evaluate(cInfoText, Format(nCountChecked) + ' Komponenten geprüft' + ' ' + cMeldung);
     end;
 
     procedure ItemIsBulk(ItemNo: Code[20]): Boolean
     var
-        recItem: Record Item;
+        Item: Record Item;
     begin
-        if recItem.GET(ItemNo) then
-            if recItem.Artikelart = recItem.Artikelart::Halbfabrikat then
-                exit(true);
-    end;
-
-    procedure CheckMarktfreigabePin() bReturn: Boolean
-    var
-        recUserSetup: Record "91";
-        recManufacturingSetup: Record "Manufacturing Setup";
-        cuNaviPharma: Codeunit BASNaviPharmaPHA;
-        cAct: Action;
-        tPin: Text[30];
-        tPinUser: Text[30];
-    begin
-        //-GL021
-        /*
-        bReturn:=FALSE;
-        Rec.CALCFIELDS(Artikelart);
-        IF Rec.Artikelart=Rec.Artikelart::Fertigprodukt THEN BEGIN   //Nur bei Fertigprodukten
-        
-          pDialog.SetCaption('Marktfreigabe Pin:');
-          pDialog.LOOKUPMODE(true);
-          cAct := pDialog.RUNMODAL;
-        
-        
-          IF (cAct = ACTION::OK) OR (cAct = ACTION::LookupOK) THEN BEGIN   //GL027
-            IF (pDialog.GetAction()=TRUE) THEN BEGIN
-              tPin:=pDialog.GetValue();
-              tPin := UPPERCASE(tPin);
-        
-              //Benutzer Pin holen
-              recUserSetup.GET(USERID);
-              tPinUser := recUserSetup.MarktfreigabePin;
-              IF STRLEN(tPinUser)=0 THEN
-                ERROR('Es ist kein PIN für die Marktfreigabe für den Benutzer %1 vorhanden!', USERID);
-        
-              //Entschlüsseln des Benutzer Pin
-              recManufacturingSetup.GET;
-              IF recManufacturingSetup.WaagePinVerschlüsselung > 0 THEN
-                tPinUser:= cuNaviPharma.StrCrypt(tPinUser, recManufacturingSetup.WaagePinVerschlüsselung, FALSE);
-        
-              IF NOT (tPinUser=tPin) THEN
-                ERROR('Pin nicht korrekt!')
-              ELSE
-                bReturn:=TRUE;
-        
-            END ELSE BEGIN
-              ERROR('Pin Eingabe wurde Abgebrochen!');
-            END;
-          END ELSE BEGIN
-            ERROR('Pin Eingabe wurde Abgebrochen!');
-          END;
-        
-        END;
-        //+GL021
-        */
-
+        if Item.GET(ItemNo) then
+            exit(Item.BASItemTypePHA = Item.BASItemTypePHA::"Semifinished Product");
     end;
 
     local procedure CheckExpDate()
@@ -635,29 +465,24 @@ tableextension 50027 BASLotNoInformationExtPHA extends "Lot No. Information"
 
 
 
-    procedure GetLastChange(What: Option Date,Name) ChangeValue: Text
+    procedure GetLastChange(What: Option Date,Name): Text
     var
-        ChangeLog: Record "405";
+        ChangeLogEntry: Record "Change Log Entry";
     begin
-        ChangeValue := '';
-        ChangeLog.SetRange("Table No.", DATABASE::"Lot No. Information");
-        ChangeLog.SetRange("Primary Key Field 1 Value", "Item No.");
-        ChangeLog.SetRange("Primary Key Field 2 Value", "Variant Code");
-        ChangeLog.SetRange("Primary Key Field 3 Value", BASLotNoPHA);
-        ChangeLog.SetRange("Type of Change", ChangeLog."Type of Change"::Modification);
-        ChangeLog.SETFILTER(ChangeLog."Field No.", '<>50004');  //GL040  Offen Hakerl nicht als Änderung Anzeigen  (Wunsch Magg, Weberhofer)
-        if ChangeLog.FINDLAST then begin
+        ChangeLogEntry.SetRange("Table No.", DATABASE::"Lot No. Information");
+        ChangeLogEntry.SetRange("Primary Key Field 1 Value", "Item No.");
+        ChangeLogEntry.SetRange("Primary Key Field 2 Value", "Variant Code");
+        // ToDo -> hardcoded!!! <>50004 and BASLotNoPHA-Field in change log entry
+        // ChangeLog.SetRange("Primary Key Field 3 Value", BASLotNoPHA);
+        ChangeLogEntry.SetRange("Type of Change", ChangeLogEntry."Type of Change"::Modification);
+        ChangeLogEntry.SETFILTER(ChangeLogEntry."Field No.", '<>50004');
+        if ChangeLogEntry.FindLast() then
             case What of
                 What::Date:
-                    begin
-                        ChangeValue := FORMAT(ChangeLog."Date and Time");
-                    end;
+                    exit(Format(ChangeLogEntry."Date and Time"));
                 What::Name:
-                    begin
-                        ChangeValue := ChangeLog."User ID";
-                    end;
+                    exit(ChangeLogEntry."User ID");
             end;
-        end;
     end;
 
     trigger OnBeforeDelete()

@@ -9,7 +9,7 @@ tableextension 50060 BASEntrySummaryExtPHA extends "Entry Summary"
         field(50000; BASChargenstatusPHA; Code[20])
         {
             Caption = 'Chargenstatus';
-            DataClassification = ToBeClassified;
+            DataClassification = CustomerContent;
         }
         // >> TASK59.01
     }

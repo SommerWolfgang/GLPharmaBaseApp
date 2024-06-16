@@ -30,7 +30,7 @@ tableextension 50041 BASExtendedTextHeaderExtPHA extends "Extended Text Header"
         }
         field(50003; BASTextLinesPHA; Integer)
         {
-            CalcFormula = Count("Extended Text Line" WHERE("Table Name" = FIELD("Table Name"),
+            CalcFormula = Count("Extended Text Line" where("Table Name" = FIELD("Table Name"),
                                                             "No." = FIELD("No."),
                                                             "Language Code" = FIELD("Language Code"),
                                                             "Text No." = FIELD("Text No.")));

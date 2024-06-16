@@ -63,10 +63,12 @@ tableextension 50036 BASUserSetupPHA extends "User Setup"
         field(50015; BASBenutzerEinstellungenPHA; Code[10])
         {
         }
-        field(50016; BASAbsatzplanungBenachrichtigungPHA; Option)
-        {
-            OptionMembers = " ",Mail,InfoCenter,MailErweitert;
-        }
+
+        // ToDo -> Enum
+        // field(50016; BASAbsatzplanungBenachrichtigungPHA; Option)
+        // {
+        //     OptionMembers = " ",Mail,InfoCenter,MailErweitert;
+        // }
         field(50017; BASMarktfreigabePinPHA; Text[10])
         {
             Description = 'MFU';

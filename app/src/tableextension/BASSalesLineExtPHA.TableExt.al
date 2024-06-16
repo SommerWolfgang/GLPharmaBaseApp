@@ -727,17 +727,14 @@ tableextension 50013 BASSalesLineExtPHA extends "Sales Line"
         //+GL035
     end;
 
-    procedure GetHeaderMengeZuNrBerechnung(cAuftragsNr: Code[20]) bReturn: Boolean
+    procedure GetHeaderMengeZuNrBerechnung(cAuftragsNr: Code[20]): Boolean
     var
-        recSH: Record "Sales Header";
+        SalesHeader: Record "Sales Header";
     begin
-        //-GL033
-        //Ist die Funktionalität im Kopf aktiviert?
-        bReturn := false;
-        if recSH.Get(recSH."Document Type"::Order, cAuftragsNr) then
-            bReturn := recSH."VKBetragMenge+NR";
-
-        //+GL033
+        // ToDo -> Field VKBetragMenge+NR
+        if SalesHeader.Get(SalesHeader."Document Type"::Order, cAuftragsNr) then
+            exit(true);
+        // exit(SalesHeader."VKBetragMenge+NR");
     end;
 
     procedure "CheckArtikelVerfügbarkeitVKL"(cItemNo: Code[20]; cLotNo: Code[20]; dMengeBedarf: Decimal; cAuftragNr: Code[20])

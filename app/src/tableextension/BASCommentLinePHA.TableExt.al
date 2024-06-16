@@ -11,35 +11,25 @@ tableextension 50059 BASCommentLinePHA extends "Comment Line"
         {
             DataClassification = CustomerContent;
         }
-        // Meldung in Debitorenposten anzeigen
-        field(50002; "BASMeldung in Debitorenposten anzPHA"; Boolean)
+        field(50002; BASShowNoteCustLedgerEntryPHA; Boolean)
         {
             DataClassification = CustomerContent;
-            Description = 'MFU';
         }
-        // Meldung in Einkauf Rechnung anzeigen
-        field(50003; "BASMeldung in Einkauf Rechnung anPHA"; Boolean)
+        field(50003; BASShowNotePurchaseInvoicePHA; Boolean)
         {
             DataClassification = CustomerContent;
-            Description = 'MFU';
         }
-        // Meldung in FA anzeigen
-        field(50004; "BASMeldung in FA anzeigenPHA"; Boolean)
+        field(50004; BASNoteFAPHA; Boolean)
         {
             DataClassification = CustomerContent;
-            Description = 'MFU';
         }
-        // Meldung in Bestellung anzeigen
-        field(50500; "BASMeldung in Bestellung anzeigenPHA"; Boolean)
+        field(50500; BASShowNoteOrderPHA; Boolean)
         {
             DataClassification = CustomerContent;
-
         }
-        // Meldung bei Umlagerung
         field(50501; "BASMeldung bei UmlagerungPHA"; Boolean)
         {
             DataClassification = CustomerContent;
-            Description = 'PRA';
         }
     }
 }
