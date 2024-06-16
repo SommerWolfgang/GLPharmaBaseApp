@@ -294,8 +294,6 @@ tableextension 50015 BASPurchaseLineExtPHA extends "Purchase Line"
 
     procedure Wertgutschrift()
     var
-        localRecItem: Record Item;
-        localRecPurchaseLine: Record "Purchase Line";
     begin
         // "Wertkorrektur zu Artikelposten" := 0;
     end;

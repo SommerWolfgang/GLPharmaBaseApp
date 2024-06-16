@@ -2,7 +2,7 @@
     "CRS.ObjectNamePrefix": "BAS",
     "CRS.ObjectNameSuffix": "PHA",
     "CRS.FileNamePattern": "<ObjectNameShort>.<ObjectTypeShortPascalCase>.al",
-    "CRS.FileNamePatternExtensions": "<ObjectNameShort>.<ObjectTypeShortPascalCase>.al",
+    "CRS.FileNamePatterNextensions": "<ObjectNameShort>.<ObjectTypeShortPascalCase>.al",
     "CRS.FileNamePatternPageCustomizations": "<ObjectNameShort>.<ObjectTypeShortPascalCase>.al",
     "al.enableCodeAnalysis": true,
     "al.codeAnalyzers": [

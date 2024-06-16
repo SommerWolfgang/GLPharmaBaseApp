@@ -171,27 +171,25 @@ tableextension 50009 BASItemExtPHA extends Item
         {
 
         }
-        field(50037; "BASForce ConcentrationPHA"; Boolean)
+        field(50037; BASForceConcentrationPHA; Boolean)
         {
             Caption = 'Wirkstoffgehalt notwendig';
 
         }
-        field(50038; BASPostenAnzahlPHA; Integer)
+        field(50038; BASEntrySumPHA; Integer)
         {
             CalcFormula = count("Item Ledger Entry" where("Item No." = field("No.")));
-
             FieldClass = FlowField;
-
         }
-        field(50039; "BASSimulation-Arbeitsplannr.PHA"; Code[20])
+        field(50039; BASSimulationWorkPlanNoPHA; Code[20])
         {
             TableRelation = "Routing Header";
         }
-        field(50040; "BASSimulation-Stuecklistenr.PHA"; Code[20])
+        field(50040; BASSimulationAssemblyNoPHA; Code[20])
         {
             TableRelation = "Production BOM Header";
         }
-        field(50041; "BASSimulation-Lot SizePHA"; Decimal)
+        field(50041; BASSimulationLotSizePHA; Decimal)
         {
             DecimalPlaces = 0 : 5;
             MinValue = 0;

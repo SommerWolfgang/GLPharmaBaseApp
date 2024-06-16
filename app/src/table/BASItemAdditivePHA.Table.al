@@ -202,7 +202,7 @@ table 50000 BASItemAdditivePHA
     {
     }
 
-    trigger Onmodify()
+    trigger OnModify()
     begin
 
         // if (Rec.Suchtgiftgruppe <> xRec.Suchtgiftgruppe) then

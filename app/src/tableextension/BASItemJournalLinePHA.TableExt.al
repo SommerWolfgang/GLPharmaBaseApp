@@ -3,7 +3,7 @@ tableextension 50017 BASItemJournalLinePHA extends "Item Journal Line"
 {
     fields
     {
-        modify("Expiration Date")
+        Modify("Expiration Date")
         {
             trigger OnAfterValidate()
             begin
@@ -14,7 +14,7 @@ tableextension 50017 BASItemJournalLinePHA extends "Item Journal Line"
                         DeleteCharge();
             end;
         }
-        modify("Lot No.")
+        Modify("Lot No.")
         {
             trigger OnAfterValidate()
             var
@@ -62,7 +62,7 @@ tableextension 50017 BASItemJournalLinePHA extends "Item Journal Line"
             end;
         }
 
-        modify(Quantity)
+        Modify(Quantity)
         {
             trigger OnBeforeValidate()
             var

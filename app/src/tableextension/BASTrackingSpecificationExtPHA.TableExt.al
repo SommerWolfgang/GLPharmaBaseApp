@@ -1,5 +1,5 @@
 
-tableextension 50024 BASTrackingSpecificationExtPHA extends "Tracking Specification"
+tableextension 50024 BASTrackingSpecificatioNextPHA extends "Tracking Specification"
 {
     fields
     {
