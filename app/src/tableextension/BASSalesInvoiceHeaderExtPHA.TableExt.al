@@ -137,7 +137,7 @@ tableextension 50021 BASSalesInvoiceHeaderExtPHA extends "Sales Invoice Header"
         {
             Caption = 'Bill-to Code';
             
-            TableRelation = "Ship-to Address".Code where("Customer No." = FIELD("Bill-to Customer No."));
+            TableRelation = "Ship-to Address".Code where("Customer No." = field("Bill-to Customer No."));
         }
         field(50503; "BASBill-to E-MailPHA"; Text[80])
         {

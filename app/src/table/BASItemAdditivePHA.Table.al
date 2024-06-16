@@ -35,7 +35,7 @@ table 50000 BASItemAdditivePHA
     DataCaptionFields = ItemDescription;
     DataClassification = CustomerContent;
     //DrillDownPageID = 50038;
-    //LookupPageID = 50038;
+    //lookupPageID = 50038;
 
     fields
     {

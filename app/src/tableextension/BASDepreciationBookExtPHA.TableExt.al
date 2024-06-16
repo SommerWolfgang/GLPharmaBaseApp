@@ -40,9 +40,9 @@ tableextension 50051 BASDepreciationBookExtPHA extends "Depreciation Book"
             Caption = 'Gesperrt';
 
         }
-        field(50005; "BASAfa bis doppelte NutzungsdauerPHA"; Boolean)
+        field(50005; BASAfaUntilDoubleEcoLifePHA; Boolean)
         {
-
+            Caption = '', comment = 'DEA="Afa bis doppelte Nutzungsdauer"';
         }
     }
 }

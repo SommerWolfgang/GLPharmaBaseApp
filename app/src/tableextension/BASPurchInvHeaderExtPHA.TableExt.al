@@ -32,7 +32,7 @@ tableextension 50039 BASPurchInvHeaderExtPHA extends "Purch. Inv. Header"
         field(50005; "BASBezogen auf Rechnungsnr.PHA"; Code[20])
         {
             
-            TableRelation = "Purch. Inv. Header" where("Buy-from Vendor No." = FIELD("Buy-from Vendor No."));
+            TableRelation = "Purch. Inv. Header" where("Buy-from Vendor No." = field("Buy-from Vendor No."));
         }
         field(50006; BASSpediteurcodePHA; Code[10])
         {

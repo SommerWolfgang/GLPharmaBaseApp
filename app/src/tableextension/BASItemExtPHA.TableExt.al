@@ -614,7 +614,7 @@ tableextension 50009 BASItemExtPHA extends Item
     }
     keys
     {
-        key(Key17; """BASPharmaCentralNoPHA")
+        key(Key17; BASPharmaCentralNoPHA)
         {
         }
         key(Key18; BASItemTypePHA, BASStatisticCodeIPHA, BASStatisticCodeIIPHA, BASStatisticCodeIIIPHA)

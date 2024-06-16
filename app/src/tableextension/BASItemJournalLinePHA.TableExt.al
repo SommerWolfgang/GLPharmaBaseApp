@@ -27,25 +27,28 @@ tableextension 50017 BASItemJournalLinePHA extends "Item Journal Line"
                 if "Lot No." <> LotNo then begin
                     Item.Get("Item No.");
                     if Item."Item Tracking Code" = '' then
-                        Error(Text50000);
+                        // ToDo
+                        ;//Error(Text50000);
 
                     BASSalesLotNoPHA := '';
                     "Expiration Date" := 0D;
-                    "BASLieferantenchargennr.PHA" := '';
+                    BASShipmentLotNoPHA := '';
 
                     DeleteCharge();
 
                     if "Lot No." <> '' then
                         if not LotNoInformation.Get("Item No.", "Variant Code", "Lot No.") then begin
                             if "Entry Type" in [1, 3, 4, 5] then
-                                Error(Text50002, "Lot No.")
+                                // ToDo
+                                Error('')
+                            // Error(Text50002, "Lot No.")
                             else
                                 if ("Order Type" <> "Order Type"::Production) and ("Order No." = '') then begin
                                     CheckLotNo();
-                                    Message(Text50003, "Lot No.");
+                                    // ToDo
+                                    // Message(Text50003, "Lot No.");
                                     BASSalesLotNoPHA := "Lot No.";
                                     "Expiration Date" := 0D;
-
                                 end;
                         end else begin
                             "Lot No." := LotNoInformation."Lot No.";
@@ -85,13 +88,13 @@ tableextension 50017 BASItemJournalLinePHA extends "Item Journal Line"
                                                                               "Location Code" = field("Location Code")));
             FieldClass = FlowField;
 
-            trigger OnLookup()
+            trigger Onlookup()
             var
                 tempRecItemLedgerEntry: Record 32 temporary;
             begin
                 // ToDo -> hardcoded!!!
                 if "Journal Template Name" = 'FAVERB' then begin
-                    TestField("Item No.");
+                    Testfield("Item No.");
                     tempRecItemLedgerEntry."Item No." := "Item No.";
                     tempRecItemLedgerEntry.SetRange("Item No.", "Item No.");
                     tempRecItemLedgerEntry.SetRange(Open, true);
@@ -178,7 +181,7 @@ tableextension 50017 BASItemJournalLinePHA extends "Item Journal Line"
         }
         field(50525; BASSalesLotNoPHA; Code[50])
         {
-            trigger OnLookup()
+            trigger Onlookup()
             begin
                 if "Entry Type" <> "Entry Type"::Output then
                     HoleCharge();
@@ -237,17 +240,17 @@ tableextension 50017 BASItemJournalLinePHA extends "Item Journal Line"
             // Caption = 'Hole Von', comment = '"DEA = 'Get from';
 
             DecimalPlaces = 0 : 5;
-            //Editable = false;   //Mit Editable false funktioniert das OnLookup nicht!
+            //Editable = false;   //Mit Editable false funktioniert das Onlookup nicht!
             FieldClass = FlowField;
 
 
-            trigger OnLookup()
+            trigger Onlookup()
             var
                 tempRecItemLedgerEntry: Record "Item Ledger Entry" temporary;
                 ActionReturn: Action;
             begin
 
-                TestField("Item No.");
+                Testfield("Item No.");
                 tempRecItemLedgerEntry."Item No." := "Item No.";
                 tempRecItemLedgerEntry.SetRange("Item No.", "Item No.");
                 tempRecItemLedgerEntry.SetRange(Open, true);
@@ -256,10 +259,11 @@ tableextension 50017 BASItemJournalLinePHA extends "Item Journal Line"
                     tempRecItemLedgerEntry.SetRange("Location Code", "Location Code");
                 end;
 
-                ActionReturn := PAGE.RUNMODAL(PAGE::UmlagerInfoNeu, tempRecItemLedgerEntry);
-                if (ActionReturn = ACTION::LookupOK) or (ActionReturn = ACTION::OK) then begin
+                //ToDo
+                // ActionReturn := PAGE.RUNMODAL(PAGE::UmlagerInfoNeu, tempRecItemLedgerEntry);
+                if (ActionReturn = ACTION::lookupOK) or (ActionReturn = ACTION::OK) then begin
                     "Location Code" := tempRecItemLedgerEntry."Location Code";
-                    "Bin Code" := tempRecItemLedgerEntry.Lagerplatzhilfsfeld;
+                    "Bin Code" := tempRecItemLedgerEntry.BASBinCodeHelpFieldPHA;
 
                     if "Entry Type" in ["Entry Type"::Transfer, "Entry Type"::"Negative Adjmt."] then begin
                         if ("Entry Type" = "Entry Type"::"Negative Adjmt.") then
@@ -283,7 +287,7 @@ tableextension 50017 BASItemJournalLinePHA extends "Item Journal Line"
                 tTest := '';
             end;
         }
-        field(50554; "BASLieferantenchargennr.PHA"; Code[20])
+        field(50554; BASShipmentLotNoPHA; Code[20])
         {
             trigger OnValidate()
             begin
@@ -292,8 +296,8 @@ tableextension 50017 BASItemJournalLinePHA extends "Item Journal Line"
                     FieldError("Entry Type", 'FEHLENDE VARIABLE T83');
                 if "Lot No." <> '' then
                     if not NewCharge() then
-                        if LotNoInformation."Lief. Chargennr." <> "Lieferantenchargennr." then //GL023
-                            Error('FEHLENDE VARIABLE T83', FieldCaption("Lieferantenchargennr."), "Lot No.");
+                        if LotNoInformation.BASShipmentLotNoPHA <> BASShipmentLotNoPHA then
+                            Error('FEHLENDE VARIABLE T83');
             end;
         }
         field(50555; BASPackmittelversionPHA; Code[20])
@@ -346,7 +350,7 @@ tableextension 50017 BASItemJournalLinePHA extends "Item Journal Line"
         //     "BASVerkaufschargennr.PHA" := LotNoInformation.."BASVerkaufschargennr.PHA";
         //     "Expiration Date" := LotNoInformation."Expiration Date";
         //     if Item.BASItemTypePHA = Item.BASItemTypePHA::"Finished Product" then
-        //         TestField("BASVerkaufschargennr.PHA");
+        //         Testfield("BASVerkaufschargennr.PHA");
         //     Validate("Lot No.", LotNoInformation."Lot No.");
         // end;
     end;

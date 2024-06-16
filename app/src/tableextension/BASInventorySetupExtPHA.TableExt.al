@@ -74,15 +74,15 @@ tableextension 50031 BASInventorySetupExtPHA extends "Inventory Setup"
 
             TableRelation = "No. Series";
         }
-        field(50503; BASKonsignationslagerortcodePHA; Code[10])
+        field(50503; BASConslagerortcodePHA; Code[10])
         {
-
+            Caption = '', comment = 'DEA="YourLanguageText"';
             TableRelation = Location;
         }
         field(50504; BASKonsignationslagerfachcodePHA; Code[10])
         {
 
-            TableRelation = Bin.Code where("Location Code" = FIELD(Konsignationslagerortcode));
+            TableRelation = Bin.Code where("Location Code" = field(BASConslagerortcodePHA));
         }
         field(50505; "BASLagerbestand vor Ort FilterPHA"; Code[20])
         {

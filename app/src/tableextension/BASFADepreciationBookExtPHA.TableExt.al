@@ -18,62 +18,53 @@ tableextension 50052 BASFADepreciationBookExtPHA extends "FA Depreciation Book"
     // ---------------------------------------------------------------------------------------------------------
     fields
     {
-        MODIFY("FA Posting Group")
+        modify("FA Posting Group")
         {
             trigger OnAfterValidate()
             var
                 FASetup: Record "FA Setup";
                 FixedAsset: Record "Fixed Asset";
             begin
-                //-001
-                FASetup.GET();
-                IF FASetup.KontoNrLogik = FASetup.KontoNrLogik::"Anlagenbuchungsgruppe des Standard Afa-Buches" THEN
-                    IF "Depreciation Book Code" = FASetup."Default Depr. Book" THEN BEGIN
-                        FixedAsset.GET("FA No.");
-                        FixedAsset."Kontonr." := CopyStr("FA Posting Group", 1, 10);
-                        FixedAsset.MODIFY();
-                    END;
-                //+001
-            END;
+                FASetup.Get();
+                if FASetup.BASKontoNrLogikPHA = FASetup.BASKontoNrLogikPHA::"Anlagenbuchungsgruppe des Standard Afa-Buches" then
+                    if "Depreciation Book Code" = FASetup."Default Depr. Book" then begin
+                        FixedAsset.Get("FA No.");
+                        FixedAsset.BASAccountNoPHA := CopyStr("FA Posting Group", 1, 10);
+                        FixedAsset.Modify();
+                    end;
+            end;
         }
         field(50000; "BASKst-AufteilungenPHA"; Integer)
         {
-            /*TODOPBA benötigt?
-            CalcFormula = Count(AfaBuchKostenstelle where(Anlagennr.=FIELD(FA No.),
-                                                           Afa buchcode=FIELD(Depreciation Book Code)));
-            FieldClass = FlowField;
-            */
         }
         field(50001; "Förderung"; Text[30])
         {
-            CalcFormula = Lookup("Fixed Asset".Förderung where("No." = FIELD("FA No.")));
+            CalcFormula = lookup("Fixed Asset".BASAdvancementPHA where("No." = field("FA No.")));
             FieldClass = FlowField;
         }
         field(50002; BASInbetriebnahmedatumPHA; Date)
         {
-            /*TODOPBA benötigt?
-            CalcFormula = Lookup("Fixed Asset". where (No.=FIELD(FA No.)));
-            FieldClass = FlowField;
-            */
         }
         field(50003; BASAnlagenbezeichnungPHA; Text[100])
         {
-            CalcFormula = Lookup("Fixed Asset".Description where("No." = FIELD("FA No.")));
+            CalcFormula = lookup("Fixed Asset".Description where("No." = field("FA No.")));
             FieldClass = FlowField;
         }
         field(50004; BASAnlagenkostenstellePHA; Code[20])
         {
-            CalcFormula = Lookup("Fixed Asset"."Global Dimension 1 Code" where("No." = FIELD("FA No.")));
+            CalcFormula = lookup("Fixed Asset"."Global Dimension 1 Code" where("No." = field("FA No.")));
             FieldClass = FlowField;
         }
-        field(50005; BASGesperrtPHA; Boolean)
+        field(50005; BASBlockedPHA; Boolean)
         {
-            CalcFormula = Lookup("Fixed Asset".Blocked where("No." = FIELD("FA No.")));
+            CalcFormula = lookup("Fixed Asset".Blocked where("No." = field("FA No.")));
+            Caption = 'Blocked', comment = 'DEA="Gesperrt"';
             FieldClass = FlowField;
         }
-        field(50006; BASInaktivPHA; Boolean)
+        field(50006; BASInactivePHA; Boolean)
         {
-            CalcFormula = Lookup("Fixed Asset".Inactive where("No." = FIELD("FA No.")));
+            CalcFormula = lookup("Fixed Asset".Inactive where("No." = field("FA No.")));
+            Caption = 'Inactive', comment = 'DEA="Inaktiv"';
             FieldClass = FlowField;
         }
     }

@@ -93,7 +93,7 @@ tableextension 50013 BASSalesLineExtPHA extends "Sales Line"
         }
         field(50012; BASAssignInvoicePHA; Code[20])
         {
-            trigger OnLookup()
+            trigger Onlookup()
             var
                 SalesInvoiceLines: Record "Sales Invoice Line";
             begin
@@ -145,7 +145,7 @@ tableextension 50013 BASSalesLineExtPHA extends "Sales Line"
         field(50016; BASGetFromPHA; Integer)
         {
             Caption = 'Get From', comment = 'DEA="Hole von"';
-            trigger OnLookup()
+            trigger Onlookup()
             var
                 Item: Record Item;
                 TempItemLedgerEntry: Record "Item Ledger Entry" temporary;
@@ -161,7 +161,7 @@ tableextension 50013 BASSalesLineExtPHA extends "Sales Line"
                             TempItemLedgerEntry.SetRange("Location Code", "Location Code");
                         end;
 
-                        if (ActionReturn = ACTION::LookupOK) or (ActionReturn = ACTION::OK) then begin
+                        if (ActionReturn = ACTION::lookupOK) or (ActionReturn = ACTION::OK) then begin
                             Validate(BASLotNoPHA, TempItemLedgerEntry.BASSalesLotNoPHA);
                             BASSalesLotNoPHA := TempItemLedgerEntry.BASSalesLotNoPHA;
                             Validate(BASSubsetPHA, TempItemLedgerEntry."Remaining Quantity");
@@ -228,7 +228,7 @@ tableextension 50013 BASSalesLineExtPHA extends "Sales Line"
             trigger OnValidate()
             begin
                 Validate(BASSubsetPHA);
-                TestField("Qty. per Unit of Measure");
+                Testfield("Qty. per Unit of Measure");
 
                 if (Type <> Type::Item) and (BASNaturalrabattmengePHA <> 0) then
                     Error('FEHLENDE TEXTVARIABLE T37');
@@ -265,10 +265,10 @@ tableextension 50013 BASSalesLineExtPHA extends "Sales Line"
                 if "Document Type" <> "Document Type"::"Credit Memo" then
                     exit;
 
-                TestField(Type, Type::Item);
+                Testfield(Type, Type::Item);
 
                 Item.Get("No.");
-                Item.TestField("Item Tracking Code");
+                Item.Testfield("Item Tracking Code");
                 if (BASSalesLotNoPHA <> xRec.BASSalesLotNoPHA) then begin
                     if BASSalesLotNoPHA <> '' then begin
                         LotNoInformation.SetCurrentKey("Item No.", "Variant Code", BASSalesLotNoPHA);

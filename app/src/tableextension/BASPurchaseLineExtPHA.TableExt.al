@@ -363,13 +363,13 @@ tableextension 50015 BASPurchaseLineExtPHA extends "Purchase Line"
         //     if StrLen("Expiration Date DM") < 6 then
         //         Error('DataMatrix Ablaufdatum muss Format JJMMTT (YYMMDD) haben!');
 
-        //     if EVALUATE(iMonHelp, CopyStr("Expiration Date DM", 3, 2)) then begin
+        //     if Evaluate(iMonHelp, CopyStr("Expiration Date DM", 3, 2)) then begin
         //         if (iMonHelp < 1) or (iMonHelp > 12) then
         //             Error('DataMatrix Ablaufdatum muss Format JJMMTT (YYMMDD) haben!');
         //     end else
         //         Error('DataMatrix Ablaufdatum muss Format JJMMTT (YYMMDD) haben!');
 
-        //     if EVALUATE(iDayHelp, CopyStr("Expiration Date DM", 5, 2)) then begin
+        //     if Evaluate(iDayHelp, CopyStr("Expiration Date DM", 5, 2)) then begin
         //         if (iDayHelp < 0) or (iDayHelp > 31) then
         //             Error('DataMatrix Ablaufdatum muss Format JJMMTT (YYMMDD) haben!');
         //     end else

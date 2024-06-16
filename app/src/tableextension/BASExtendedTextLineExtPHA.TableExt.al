@@ -1,35 +1,30 @@
 tableextension 50042 BASExtendedTextLineExtPHA extends "Extended Text Line"
-{  // GL001 Last date modified und modified by
-    //       Feld "Table Name" um Option Purchase Text erweitert
-    //       Form: lookup-form und drill down form gesetzt
-    // 
-    // Datum      | Autor   | Status   | Beschreibung
-    // --------------------------------------------------------------------------------------------------------
-    // 2010-01-26 | Petsch  | ok       | Update von 3.60
-    // --------------------------------------------------------------------------------------------------------
-    // 2015-03-02 | MFU     | ok       | GL002 - Bei Verpackungsartikel nur Benutzer mit spezialrecht sollen ändern können (Wunsch Maurer)
-    // --------------------------------------------------------------------------------------------------------
+{
     fields
     {
-        field(50000; "BASLast Date modifiedPHA"; Date)
+        field(50000; BASLastDateModifiedPHA; Date)
         {
+            Caption = 'Last Date Modified', comment = 'DEA="Änderungsdatum"';
+            Editable = false;
         }
-        field(50001; "BASmodified byPHA"; Text[20])
+        field(50001; BASModifiedByPHA; Code[50])
         {
+            Caption = 'Modified by', comment = 'DEA="Geändert von"';
+            Editable = false;
+            TableRelation = User."User Name";
         }
     }
 
-    procedure CheckPMRecht(cItemNo: Code[20])
+    procedure CheckPermissionPM(ItemNo: Code[20]): Boolean
     var
-        recItem: Record Item;
-        NaviPharma: Codeunit NaviPharma;
+        Item: Record Item;
+        NaviPharma: Codeunit BASNaviPharmaPHA;
+        NoPermissionErr: Label '', comment = 'DEA="Keine Rechte zum Bearbeiten von Verpackungsstoffen vorhanden!', Locked = true;
+        PermissionPMTxt: Label '$TEXTBAUSTEINE_PM', Locked = true;
     begin
-
-        //-GL002
-        IF recItem.GET(cItemNo) THEN
-            IF recItem.Artikelart = recItem.Artikelart::Verpackungsstoff THEN
-                IF NOT NaviPharma.Berechtigung('$TEXTBAUSTEINE_PM') THEN
-                    ERROR('Keine Rechte zum bearbeiten von Verpackungsstoffen vorhanden!');
-        //+GL002
+        if Item.Get(ItemNo) then
+            if Item.BASItemTypePHA = Item.BASItemTypePHA::"Package Material" then
+                if not NaviPharma.Permission(PermissionPMTxt) then
+                    Error(NoPermissionErr);
     end;
 }

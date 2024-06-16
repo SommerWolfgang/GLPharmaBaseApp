@@ -3,7 +3,7 @@ table 50015 BASStatisticcodePHA
 {
     Caption = 'StatisticCode', comment = 'DEA="Statistikcode"';
     DataClassification = CustomerContent;
-    //LookupPageID = BASStatisticCode2PHAList;
+    //lookupPageID = BASStatisticCode2PHAList;
     //DrillDownPageID = BASStatisticCode2PHAList;
 
     fields

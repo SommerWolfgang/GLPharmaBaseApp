@@ -475,7 +475,7 @@ codeunit 50001 BASNaviPharmaPHA
             while (StrLen(sResult) < 10) and (StrLen(sResult) < fillupcount) do
                 Evaluate(sResult, '0' + sResult);
 
-        evaluate(result, sResult);
+        Evaluate(result, sResult);
     end;
 
     procedure "PrüfeUnterstufeFrei"(ItemNo: Text[20]; LotNo: Code[50]; BulkOnly: Boolean; Loop: Boolean; Warnings: Boolean): Boolean
@@ -486,15 +486,10 @@ codeunit 50001 BASNaviPharmaPHA
         Bulk: Boolean;
         Check: Boolean;
         Result: Boolean;
+        FreeChargeNotPosibleErr: Label '', comment = 'DEA="Die Freigabe der Charge ''%1'' des Artikels ''%2'' kann nicht gestattet werden, da mehrere Istmeldungen mit unterschiedlichen Fertigungsauftragsnummern verbucht sind. Bitte melden Sie diesen Fehler dringend der obersten Qualitätssicherung!"';
+        InfoTest2Msg: Label '', comment = 'DEA="Die Prüfung des Status der Unterstufen wurde abgebrochen, da für Charge ''%1'' des Artikels ''%2'' keine Herstellposten vorhanden sind! Das System lässt die Freigabe daher ohne Unterstufenprüfung zu.';
+        InfoTestMsg: Label '', comment = 'DEA="Die Prüfung des Status der Unterstufen wurde abgebrochen, da für Charge ''%1'' des Artikels ''%2'' keine Istmeldungsposten vorhanden sind! Dies deutet darauf hin, dass die Charge ''%1'' nicht im Haus gefertigt wurde. Das System lässt die Freigabe daher ohne weitere Prüfung dieser Unterstufe zu."';
         ProdOrderNo: Text[20];
-        InfoTestMsg: Label '', comment = 'DEA="Die Prüfung des Status der Unterstufen wurde abgebrochen, da für Charge ''%1'' des ' +
-                                'Artikels ''%2'' keine Istmeldungsposten vorhanden sind! Dies deutet darauf hin, dass die Charge ''%1'' nicht ' +
-                                    'im Haus gefertigt wurde. Das System lässt die Freigabe daher ohne weitere Prüfung dieser Unterstufe zu."';
-        InfoTest2Msg: Label '', comment = 'DEA="Die Prüfung des Status der Unterstufen wurde abgebrochen, da für Charge ''%1'' des ' +
-                                'Artikels ''%2'' keine Herstellposten vorhanden sind! Das System lässt die Freigabe daher ohne Unterstufenprüfung zu.';
-        FreeChargeNotPosibleErr: Label '', comment = 'DEA="Die Freigabe der Charge ''%1'' des Artikels ''%2'' kann nicht gestattet werden, da ' +
-                                'mehrere Istmeldungen mit unterschiedlichen Fertigungsauftragsnummern verbucht sind. Bitte melden Sie diesen ' +
-                                    'Fehler dringend der obersten Qualitätssicherung!"';
     begin
         ItemLedgerEntry.SetCurrentKey("Item No.", "Lot No.", "Posting Date");
         ItemLedgerEntry.SetFilter("Lot No.", LotNo);

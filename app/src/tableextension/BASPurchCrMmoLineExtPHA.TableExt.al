@@ -15,7 +15,7 @@ tableextension 50056 BASPurchCrMmoLineExtPHA extends "Purch. Cr. Memo Line"
         field(50005; BASHerstellerNrPHA; Code[20])
         {
             DataClassification = CustomerContent;
-            //TableRelation = "IF (Type=const(Item)) Artikel-HerstellerArtikel.HerstellerNr where (ArtikelNameZusatz=FIELD(No.), LieferantNr=FIELD(Buy-from Vendor No.))";
+            //TableRelation = "IF (Type=const(Item)) Artikel-HerstellerArtikel.HerstellerNr where (ArtikelNameZusatz=field(No.), LieferantNr=field(Buy-from Vendor No.))";
 
         }
         field(50010; "BASLot No.PHA"; Code[20])
@@ -23,7 +23,7 @@ tableextension 50056 BASPurchCrMmoLineExtPHA extends "Purch. Cr. Memo Line"
             Caption = 'Lot No.';
             DataClassification = CustomerContent;
 
-            TableRelation = IF (Type = const(Item)) "Lot No. Information"."Lot No." where("Item No." = FIELD("No."), "Variant Code" = FIELD("Variant Code"));
+            TableRelation = IF (Type = const(Item)) "Lot No. Information"."Lot No." where("Item No." = field("No."), "Variant Code" = field("Variant Code"));
         }
         field(50506; BASArtikelgruppePHA; Code[10])
         {

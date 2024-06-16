@@ -22,11 +22,10 @@ tableextension 50027 BASLotNoInformationExtPHA extends "Lot No. Information"
         field(50001; BASSalesLotNoPHA; Code[20])
         {
             trigger OnValidate()
-            var
-                ChargenVerw: Codeunit ChargenMgt;
+            // var
+            //     ChargenVerw: Codeunit BASChargeMgtPHA;
             begin
-                ChargenVerw."Aktualisiere Verkaufscharge"("Item No.", BASLotNoPHA, 0, BASSalesLotNoPHA, BASExpirationDatePHA);
-
+                // ChargenVerw."Aktualisiere Verkaufscharge"("Item No.", BASLotNoPHA, 0, BASSalesLotNoPHA, BASExpirationDatePHA);
                 ChangeStatus('Y');
             end;
         }
@@ -65,13 +64,13 @@ tableextension 50027 BASLotNoInformationExtPHA extends "Lot No. Information"
                 //-GL012
                 //Prüfen, ob die Charge schon in einer Verbrauchsbuchung vorhanden ist, wenn ja dann eine Meldung mit Bestättigung anzeigen
                 ItemLedgEntry.RESET();
-                ItemLedgEntry.SETCURRENTKEY("Item No.", BASLotNoPHA);
+                ItemLedgEntry.SetCurrentKey("Item No.", BASSalesLotNoPHA);
                 ItemLedgEntry.SetRange("Item No.", "Item No.");
-                ItemLedgEntry.SetRange(BASLotNoPHA, BASLotNoPHA);
+                ItemLedgEntry.SetRange(BASSalesLotNoPHA, BASSalesLotNoPHA);
                 ItemLedgEntry.SetRange("Entry Type", ItemLedgEntry."Entry Type"::Consumption);
                 if not ItemLedgEntry.IsEmpty then
                     if Confirm('Die Charge ist in Verbrauchsbuchungen vorhanden! Trotzdem ändern?', false) = false then
-                        ERROR('Änderung wurde nicht durchgeführt.');
+                        Error('Änderung wurde nicht durchgeführt.');
 
                 ChangeStatus('G');
             end;
@@ -244,16 +243,17 @@ tableextension 50027 BASLotNoInformationExtPHA extends "Lot No. Information"
         field(50105; BASHFCommentPHA; Text[100])
         {
         }
-        field(50106; "BASAnzahl FreigabenPHA"; Integer)
-        {
-            CalcFormula = count("Change Log Entry" where("Table No." = const(6505),
-                                                          "Primary Key Field 1 Value" = field("Item No."),
-                                                          "Primary Key Field 3 Value" = field(BASLotNoPHA),
-                                                          //"New Value" = const(1),
-                                                          "Field No." = const(50010)));
-            Editable = false;
-            FieldClass = FlowField;
-        }
+        // ToDo
+        // field(50106; "BASAnzahl FreigabenPHA"; Integer)
+        // {
+        //     CalcFormula = count("Change Log Entry" where("Table No." = const(6505),
+        //                                                   "Primary Key Field 1 Value" = field("Item No."),
+        //                                                   "Primary Key Field 3 Value" = field(BASLotNoPHA),
+        //                                                   //"New Value" = const(1),
+        //                                                   "Field No." = const(50010)));
+        //     Editable = false;
+        //     FieldClass = FlowField;
+        // }
         field(50117; BASLimsStatusPHA; Code[29])
         {
         }
@@ -326,54 +326,44 @@ tableextension 50027 BASLotNoInformationExtPHA extends "Lot No. Information"
         end;
     end;
 
-    procedure CheckComponents(ItemNo: Text[20]; LotNo: Text[20]; bMehrstufig: Boolean; var cInfoText: Text[1000]) cMeldung: Text[1000]
+    procedure CheckComponents(ItemNo: Text[20]; LotNo: Text[20]; bMehrstufig: Boolean; var cInfoText: Text[1000]) cMeldung: Text
     var
-        recItem: Record Item;
-        recItemLedgerEntry: Record "Item Ledger Entry";
-        recItemLedgerEntry1: Record "Item Ledger Entry";
-        recLotNoInformation: Record "Lot No. Information";
-        recProductionOrder: Record "Production Order";
-        nCountChecked: Integer;
-
+        Item: Record Item;
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ItemLedgerEntry2: Record "Item Ledger Entry";
+        LotNoInformation: Record "Lot No. Information";
+        CountChecked: Integer;
     begin
-
-        //Funktion für Unterstufenprüfung
-        if recItem.GET(ItemNo) then
-            if recItem.BASItemTypePHA = recItem.BASItemTypePHA::"Row Material" then begin
+        if Item.GET(ItemNo) then
+            if Item.BASItemTypePHA = Item.BASItemTypePHA::"Row Material" then begin
                 cInfoText := 'Rohstoffe werden nicht geprüft!';  //UPDATE2013
                 exit;
             end;
-        nCountChecked := 0;
-        recItemLedgerEntry.SETCURRENTKEY("Item No.", BASLotNoPHA, "Posting Date");
-        // recItemLedgerEntry.SetFilter(BASLotNoPHA, LotNo);
-        recItemLedgerEntry.SetFilter("Item No.", ItemNo);
-        recItemLedgerEntry.SetRange("Entry Type", recItemLedgerEntry."Entry Type"::Output);
-        if recItemLedgerEntry.FindSet() then begin
 
-            //-UPDATE2013
-            //neu
-            recItemLedgerEntry1.SETCURRENTKEY("Order Type", "Order No.", "Order Line No.", "Entry Type", "Prod. Order Comp. Line No.");
-            recItemLedgerEntry1.SetRange("Order Type", recItemLedgerEntry."Order Type"::Production);
-            recItemLedgerEntry1.SetFilter("Order No.", recItemLedgerEntry."Order No.");
-            //Alt
-            //recItemLedgerEntry1.SETCURRENTKEY("Prod. Order No.","Prod. Order Line No.","Entry Type","Prod. Order Comp. Line No.");
-            //recItemLedgerEntry1.SetFilter("Prod. Order No.", recItemLedgerEntry."Prod. Order No.");
-            //+UPDATE2013
-            recItemLedgerEntry1.SetFilter("Entry Type", 'Verbrauch|Abgang');
-            if recItemLedgerEntry1.FindSet() then
+        CountChecked := 0;
+        ItemLedgerEntry.SetCurrentKey("Item No.", BASSalesLotNoPHA, "Posting Date");
+        ItemLedgerEntry.SetFilter(BASSalesLotNoPHA, LotNo);
+        ItemLedgerEntry.SetFilter("Item No.", ItemNo);
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Output);
+        if ItemLedgerEntry.FindFirst() then begin
+            ItemLedgerEntry2.SetCurrentKey("Order Type", "Order No.", "Order Line No.", "Entry Type", "Prod. Order Comp. Line No.");
+            ItemLedgerEntry2.SetRange("Order Type", ItemLedgerEntry."Order Type"::Production);
+            ItemLedgerEntry2.SetFilter("Order No.", ItemLedgerEntry."Order No.");
+            ItemLedgerEntry2.SetFilter("Entry Type", 'Verbrauch|Abgang');
+            if ItemLedgerEntry2.FindSet() then
                 repeat
-                    recLotNoInformation.SetFilter("Item No.", recItemLedgerEntry1."Item No.");
-                    recLotNoInformation.SetFilter(BASLotNoPHA, recItemLedgerEntry1.BASLotNoPHA);
-                    if recLotNoInformation.FindFirst() then
-                        if recLotNoInformation.BASStatusPHA <> recLotNoInformation.BASStatusPHA::Free then begin
-                            if not ItemIsBulk(ItemNo) and ItemIsBulk(recLotNoInformation."Item No.") then
-                                cMeldung := cMeldung + '\' + 'Artikel ' + recLotNoInformation."Item No." + ' Chargennr. ' + recLotNoInformation.BASLotNoPHA + ' ist ';
-                            cMeldung := cMeldung + FORMAT(recLotNoInformation.Status) + ' ';
+                    LotNoInformation.SetFilter("Item No.", ItemLedgerEntry2."Item No.");
+                    LotNoInformation.SetFilter(BASSalesLotNoPHA, ItemLedgerEntry2.BASSalesLotNoPHA);
+                    if LotNoInformation.FindFirst() then
+                        if LotNoInformation.BASStatusPHA <> LotNoInformation.BASStatusPHA::Free then begin
+                            if not ItemIsBulk(ItemNo) and ItemIsBulk(LotNoInformation."Item No.") then
+                                cMeldung := cMeldung + '\' + 'Artikel ' + LotNoInformation."Item No." + ' Chargennr. ' + LotNoInformation.BASLotNoPHA + ' ist ';
+                            cMeldung := cMeldung + FORMAT(LotNoInformation.BASStatusPHA) + ' ';
                         end;
-                    nCountChecked += 1;
-                until recItemLedgerEntry1.Next() = 0;
+                    CountChecked += 1;
+                until ItemLedgerEntry2.Next() = 0;
         end;
-        Evaluate(cInfoText, Format(nCountChecked) + ' Komponenten geprüft' + ' ' + cMeldung);
+        Evaluate(cInfoText, Format(CountChecked) + ' Komponenten geprüft' + ' ' + cMeldung);
     end;
 
     procedure ItemIsBulk(ItemNo: Code[20]): Boolean
@@ -384,9 +374,10 @@ tableextension 50027 BASLotNoInformationExtPHA extends "Lot No. Information"
             exit(Item.BASItemTypePHA = Item.BASItemTypePHA::"Semifinished Product");
     end;
 
+    // ToDo
     local procedure CheckExpDate()
     var
-        cuCodesammlung: Codeunit Codesammlung;
+        // cuCodesammlung: Codeunit Codesammlung;
         iDayHelp: Integer;
         iMonHelp: Integer;
         tMonHelp: Text[2];
@@ -394,60 +385,35 @@ tableextension 50027 BASLotNoInformationExtPHA extends "Lot No. Information"
         tYearHelp: Text[4];
         tYearHelpDM: Text[4];
     begin
-        //-GL030
-        if ("Expiration Date DM" <> '') then begin
-            if STRLEN("Expiration Date DM") < 6 then
-                ERROR('DataMatrix Ablaufdatum muss Format JJMMTT (YYMMDD) haben!');
+        if BASExpirationDateDMPHA <> '' then begin
+            if strLen(BASExpirationDateDMPHA) < 6 then
+                Error('DataMatrix Ablaufdatum muss Format JJMMTT (YYMMDD) haben!');
 
-            if EVALUATE(iMonHelp, COPYSTR("Expiration Date DM", 3, 2)) then begin
+            if Evaluate(iMonHelp, CopyStr(BASExpirationDateDMPHA, 3, 2)) then begin
                 if (iMonHelp < 1) or (iMonHelp > 12) then
-                    ERROR('DataMatrix Ablaufdatum muss Format JJMMTT (YYMMDD) haben!');
+                    Error('DataMatrix Ablaufdatum muss Format JJMMTT (YYMMDD) haben!');
             end else
-                ERROR('DataMatrix Ablaufdatum muss Format JJMMTT (YYMMDD) haben!');
+                Error('DataMatrix Ablaufdatum muss Format JJMMTT (YYMMDD) haben!');
 
-            if EVALUATE(iDayHelp, COPYSTR("Expiration Date DM", 5, 2)) then begin
+            if Evaluate(iDayHelp, CopyStr(BASExpirationDateDMPHA, 5, 2)) then begin
                 if (iDayHelp < 0) or (iDayHelp > 31) then
-                    ERROR('DataMatrix Ablaufdatum muss Format JJMMTT (YYMMDD) haben!');
+                    Error('DataMatrix Ablaufdatum muss Format JJMMTT (YYMMDD) haben!');
             end else
-                ERROR('DataMatrix Ablaufdatum muss Format JJMMTT (YYMMDD) haben!');
+                Error('DataMatrix Ablaufdatum muss Format JJMMTT (YYMMDD) haben!');
 
             if (BASExpirationDatePHA <> 0D) then begin
                 tYearHelp := FORMAT(DATE2DMY(BASExpirationDatePHA, 3));
-                tYearHelpDM := '20' + COPYSTR("Expiration Date DM", 1, 2);
-                tMonHelp := cuCodesammlung.TextAuffuellen(FORMAT(DATE2DMY(BASExpirationDatePHA, 2)), 2, '0');
-                tMonHelpDM := COPYSTR("Expiration Date DM", 3, 2);
+                tYearHelpDM := '20' + CopyStr(BASExpirationDateDMPHA, 1, 2);
+                // ToDo
+                // tMonHelp := cuCodesammlung.TextAuffuellen(FORMAT(DATE2DMY(BASExpirationDatePHA, 2)), 2, '0');
+                tMonHelpDM := CopyStr(BASExpirationDateDMPHA, 3, 2);
                 if (tYearHelp <> tYearHelpDM) or (tMonHelp <> tMonHelpDM) then
                     if not Confirm('DataMatrix Ablaufdatum: %1-%2 weicht von Ablaufdatum: %3-%4 ab. Trotzdem übernehmen?', false, tMonHelp, tYearHelp, tMonHelpDM, tYearHelpDM) then
-                        ERROR('Abgebrochen: DataMatrix Ablaufdatum weicht ab!');
+                        Error('Abgebrochen: DataMatrix Ablaufdatum weicht ab!');
             end;
         end;
         //+GL030
     end;
-
-
-
-    local procedure GetVendorNo() VendorNo: Code[50]
-    var
-        recPurchRcptLine: Record "121";
-        LieferNr: Code[50];
-    begin
-        //-GL036
-        VendorNo := '';
-        //LieferNr := regEx.Match(xRec.Description, 'EL[\d]+').Value; //Einkaufsliefernr aus Beschreibung auslesen
-        CLEAR(recPurchRcptLine);
-        if LieferNr <> '' then
-            recPurchRcptLine.SetRange("Document No.", LieferNr);
-        recPurchRcptLine.SetRange("No.", xRec."Item No.");
-        recPurchRcptLine.SetRange(BASLotNoPHA, xRec.BASLotNoPHA);
-        //IF Rec.HerstellerNr <> '' THEN
-        //  recPurchRcptLine.SetRange(HerstellerNr,xRec.HerstellerNr);
-        if recPurchRcptLine.FindFirst then
-            VendorNo := recPurchRcptLine."Buy-from Vendor No.";
-        //+GL036
-    end;
-
-
-
 
     procedure GetLastChange(What: Option Date,Name): Text
     var
@@ -471,28 +437,22 @@ tableextension 50027 BASLotNoInformationExtPHA extends "Lot No. Information"
 
     trigger OnBeforeDelete()
     var
-        ItemJnlLine: Record "Item Journal Line";
         ItemLedgEntry: Record "Item Ledger Entry";
         ItemTrackingComment: Record "Item Tracking Comment";
     begin
-
-        ItemTrackingComment.SetRange(Type, ItemTrackingComment.Type::BASLotNoPHA);
+        ItemTrackingComment.Reset();
+        ItemTrackingComment.SetRange(Type, ItemTrackingComment.Type::"Lot No.");
         ItemTrackingComment.SetRange("Item No.", "Item No.");
         ItemTrackingComment.SetRange("Variant Code", "Variant Code");
-        ItemTrackingComment.SetRange("Serial/Lot No.", BASLotNoPHA);
-        ItemTrackingComment.DELETEALL();
+        ItemTrackingComment.SetRange("Serial/Lot No.", BASSalesLotNoPHA);
+        ItemTrackingComment.DeleteAll();
 
-
-        //-LAN002
-        ItemLedgEntry.SETCURRENTKEY("Item No.", BASLotNoPHA);
+        ItemLedgEntry.SetCurrentKey("Item No.", BASSalesLotNoPHA);
         ItemLedgEntry.SetRange("Item No.", "Item No.");
-        ItemLedgEntry.SetRange(BASLotNoPHA, BASLotNoPHA);
+        ItemLedgEntry.SetRange(BASSalesLotNoPHA, BASSalesLotNoPHA);
         if not ItemLedgEntry.IsEmpty then
-            ERROR('FEHLENDE TEXTVARIABLE 6506', BASLotNoPHA);
-        //+LAN002
+            Error('FEHLENDE TEXTVARIABLE 6506');
     end;
-
-
 
     trigger OnBeforeRename()
     var
@@ -503,78 +463,57 @@ tableextension 50027 BASLotNoInformationExtPHA extends "Lot No. Information"
         TrackSpec: Record "Tracking Specification";
         TransLine: Record "Transfer Line";
     begin
-
-
-        //-GL004
         CheckLotNo();
-        //+GL004
-
-        //-LAN003
-        if BASLotNoPHA <> xRec.BASLotNoPHA then begin
-            PurchLine.SETCURRENTKEY("Document Type", Type, "No.");
+        if BASSalesLotNoPHA <> xRec.BASSalesLotNoPHA then begin
+            PurchLine.SetCurrentKey("Document Type", Type, "No.");
             PurchLine.SetRange(Type, PurchLine.Type::Item);
             PurchLine.SetRange("No.", xRec."Item No.");
             PurchLine.SetRange("Variant Code", xRec."Variant Code");
-            PurchLine.SetRange(BASLotNoPHA, xRec.BASLotNoPHA);
-            if PurchLine.FINDSET(true, true) then
+            PurchLine.SetRange(BASLotNoPHA, xRec.BASSalesLotNoPHA);
+            if PurchLine.FindSet() then
                 repeat
-                    PurchLine.BASLotNoPHA := BASLotNoPHA;
-                    PurchLine.modify;
-                until PurchLine.NEXT = 0;
+                    PurchLine.BASLotNoPHA := BASSalesLotNoPHA;
+                    PurchLine.Modify();
+                until PurchLine.Next() = 0;
 
-            ReservEntry.SetRange(BASLotNoPHA, xRec.BASLotNoPHA);
+            ReservEntry.SetRange(BASSalesLotNoPHA, xRec.BASSalesLotNoPHA);
             ReservEntry.SetRange("Item No.", xRec."Item No.");
             ReservEntry.SetRange("Variant Code", xRec."Variant Code");
-            if ReservEntry.FINDSET(true, true) then
+            if ReservEntry.FindSet() then
                 repeat
-                    ReservEntry.BASLotNoPHA := BASLotNoPHA;
-                    ReservEntry.modify;
-                until ReservEntry.NEXT = 0;
+                    ReservEntry.BASSalesLotNoPHA := BASSalesLotNoPHA;
+                    ReservEntry.Modify();
+                until ReservEntry.Next() = 0;
 
-            TrackSpec.SetRange(BASLotNoPHA, xRec.BASLotNoPHA);
+            TrackSpec.SetRange(BASSalesLotNoPHA, xRec.BASSalesLotNoPHA);
             TrackSpec.SetRange("Item No.", xRec."Item No.");
             TrackSpec.SetRange("Variant Code", xRec."Variant Code");
-            if TrackSpec.FINDSET(true, true) then
+            if TrackSpec.FindSet() then
                 repeat
-                    TrackSpec.BASLotNoPHA := BASLotNoPHA;
-                    TrackSpec.modify;
-                until TrackSpec.NEXT = 0;
+                    TrackSpec.BASSalesLotNoPHA := BASSalesLotNoPHA;
+                    TrackSpec.Modify();
+                until TrackSpec.Next() = 0;
 
-            SalesLine.SETCURRENTKEY("Document Type", Type, "No.");
+            SalesLine.SetCurrentKey("Document Type", Type, "No.");
             SalesLine.SetRange(Type, SalesLine.Type::Item);
             SalesLine.SetRange("No.", xRec."Item No.");
             SalesLine.SetRange("Variant Code", xRec."Variant Code");
-            SalesLine.SetRange(BASLotNoPHA, xRec.BASLotNoPHA);
-            if SalesLine.FINDSET(true, true) then
+            SalesLine.SetRange(BASLotNoPHA, xRec.BASSalesLotNoPHA);
+            if SalesLine.FindSet() then
                 repeat
-                    SalesLine.BASLotNoPHA := BASLotNoPHA;
-                    SalesLine.modify;
-                until SalesLine.NEXT = 0;
-
-            TransLine.SETCURRENTKEY("Item No.");
-            TransLine.SetRange("Item No.", xRec."Item No.");
-            //TransLine.SetRange(Type, TransLine.Type::Item);
-            TransLine.SetRange("Variant Code", xRec."Variant Code");
-            //TransLine.SetRange(BASLotNoPHA, xRec.BASLotNoPHA);
-            if TransLine.FindSet() then
-                repeat
-                    //TransLine.BASLotNoPHA := BASLotNoPHA;
-                    TransLine.modify;
-                until TransLine.NEXT = 0;
+                    SalesLine.BASLotNoPHA := BASSalesLotNoPHA;
+                    SalesLine.Modify();
+                until SalesLine.Next() = 0;
 
             ItemJnlLine.SetRange("No.", xRec."Item No.");
             ItemJnlLine.SetRange("Variant Code", xRec."Variant Code");
-            ItemJnlLine.SetRange(BASLotNoPHA, xRec.BASLotNoPHA);
-            if ItemJnlLine.FINDSET(true, true) then
+            ItemJnlLine.SetRange(BASSalesLotNoPHA, xRec.BASSalesLotNoPHA);
+            if ItemJnlLine.FindSet() then
                 repeat
-                    ItemJnlLine.BASLotNoPHA := BASLotNoPHA;
-                    ItemJnlLine.modify;
-                until ItemJnlLine.NEXT = 0;
-
-
-
+                    ItemJnlLine.BASSalesLotNoPHA := BASSalesLotNoPHA;
+                    ItemJnlLine.Modify();
+                until ItemJnlLine.Next() = 0;
         end;
-
     end;
 
     local procedure ChangeStatus(ch: Char)

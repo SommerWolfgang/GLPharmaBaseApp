@@ -107,7 +107,7 @@ tableextension 50022 BASSalesCrMemoHeaderExtPHA extends "Sales Cr.Memo Header"
         {
             Caption = 'Bill-to Code';
 
-            TableRelation = "Ship-to Address".Code where("Customer No." = FIELD("Bill-to Customer No."));
+            TableRelation = "Ship-to Address".Code where("Customer No." = field("Bill-to Customer No."));
         }
         field(50504; BASStornoMitRechNrPHA; Code[150])
         {

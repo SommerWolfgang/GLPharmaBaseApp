@@ -2,6 +2,7 @@ tableextension 50011 BASItemLedgerEntryExtPHA extends "Item Ledger Entry"
 {
     fields
     {
+        // ToDo -> all
         // field(50000; "BASEK-Betrag (tats.)PHA"; Decimal)
         // {
         //     CalcFormula = sum("Value Entry"."EK-Betrag (tats.)" where("Item Ledger Entry No." = field("Entry No.")));
@@ -13,14 +14,14 @@ tableextension 50011 BASItemLedgerEntryExtPHA extends "Item Ledger Entry"
         //     CalcFormula = sum("Value Entry"."EK-Betrag (erw.)" where("Item Ledger Entry No." = field("Entry No.")));
         //     FieldClass = FlowField;
         // }
-        field(50002; BASLagerplatzpostenPHA; Integer)
-        {
-            CalcFormula = count("Warehouse Entry" where("Location Code" = field("Location Code"),
-                                                         "Item No." = field("Item No."),
-                                                         "Variant Code" = field("Variant Code"),
-                                                         BASSalesLotNoPHA = field(BASLotNoPHA)));
-            FieldClass = FlowField;
-        }
+        // field(50002; BASLagerplatzpostenPHA; Integer)
+        // {
+        //     CalcFormula = count("Warehouse Entry" where("Location Code" = field("Location Code"),
+        //                                                  "Item No." = field("Item No."),
+        //                                                  "Variant Code" = field("Variant Code"),
+        //                                                  BASSalesLotNoPHA = field(BASLotNoPHA)));
+        //     FieldClass = FlowField;
+        // }
         field(50003; BASBinCodeHelpFieldPHA; Code[20])
         {
         }
@@ -140,13 +141,12 @@ tableextension 50011 BASItemLedgerEntryExtPHA extends "Item Ledger Entry"
         field(50602; BASRUELLagerplatzStandortPHA; Code[20])
         {
             // ToDo -> hardcoded !!!
-            CalcFormula = lookup(
-                "Warehouse Entry"."Bin Code"
-                    where("Location Code" = const('RÜL'),
-                        "Item No." = field("Item No."), "Variant Code" = field("Variant Code"), BASLotNoPHA = field(BASLotNoPHA),
-                            "Registering Date" = field("Posting Date"), "Location Code" = field("Location Code"), Quantity = field(Quantity)));
-            FieldClass = FlowField;
-
+            // CalcFormula = lookup(
+            //     "Warehouse Entry"."Bin Code"
+            //         where("Location Code" = const('RÜL'),
+            //             "Item No." = field("Item No."), "Variant Code" = field("Variant Code"), BASLotNoPHA = field(BASLotNoPHA),
+            //                 "Registering Date" = field("Posting Date"), "Location Code" = field("Location Code"), Quantity = field(Quantity)));
+            // FieldClass = FlowField;
         }
         field(50603; "KeineLagerstandÜbernahme"; Boolean)
         {
