@@ -51,21 +51,21 @@ table 50105 BASDropDownContentPHA
         DropDownContentParameter.SetFilter(Table, '%1', Tabelle);
         DropDownContentParameter.SetFilter(Field, Feld);
         DropDownContentParameter.SetFilter(ID, ID);
-        if DropDownContentParameter.FIND('-') then begin
+        if DropDownContentParameter.FindSet() then begin
             if not DropDownContentParameter.Allow_Delete then
                 Error('Für Tabelle=''%1'', Feld=''%2'', ID=''%3'' darf keine Löschung erfolgen!', Tabelle, Feld, ID);
             exit
         end;
 
         DropDownContentParameter.SetFilter(ID, '%1', '');
-        if DropDownContentParameter.FIND('-') then begin
+        if DropDownContentParameter.FindSet() then begin
             if not DropDownContentParameter.Allow_Delete then
                 Error('Für Tabelle=''%1'', Feld=''%2'' darf keine Löschung erfolgen!', Tabelle, Feld);
             exit;
         end;
 
         DropDownContentParameter.SetFilter(Field, '%1', '');
-        if DropDownContentParameter.FIND('-') then begin
+        if DropDownContentParameter.FindSet() then begin
             if not DropDownContentParameter.Allow_Delete then
                 Error('Für Tabelle=''%1'' darf keine Löschung erfolgen!', Tabelle);
             exit;
@@ -81,21 +81,21 @@ table 50105 BASDropDownContentPHA
         //-GL001
         DropDownContentParameter.SetFilter("Standort Zuordnung", "Standort Zuordnung");
         //+GL001
-        if DropDownContentParameter.FIND('-') then begin
+        if DropDownContentParameter.FindSet() then begin
             if not DropDownContentParameter.Allow_New then
                 Error('Für Tabelle=''%1'', Feld=''%2'', ID=''%3'' darf kein Eintrag erstellt werden!', Tabelle, Feld, ID);
             exit
         end;
 
         DropDownContentParameter.SetFilter(ID, '%1', '');
-        if DropDownContentParameter.FIND('-') then begin
+        if DropDownContentParameter.FindSet() then begin
             if not DropDownContentParameter.Allow_New then
                 Error('Für Tabelle=''%1'', Feld=''%2'' darf kein Eintrag erstellt werden!', Tabelle, Feld);
             exit;
         end;
 
         DropDownContentParameter.SetFilter(Field, '%1', '');
-        if DropDownContentParameter.FIND('-') then begin
+        if DropDownContentParameter.FindSet() then begin
             if not DropDownContentParameter.Allow_New then
                 Error('Für Tabelle=''%1'' darf kein neuer Eintrag erstellt werden!', Tabelle);
             exit;
@@ -111,7 +111,7 @@ table 50105 BASDropDownContentPHA
         DropDownContentParameter.SetFilter(Table, '%1', Tabelle);
         DropDownContentParameter.SetFilter(Field, Feld);
         DropDownContentParameter.SetFilter(ID, ID);
-        if DropDownContentParameter.FIND('-') then begin
+        if DropDownContentParameter.FindSet() then begin
             if ((xRec.Tabelle = Rec.Tabelle) and (xRec.Feld = Rec.Feld) and (xRec.ID = Rec.ID)) then
                 if DropDownContentParameter.Allow_Description then
                     exit
@@ -125,14 +125,14 @@ table 50105 BASDropDownContentPHA
         end;
 
         DropDownContentParameter.SetFilter(ID, '%1', '');
-        if DropDownContentParameter.FIND('-') then begin
+        if DropDownContentParameter.FindSet() then begin
             if not DropDownContentParameter.Allow_modify then
                 Error('Für Tabelle=''%1'', Feld=''%2'' darf keine Änderung erfolgen!', Tabelle, Feld);
             exit;
         end;
 
         DropDownContentParameter.SetFilter(Field, '%1', '');
-        if DropDownContentParameter.FIND('-') then begin
+        if DropDownContentParameter.FindSet() then begin
             if not DropDownContentParameter.Allow_modify then
                 Error('Für Tabelle=''%1'' darf keine Änderung erfolgen!', Tabelle);
             exit;
@@ -144,7 +144,7 @@ table 50105 BASDropDownContentPHA
         DropDownContentParameter.SetFilter(Table, '%1', Tabelle);
         DropDownContentParameter.SetFilter(Field, Feld);
         DropDownContentParameter.SetFilter(ID, ID);
-        if DropDownContentParameter.FIND('-') then begin
+        if DropDownContentParameter.FindSet() then begin
             if ((xRec.Tabelle = Rec.Tabelle) and (xRec.Feld = Rec.Feld) and (xRec.ID = Rec.ID)) then
                 if DropDownContentParameter.Allow_Description then
                     exit
@@ -158,14 +158,14 @@ table 50105 BASDropDownContentPHA
         end;
 
         DropDownContentParameter.SetFilter(ID, '%1', '');
-        if DropDownContentParameter.FIND('-') then begin
+        if DropDownContentParameter.FindSet() then begin
             if not DropDownContentParameter.Allow_modify then
                 Error('Für Tabelle=''%1'', Feld=''%2'' darf keine Änderung erfolgen!', Tabelle, Feld);
             exit;
         end;
 
         DropDownContentParameter.SetFilter(Field, '%1', '');
-        if DropDownContentParameter.FIND('-') then begin
+        if DropDownContentParameter.FindSet() then begin
             if not DropDownContentParameter.Allow_modify then
                 Error('Für Tabelle=''%1'' darf keine Änderung erfolgen!', Tabelle);
             exit;

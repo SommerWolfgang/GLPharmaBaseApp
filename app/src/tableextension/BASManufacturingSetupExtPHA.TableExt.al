@@ -273,7 +273,7 @@ tableextension 50033 BASManufacturingSetupExtPHA extends "Manufacturing Setup"
         field(50072; BASProbenetikettenPreviewPHA; Boolean)
         {
         }
-        field(50073; "BASLagerbestand vor Ort FilterPHA"; Code[50])
+        field(50073; BASInventorySiteFilterPHA; Code[50])
         {
         }
         field(50074; BASdtWartungPruefmittelAngelegtPHA; Date)

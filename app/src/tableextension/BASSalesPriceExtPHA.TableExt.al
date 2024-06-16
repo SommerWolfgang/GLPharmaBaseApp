@@ -39,7 +39,7 @@ tableextension 50053 BASSalesPriceExtPHA extends "Sales Price"
     begin
         //-GL001
         IF Item.GET("Item No.") THEN
-            ArtikelText := CopyStr(Item.Description + ' ' + Item."Packungsgröße", 1, 60);
+            ArtikelText := CopyStr(Item.Description + ' ' + Item.BASPackageSizePHA, 1, 60);
         //+GL001
     end;
 

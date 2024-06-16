@@ -3,41 +3,52 @@ tableextension 50017 BASItemJournalLinePHA extends "Item Journal Line"
 {
     fields
     {
-        modify(BASLotNoPHA)
+        modify("Expiration Date")
+        {
+            trigger OnAfterValidate()
+            begin
+                if xRec."Expiration Date" <> Rec."Expiration Date" then
+                    if (Rec."Entry Type" = Rec."Entry Type"::"Positive Adjmt.") or
+                        (Rec."Entry Type" = Rec."Entry Type"::Purchase)
+                    then
+                        DeleteCharge();
+            end;
+        }
+        modify("Lot No.")
         {
             trigger OnAfterValidate()
             var
                 LotNo: code[50];
             begin
-                LotNo := xRec.BASLotNoPHA;
+                LotNo := xRec."Lot No.";
                 if "Line No." = 0 then
                     LotNo := '';
 
-                if BASLotNoPHA <> LotNo then begin
+                if "Lot No." <> LotNo then begin
                     Item.Get("Item No.");
                     if Item."Item Tracking Code" = '' then
                         Error(Text50000);
 
-                    "BASVerkaufschargennr.PHA" := '';
+                    BASSalesLotNoPHA := '';
                     "Expiration Date" := 0D;
                     "BASLieferantenchargennr.PHA" := '';
 
                     DeleteCharge();
 
-                    if BASLotNoPHA <> '' then
-                        if not LotNoInformation.Get("Item No.", "Variant Code", BASLotNoPHA) then begin
+                    if "Lot No." <> '' then
+                        if not LotNoInformation.Get("Item No.", "Variant Code", "Lot No.") then begin
                             if "Entry Type" in [1, 3, 4, 5] then
-                                Error(Text50002, BASLotNoPHA)
+                                Error(Text50002, "Lot No.")
                             else
                                 if ("Order Type" <> "Order Type"::Production) and ("Order No." = '') then begin
                                     CheckLotNo();
-                                    Message(Text50003, BASLotNoPHA);
-                                    "BASVerkaufschargennr.PHA" := BASLotNoPHA;
+                                    Message(Text50003, "Lot No.");
+                                    BASSalesLotNoPHA := "Lot No.";
                                     "Expiration Date" := 0D;
 
                                 end;
                         end else begin
-                            BASLotNoPHA := LotNoInformation.BASLotNoPHA;
+                            "Lot No." := LotNoInformation."Lot No.";
                             ;
                             // ToDo Chargenstamm?
                             // "BASVerkaufschargennr.PHA" := Chargenstamm."BASVerkaufschargennr.PHA";
@@ -45,16 +56,6 @@ tableextension 50017 BASItemJournalLinePHA extends "Item Journal Line"
 
                         end;
                 end;
-            end;
-        }
-        modify("Expiration Date")
-        {
-            trigger OnAfterValidate()
-            begin
-
-                if (xRec."Expiration Date" <> Rec."Expiration Date") then
-                    if (Rec."Entry Type" = Rec."Entry Type"::"Positive Adjmt.") or (Rec."Entry Type" = Rec."Entry Type"::Purchase) then
-                        DeleteCharge();
             end;
         }
 
@@ -72,9 +73,9 @@ tableextension 50017 BASItemJournalLinePHA extends "Item Journal Line"
                     DeleteCharge();
 
                     if (Rec."Journal Template Name" = 'INVENTUR') and (Rec."Entry Type" = Rec."Entry Type"::"Negative Adjmt.")
-                        and (Rec.BASLotNoPHA = '') and (xRec.BASLotNoPHA > '')
+                        and (Rec."Lot No." = '') and (xRec."Lot No." > '')
                     then
-                        Rec.BASLotNoPHA := xRec.BASLotNoPHA;
+                        Rec."Lot No." := xRec."Lot No.";
                 end;
             end;
         }
@@ -99,7 +100,7 @@ tableextension 50017 BASItemJournalLinePHA extends "Item Journal Line"
         }
         field(50001; "Packungsgröße"; Text[10])
         {
-            CalcFormula = lookup(Item."Packungsgröße" where("No." = field("Item No.")));
+            CalcFormula = lookup(Item.BASPackageSizePHA where("No." = field("Item No.")));
             Editable = false;
             FieldClass = FlowField;
         }
@@ -134,19 +135,19 @@ tableextension 50017 BASItemJournalLinePHA extends "Item Journal Line"
         {
 
             Editable = false;
-            TableRelation = BASStatisticCode2PHA where(Level = const(1));
+            TableRelation = BASStatisticcodePHA where(Level = const(1));
         }
         field(50508; "BASStatisticCode2PHA IIPHA"; Code[10])
         {
 
             Editable = false;
-            TableRelation = BASStatisticCode2PHA where(Level = const(2));
+            TableRelation = BASStatisticcodePHA where(Level = const(2));
         }
         field(50509; "BASStatisticCode2PHA IIIPHA"; Code[10])
         {
 
             Editable = false;
-            TableRelation = BASStatisticCode2PHA where(Level = const(3));
+            TableRelation = BASStatisticcodePHA where(Level = const(3));
         }
         field(50510; "BASBestellnr.PHA"; Code[20])
         {
@@ -175,7 +176,7 @@ tableextension 50017 BASItemJournalLinePHA extends "Item Journal Line"
         field(50524; "BASSuchtgift/PsychotropPHA"; Text[1])
         {
         }
-        field(50525; "BASVerkaufschargennr.PHA"; Code[50])
+        field(50525; BASSalesLotNoPHA; Code[50])
         {
             trigger OnLookup()
             begin
@@ -188,23 +189,23 @@ tableextension 50017 BASItemJournalLinePHA extends "Item Journal Line"
                 Item: Record Item;
                 vergleich: Code[50];
             begin
-                vergleich := xRec."BASVerkaufschargennr.PHA";
+                vergleich := xRec.BASSalesLotNoPHA;
 
                 if "Line No." = 0 then
                     vergleich := '';
-                if ("BASVerkaufschargennr.PHA" <> vergleich) then begin
+                if (BASSalesLotNoPHA <> vergleich) then begin
                     Item.Get("Item No.");
                     if Item."Item Tracking Code" = '' then begin
-                        "BASVerkaufschargennr.PHA" := '';
+                        BASSalesLotNoPHA := '';
                         Message('Artikel ist nicht chargenpflichtig!');
                     end;
                 end;
 
                 // ToDo -> Cargenstamm?
-                // if BASLotNoPHA <> '' then
+                // if "Lot No." <> '' then
                 //     if not NeueCharge() then
                 //         if Chargenstamm."BASVerkaufschargennr.PHA" <> "BASVerkaufschargennr.PHA" then
-                //             Error('Bestehende Charge %1 kann nicht verändert werden!', BASLotNoPHA);
+                //             Error('Bestehende Charge %1 kann nicht verändert werden!', "Lot No.");
 
                 DeleteCharge();
             end;
@@ -264,7 +265,7 @@ tableextension 50017 BASItemJournalLinePHA extends "Item Journal Line"
                         if ("Entry Type" = "Entry Type"::"Negative Adjmt.") then
                             Validate(Quantity, tempRecItemLedgerEntry."Remaining Quantity");
 
-                        Validate(BASLotNoPHA, tempRecItemLedgerEntry.BASLotNoPHA);
+                        Validate("Lot No.", tempRecItemLedgerEntry."Lot No.");
 
                         //Wird mit dem Validate der LotNo schon befüllt  "BASVerkaufschargennr.PHA" := tempRecItemLedgerEntry."BASVerkaufschargennr.PHA";
                         if ("Entry Type" = "Entry Type"::Transfer) then
@@ -289,10 +290,10 @@ tableextension 50017 BASItemJournalLinePHA extends "Item Journal Line"
                 //-LAN004
                 if ("Entry Type" <> "Entry Type"::Purchase) and ("Entry Type" <> "Entry Type"::"Positive Adjmt.") then
                     FieldError("Entry Type", 'FEHLENDE VARIABLE T83');
-                if BASLotNoPHA <> '' then
+                if "Lot No." <> '' then
                     if not NewCharge() then
                         if LotNoInformation."Lief. Chargennr." <> "Lieferantenchargennr." then //GL023
-                            Error('FEHLENDE VARIABLE T83', FieldCaption("Lieferantenchargennr."), BASLotNoPHA);
+                            Error('FEHLENDE VARIABLE T83', FieldCaption("Lieferantenchargennr."), "Lot No.");
             end;
         }
         field(50555; BASPackmittelversionPHA; Code[20])
@@ -303,10 +304,10 @@ tableextension 50017 BASItemJournalLinePHA extends "Item Journal Line"
             begin
                 if ("Entry Type" <> "Entry Type"::Purchase) and ("Entry Type" <> "Entry Type"::"Positive Adjmt.") then
                     FieldError("Entry Type", 'FEHLENDE VARIABLE T83');
-                if BASLotNoPHA <> '' then
+                if "Lot No." <> '' then
                     if not NewCharge() then
                         if LotNoInformation.BASPackmittelversionPHA <> BASPackmittelversionPHA then //GL023
-                            Error('FEHLENDE VARIABLE T83', FieldCaption(BASPackmittelversionPHA), BASLotNoPHA);
+                            Error('FEHLENDE VARIABLE T83', FieldCaption(BASPackmittelversionPHA), "Lot No.");
             end;
         }
     }
@@ -314,17 +315,17 @@ tableextension 50017 BASItemJournalLinePHA extends "Item Journal Line"
     var
         Item: Record Item;
         LotNoInformation: Record "Lot No. Information";
-    // ToDo
-    // LotMgt: Codeunit "50002";
-    // cuChargenVerwaltung: Codeunit ChargenverwaltungPageApp;
+        // LotMgt: Codeunit bas "50002";
+        ChargeMgt: Codeunit BASChargeMgtPHA;
+
     procedure DeleteCharge()
     begin
         if "Line No." = 0 then
             exit;
 
-        // cuChargenVerwaltung.LöscheCharge(
+        // ChargeMgt.LöscheCharge(
         //   DATABASE::"Item Journal Line", "Entry Type", "Journal Template Name", "Journal Batch Name",
-        //              0, "Line No.", BASLotNoPHA);
+        //              0, "Line No.", "Lot No.");
     end;
 
     // ToDo -> new function
@@ -336,23 +337,23 @@ tableextension 50017 BASItemJournalLinePHA extends "Item Journal Line"
             Error('FEHLENDE VARIABLE T83');
         LotNoInformation."Item No." := "Item No.";
         LotNoInformation."Variant Code" := "Variant Code";
-        LotNoInformation.BASLotNoPHA := BASLotNoPHA;
+        LotNoInformation."Lot No." := "Lot No.";
         LotNoInformation."Location Filter" := "Location Code";
         LotNoInformation."Bin Filter" := "Bin Code";
 
         // if LotMgt.Chargenpostenwählen(LotNoInformation) then begin
-        //     BASLotNoPHA := LotNoInformation.BASLotNoPHA;
+        //     "Lot No." := LotNoInformation."Lot No.";
         //     "BASVerkaufschargennr.PHA" := LotNoInformation.."BASVerkaufschargennr.PHA";
         //     "Expiration Date" := LotNoInformation."Expiration Date";
         //     if Item.BASItemTypePHA = Item.BASItemTypePHA::"Finished Product" then
         //         TestField("BASVerkaufschargennr.PHA");
-        //     Validate(BASLotNoPHA, LotNoInformation.BASLotNoPHA);
+        //     Validate("Lot No.", LotNoInformation."Lot No.");
         // end;
     end;
 
     procedure NewCharge(): Boolean
     begin
-        exit(not LotNoInformation.Get("Item No.", "Variant Code", BASLotNoPHA));
+        exit(not LotNoInformation.Get("Item No.", "Variant Code", "Lot No."));
     end;
 
     procedure CheckLotNo()
@@ -360,11 +361,12 @@ tableextension 50017 BASItemJournalLinePHA extends "Item Journal Line"
         Item2: Record Item;
         RowMaterialChargeExistsErr: label 'Rohstoffcharge wurde schon zu anderer Artikelnummer vergeben!', comment = 'DEA="Rohstoffcharge wurde schon zu anderer Artikelnummer vergeben!"';
     begin
-        Item2 := getI
+        // ToDo
+        // Item2 := GetItem();
         Item.Get("Item No.");
         if Item.BASItemTypePHA in [BASItemTypePHA::"Row Material", BASItemTypePHA::"Package Material"] then begin
-            LotNoInformation.SetCurrentKey(BASLotNoPHA);
-            LotNoInformation.SetRange(BASLotNoPHA, BASLotNoPHA);
+            LotNoInformation.SetCurrentKey("Lot No.");
+            LotNoInformation.SetRange("Lot No.", "Lot No.");
             if LotNoInformation.FindFirst() then
                 if LotNoInformation."Item No." <> "Item No." then
                     Error(RowMaterialChargeExistsErr);

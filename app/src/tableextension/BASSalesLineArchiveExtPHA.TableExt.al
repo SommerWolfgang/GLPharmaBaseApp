@@ -21,12 +21,13 @@ tableextension 50047 BASSalesLineArchiveExtPHA extends "Sales Line Archive"
         {
             Caption = 'Discount Amount', comment = 'DEA="Abzugsbetrag"';
         }
-        field(50010; BASLotNoPHA; Code[20])
-        {
-            Caption = 'Lot No.', comment = 'DEA="Serialno."';
-            TableRelation = if (Type = const(Item)) "Lot No. Information".BASLotNoPHA where("Item No." = field("No."),
-                                                                                         "Variant Code" = field("Variant Code"));
-        }
+        // ToDo
+        // field(50010; BASLotNoPHA; Code[20])
+        // {
+        //     Caption = 'Lot No.', comment = 'DEA="Serialno."';
+        //     TableRelation = if (Type = const(Item)) "Lot No. Information"."Lot No." where("Item No." = field("No."),
+        //                                                                                  "Variant Code" = field("Variant Code"));
+        // }
         field(50506; BASArtikelgruppePHA; Code[10])
         {
             Editable = false;
@@ -34,17 +35,17 @@ tableextension 50047 BASSalesLineArchiveExtPHA extends "Sales Line Archive"
         field(50507; "BASStatisticCode2PHA IPHA"; Code[10])
         {
             Editable = false;
-            TableRelation = BASStatisticcode2PHA where(Level = const(1));
+            TableRelation = BASStatisticcodePHA where(Level = const(1));
         }
         field(50508; "BASStatisticCode2PHA IIPHA"; Code[10])
         {
             Editable = false;
-            TableRelation = BASStatisticcode2PHA where(Level = const(2));
+            TableRelation = BASStatisticcodePHA where(Level = const(2));
         }
         field(50509; "BASStatisticCode2PHA IIIPHA"; Code[10])
         {
             Editable = false;
-            TableRelation = BASStatisticcode2PHA where(Level = const(3));
+            TableRelation = BASStatisticcodePHA where(Level = const(3));
         }
         field(50510; "BASZuordnung zu Artikelnr.PHA"; Code[20])
         {

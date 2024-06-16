@@ -109,7 +109,7 @@ tableextension 50013 BASSalesLineExtPHA extends "Sales Line"
                 SalesShipmentLines.SetRange("No.", "BASZuordnung zu Artikelnr.PHA");
                 SalesShipmentLines.SetRange("Sell-to Customer No.", "Sell-to Customer No.");
                 SalesShipmentLines.SetRange("Document No.", "BASZuordnung zu LieferungPHA");
-                if SalesShipmentLines.FIND('-') then
+                if SalesShipmentLines.FindSet() then
                     CheckItemChargeShipment(FIELDNO("BASZuordnung zu LieferungPHA"), SalesShipmentLines)
                 else
                     if "BASZuordnung zu LieferungPHA" <> '' then
@@ -156,7 +156,7 @@ tableextension 50013 BASSalesLineExtPHA extends "Sales Line"
                 SalesInvoiceLines.SetRange("No.", "BASZuordnung zu Artikelnr.PHA");
                 SalesInvoiceLines.SetRange("Sell-to Customer No.", "Sell-to Customer No.");
                 SalesInvoiceLines.SetRange("Document No.", "BASZuordnung zu RechnungPHA");
-                if SalesInvoiceLines.FIND('-') then
+                if SalesInvoiceLines.FindSet() then
                     CheckItemChargeInvoice(FIELDNO("BASZuordnung zu RechnungPHA"), SalesInvoiceLines)
                 else
                     if "BASZuordnung zu RechnungPHA" <> '' then
@@ -227,19 +227,19 @@ tableextension 50013 BASSalesLineExtPHA extends "Sales Line"
         {
 
             Editable = false;
-            TableRelation = BASStatisticCode2PHA where(Level = const(1));
+            TableRelation = BASStatisticcodePHA where(Level = const(1));
         }
         field(50508; "BASStatisticCode2PHA IIPHA"; Code[10])
         {
 
             Editable = false;
-            TableRelation = BASStatisticCode2PHA where(Level = const(2));
+            TableRelation = BASStatisticcodePHA where(Level = const(2));
         }
         field(50509; "BASStatisticCode2PHA IIIPHA"; Code[10])
         {
 
             Editable = false;
-            TableRelation = BASStatisticCode2PHA where(Level = const(3));
+            TableRelation = BASStatisticcodePHA where(Level = const(3));
         }
         field(50510; "BASZuordnung zu Artikelnr.PHA"; Code[20])
         {
@@ -357,7 +357,7 @@ tableextension 50013 BASSalesLineExtPHA extends "Sales Line"
                             recLotNoInformation.SetRange("Item No.", "No.");
                             recLotNoInformation.SetRange("Variant Code", "Variant Code");
                             recLotNoInformation.SetRange("Verkaufschargennr.", "Verkaufschargennr.");
-                            if recLotNoInformation.FIND('-') then begin
+                            if recLotNoInformation.FindSet() then begin
                                 BASLotNoPHA := recLotNoInformation.BASLotNoPHA;
                                 "Verkaufschargennr." := recLotNoInformation."Verkaufschargennr.";
                                 "Expiration Date" := recLotNoInformation."Expiration Date";
@@ -719,11 +719,11 @@ tableextension 50013 BASSalesLineExtPHA extends "Sales Line"
         cPackungsgroesse := '';
         if Type = Type::Item then
             if recItem.Get("No.") then
-                cPackungsgroesse := recItem."Packungsgröße";
+                cPackungsgroesse := recItem.BASPackageSizePHA;
 
         if ((Type = Type::"G/L Account") or (Type = Type::"Charge (Item)")) then
             if recItem.Get("BASZuordnung zu Artikelnr.PHA") then
-                cPackungsgroesse := recItem."Packungsgröße";
+                cPackungsgroesse := recItem.BASPackageSizePHA;
         //+GL035
     end;
 

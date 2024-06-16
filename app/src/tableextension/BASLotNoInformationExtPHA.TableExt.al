@@ -231,7 +231,7 @@ tableextension 50027 BASLotNoInformationExtPHA extends "Lot No. Information"
 
                 //Bei Freigabe von Fertigartikel das Recht $MARKTFREIGABE prüfen
                 if (Item.Artikelart = Item.Artikelart::Fertigprodukt) then
-                    if uNaviPharma.Berechtigung('$MARKTFREIGABE') = false then
+                    if uNaviPharma.Permission('$MARKTFREIGABE') = false then
                         ERROR('Berechtigung für Marktfreigabe nicht vorhanden!');
 
                 //+GL026
@@ -304,7 +304,7 @@ tableextension 50027 BASLotNoInformationExtPHA extends "Lot No. Information"
         }
         field(50101; "ArtikelPackungsgröße"; Text[10])
         {
-            CalcFormula = lookup(Item."Packungsgröße" where("No." = field("Item No.")));
+            CalcFormula = lookup(Item.BASPackageSizePHA where("No." = field("Item No.")));
             FieldClass = FlowField;
         }
         field(50102; "BASCEP NrPHA"; Code[50])
@@ -317,14 +317,12 @@ tableextension 50027 BASLotNoInformationExtPHA extends "Lot No. Information"
             Description = 'GL029,LQ18.1';
             //TableRelation = Hersteller.HerstellerNr;
         }
-        field(50104; "BASExpiration Date DMPHA"; Text[6])
+        field(50104; BASExpirationDateDMPHA; Text[6])
         {
-            Description = 'GL030,EUHUB';
             Numeric = true;
-
             trigger OnValidate()
             begin
-                CheckExpDate(); //GL030
+                CheckExpDate();
             end;
         }
         field(50105; "BASHF KommentarPHA"; Text[100])
@@ -418,7 +416,7 @@ tableextension 50027 BASLotNoInformationExtPHA extends "Lot No. Information"
         if recItem.Artikelart in [recItem.Artikelart::Rohstoff, recItem.Artikelart::Verpackungsstoff] then begin
             recLotNoInfo.SETCURRENTKEY(BASLotNoPHA);
             recLotNoInfo.SetRange(BASLotNoPHA, BASLotNoPHA);
-            if recLotNoInfo.FIND('-') then
+            if recLotNoInfo.FindSet() then
                 if recLotNoInfo."Item No." <> "Item No." then
                     ERROR('Rohstoffcharge wurde schon zu anderer Artikelnummer vergeben!');
         end;
@@ -446,7 +444,7 @@ tableextension 50027 BASLotNoInformationExtPHA extends "Lot No. Information"
         recItemLedgerEntry.SETFILTER(BASLotNoPHA, LotNo);
         recItemLedgerEntry.SETFILTER("Item No.", ItemNo);
         recItemLedgerEntry.SetRange("Entry Type", recItemLedgerEntry."Entry Type"::Output);
-        if recItemLedgerEntry.FIND('-') then begin
+        if recItemLedgerEntry.FindSet() then begin
 
             //-UPDATE2013
             //neu
@@ -458,11 +456,11 @@ tableextension 50027 BASLotNoInformationExtPHA extends "Lot No. Information"
             //recItemLedgerEntry1.SETFILTER("Prod. Order No.", recItemLedgerEntry."Prod. Order No.");
             //+UPDATE2013
             recItemLedgerEntry1.SETFILTER("Entry Type", 'Verbrauch|Abgang');
-            if recItemLedgerEntry1.FIND('-') then
+            if recItemLedgerEntry1.FindSet() then
                 repeat
                     recLotNoInformation.SETFILTER("Item No.", recItemLedgerEntry1."Item No.");
                     recLotNoInformation.SETFILTER(BASLotNoPHA, recItemLedgerEntry1.BASLotNoPHA);
-                    if recLotNoInformation.FIND('-') then begin
+                    if recLotNoInformation.FindSet() then begin
                         if recLotNoInformation.Status <> recLotNoInformation.Status::Frei then begin
                             if ItemIsBulk(ItemNo) and ItemIsBulk(recLotNoInformation."Item No.") then begin
                                 //TA-Artikel (Tablettenkerne) werden nie freigegeben
@@ -749,7 +747,7 @@ tableextension 50027 BASLotNoInformationExtPHA extends "Lot No. Information"
             //TransLine.SetRange(Type, TransLine.Type::Item);
             TransLine.SetRange("Variant Code", xRec."Variant Code");
             //TransLine.SetRange(BASLotNoPHA, xRec.BASLotNoPHA);
-            if TransLine.FIND('-') then
+            if TransLine.FindSet() then
                 repeat
                     //TransLine.BASLotNoPHA := BASLotNoPHA;
                     TransLine.modify;

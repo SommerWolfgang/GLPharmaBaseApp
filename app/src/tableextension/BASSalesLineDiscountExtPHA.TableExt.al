@@ -36,7 +36,7 @@ tableextension 50054 BASSalesLineDiscountExtPHA extends "Sales Line Discount"
         //-GL001
         IF Type = Type::Item THEN
             IF item.GET(Code) THEN BEGIN
-                tArtikeltextTemp := item.Description + ' ' + item."Packungsgröße";
+                tArtikeltextTemp := item.Description + ' ' + item.BASPackageSizePHA;
                 IF STRLEN(tArtikeltextTemp) > 50 THEN    //MFU 19.05.2020  Längenüberschreitung abfangen
                     tArtikeltextTemp := COPYSTR(tArtikeltextTemp, 1, 49);
                 ArtikelText := tArtikeltextTemp;

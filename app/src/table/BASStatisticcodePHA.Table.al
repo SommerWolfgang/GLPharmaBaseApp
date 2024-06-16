@@ -1,7 +1,7 @@
 
-table 50015 BASStatisticcode2PHA
+table 50015 BASStatisticcodePHA
 {
-    Caption = 'BASStatisticCode2PHA';
+    Caption = 'StatisticCode', comment = 'DEA="Statistikcode"';
     DataClassification = CustomerContent;
     //LookupPageID = BASStatisticCode2PHAList;
     //DrillDownPageID = BASStatisticCode2PHAList;
@@ -23,7 +23,7 @@ table 50015 BASStatisticcode2PHA
         field(4; "Belongs to"; Code[10])
         {
             Caption = 'Belongs to', comment = 'DEA=" Gehört Zu"';
-            TableRelation = BASStatisticcode2PHA;
+            TableRelation = BASStatisticcodePHA;
         }
         field(5; PM; Code[10])
         {

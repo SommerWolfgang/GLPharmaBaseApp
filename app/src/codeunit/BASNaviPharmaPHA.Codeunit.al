@@ -1,286 +1,246 @@
 codeunit 50001 BASNaviPharmaPHA
 {
-    trigger OnRun()
-    begin
-    end;
-
-    procedure CheckArtikelBewegung(ItemJnlLine: Record "Item Journal Line") ok: Boolean
+    procedure CheckItemNetChange(ItemJnlLine: Record "Item Journal Line"): Boolean
     var
         Item: Record Item;
-        Chargenstamm: Record "Lot No. Information";
-        lOK: Boolean;
+        LotNoInFormation: Record "Lot No. InFormation";
+        ExpirationDateDMP: Date;
+        EmptyErr: Label '', comment = 'DEA="Artikel %1 Chargennr. eingegeben, aber Artikel nicht chargenpflichtig!\n(Feld Artikelverfolgungscode in Artikelkarte leer)"';
+        MissingCostCenterErr: Label '', comment = 'DEA="Kostenstelle fehlt bei Artikelnummer %1, Buchblattzeilennummer %2, Belegzeilennummer %3"';
     begin
-        exit(true); // >> 02.07.2021 PBA
-        lOK := false;
+        if ItemJnlLine."Entry Type" <> ItemJnlLine."Entry Type"::Transfer then
+            if Item.Get(ItemJnlLine."Item No.") then
+                if not Item."Inventory Value Zero" then
+                    if ItemJnlLine."Shortcut Dimension 1 Code" = '' then
+                        Error(MissingCostCenterErr, ItemJnlLine."Item No.", ItemJnlLine."Line No.", ItemJnlLine."Document Line No.");
 
-        with ItemJnlLine do begin
-            if "Entry Type" <> "Entry Type"::Transfer then
-                if Item.GET("Item No.") then
-                    if not Item."Inventory Value Zero" then
-                        if "Shortcut Dimension 1 Code" = '' then
-                            Error('Kostenstelle fehlt bei Artikelnummer %1, Buchblattzeilennummer %2, Belegzeilennummer %3', "Item No.",
-                                    "Line No.", "Document Line No.");
+        CheckArtikelBuchDatGrenze(ItemJnlLine."Posting Date");
 
-            //Schränke zulässiges Buchungsdatum ein
-            CheckArtikelBuchDatGrenze("Posting Date");
+        if ItemJnlLine."Lot No." <> '' then
+            if Item.Get(ItemJnlLine."Item No.") then
+                if Item."Item Tracking Code" = '' then
+                    Error(EmptyErr, ItemJnlLine."Item No.");
 
-            //Prüfung: keine Chargennr. bei nichtchargenpflicht. Artikeln erlaubt
-            if "Lot No." <> '' then
-                if Item.GET("Item No.") then
-                    if Item."Item Tracking Code" = '' then
-                        Error('Artikel ' + "Item No." + ': Chargennr. eingegeben, aber Artikel nicht chargenpflichtig ' +
-                                 '(Feld Artikelverfolgungscode in Artikelkarte leer)');
+        if ItemJnlLine.Quantity = 0 then
+            exit(true);
 
-            if Quantity = 0 then  //Wenn nur Rechnungsmenge ohne Liefervorgang: keine Artikelbewegung, also keine Ch.Prüfungen
+        if Item.Get(ItemJnlLine."Item No.") then
+            if Item."Item Tracking Code" = '' then
                 exit(true);
 
-            if Item.GET("Item No.") then  //bei nicht chargenpflichtigen Artikeln ab hier Aussprung
-                if Item."Item Tracking Code" = '' then
-                    exit(true);
+        // ToDo -> hardcoded!!!
 
-            //Prüfung auf Freigabe bei Umlagerung ins VKL/KONL/LOHN
-            if "New Location Code" in ['VKL', 'KONL', 'LOHN', 'SVKL'] then begin      //-GL033
-                if Chargenstamm.GET("Item No.", '', "Lot No.") = false then
-                    Error('Artikel ' + "Item No." + ', Ch.Nr.' + "Lot No." + ': kein Eintrag in Chargenstammm, Umlagerung in '
-                           + 'VKL/KONL/LOHN/SVKL unzulässig!')
-                else begin
-                    if Chargenstamm.Status <> Chargenstamm.Status::Frei then
-                        Error('Artikel ' + "Item No." + ', Ch.Nr.' + "Lot No." + ' ist nicht freigegeben, Umlagerung in VKL/KONL/LOHN/SVKL unzulässig!');
-                    if Chargenstamm."Expiration Date" = 0D then
-                        Error('Artikel ' + "Item No." + ', Ch.Nr.' + "Lot No." +
-                              ' kein Ablaufdatum eingetragen, Umlagerung in VKL/KONL/LOHN unzulässig!');
-                    if Chargenstamm."Expiration Date" <= (WORKDATE) then
-                        Error('Artikel ' + "Item No." + ', Ch.Nr.' + "Lot No." + ' ist abgelaufen, Umlagerung in VKL/KONL/LOHN/SVKL unzulässig!');
+        Evaluate(ExpirationDateDMP, LotNoInFormation.BASExpirationDateDMPHA);
 
-                end;
-            end;
+        if ItemJnlLine."New Location Code" in ['VKL', 'KONL', 'LOHN', 'SVKL'] then
+            if not LotNoInFormation.Get(ItemJnlLine."Item No.", '', ItemJnlLine."Lot No.") then
+                Error('Artikel ' + ItemJnlLine."Item No." + ', Ch.Nr.' + ItemJnlLine."Lot No." + ': kein Eintrag in Chargenstammm, Umlagerung in '
+                       + 'VKL/KONL/LOHN/SVKL unzulässig!')
+            else
+                if LotNoInFormation.BASStatusPHA <> LotNoInFormation.BASStatusPHA::Free then
+                    Error('Artikel ' + ItemJnlLine."Item No." + ', Ch.Nr.' + ItemJnlLine."Lot No." + ' ist nicht freigegeben, Umlagerung in VKL/KONL/LOHN/SVKL unzulässig!');
+        if ExpirationDateDMP = 0D then
+            Error('Artikel ' + ItemJnlLine."Item No." + ', Ch.Nr.' + ItemJnlLine."Lot No." +
+                  ' kein Ablaufdatum eingetragen, Umlagerung in VKL/KONL/LOHN unzulässig!');
+        if ExpirationDateDMP <= WorkDate() then
+            Error('Artikel ' + ItemJnlLine."Item No." + ', Ch.Nr.' + ItemJnlLine."Lot No." + ' ist abgelaufen, Umlagerung in VKL/KONL/LOHN/SVKL unzulässig!');
 
-            //Umlagerung in PL bei Artikelart=Halbfabrikat+Fertigware von Quarantäneware erlaubt
-            if "New Location Code" in ['PL'] then begin
-                if Chargenstamm.GET("Item No.", '', "Lot No.") = false then
-                    Error('Artikel ' + "Item No." + ', Ch.Nr.' + "Lot No." + ': kein Eintrag in Chargenstammm, Umlagerung in '
-                           + 'PL unzulässig!')
-                else begin
-                    if ((Item.Artikelart = Item.Artikelart::Halbfabrikat) or (Item.Artikelart = Item.Artikelart::Fertigprodukt)) then begin
-                        if Chargenstamm.Status = Chargenstamm.Status::Gesperrt then
-                            Error('Artikel ' + "Item No." + ', Ch.Nr.' + "Lot No." + ' ist gesperrt, Umlagerung in PL unzulässig!');
-                    end else begin  // Sperren für alles außer Bulk+FW
-                        if Chargenstamm.Status <> Chargenstamm.Status::Frei then
-                            Error('Artikel ' + "Item No." + ', Ch.Nr.' + "Lot No." + ' ist nicht freigegeben, Umlagerung in PL unzulässig!');
-                        if Chargenstamm."Expiration Date" = 0D then
-                            Error('Artikel ' + "Item No." + ', Ch.Nr.' + "Lot No." +
-                               ' kein Ablaufdatum eingetragen, Umlagerung in PL unzulässig!');
-                        if Chargenstamm."Expiration Date" <= (WORKDATE) then
-                            Error('Artikel ' + "Item No." + ', Ch.Nr.' + "Lot No." + ' ist abgelaufen, Umlagerung in PL unzulässig!');
-                    end;
-                end;
-            end;
-
-
-            //Prüfung auf Freigabe Verkauf von chargenpflichtigen Artikeln
-            if ("Entry Type" = "Entry Type"::Sale) and (Quantity > 0) then begin  //Gutschriften nicht prüfen!AND (Menge > 0)
-                if Chargenstamm.GET("Item No.", '', "Lot No.") = false then
-                    Error('Artikel ' + "Item No." + ', Ch.Nr.' + "Lot No." + ': kein Chargeneintrag vorhanden!')
-                else begin
-                    //Prüfungen auf abgelaufene Ware
-                    if Chargenstamm.Status <> Chargenstamm.Status::Frei then //Freigabedatum = 0D THEN
-                        Error('Artikel ' + "Item No." + ', Ch.Nr.' + "Lot No." + ' ist noch nicht freigegeben, kein Verkauf möglich');
-                    if "Location Code" = 'KONL' then begin
-                        if Chargenstamm."Expiration Date" <= (WORKDATE) then
-                            if CONFIRM('Artikel ' + "Item No." + ', Ch.Nr.' + "Lot No." + ' ist am ' + FORMAT(Chargenstamm."Expiration Date")
-                                     + ' abgelaufen!, Rechnungsposition trotzdem fakturieren?') = false then
-                                Error('Auftrag abgebrochen');
-                    end else begin //alle anderen Lagerorte
-                        if Chargenstamm."Expiration Date" <= (WORKDATE - 14) then
-                            Error('Artikel ' + "Item No." + ', Ch.Nr.' + "Lot No." + ' ist abgelaufen, kein Verkauf möglich');
-                        if Chargenstamm."Expiration Date" <= CalcDate('<CM-9M>', WORKDATE) then
-                            if CONFIRM('Artikel ' + "Item No." + ', Ch.Nr.' + "Lot No." + ' läuft in weniger als 9 '
-                                 + 'Monaten ab, trotzdem verkaufen ?') = false then
-                                Error('Auftrag abgebrochen');
-                    end;
-                end;
-            end;
-
-            //Prüfung auf gleiche Verkaufschargennr., wenn plus-Mengenbuchung
-            if Chargenstamm.GET("Item No.", "Variant Code", "Lot No.") then begin
-                if (("Entry Type" in ["Entry Type"::Sale, "Entry Type"::Consumption, "Entry Type"::"Negative Adjmt."]) and (Quantity < 0))
-                  or (("Entry Type" in ["Entry Type"::Purchase, "Entry Type"::Output, "Entry Type"::"Positive Adjmt."]) and (Quantity > 0))
-                  or ("Entry Type" = "Entry Type"::Transfer)
+        //Umlagerung in PL bei BASItemTypePHA=Halbfabrikat+Fertigware von Quarantäneware erlaubt
+        if ItemJnlLine."New Location Code" in ['PL'] then
+            if LotNoInFormation.Get(ItemJnlLine."Item No.", '', ItemJnlLine."Lot No.") = false then
+                Error('Artikel ' + "Item No." + ', Ch.Nr.' + "Lot No." + ': kein Eintrag in Chargenstammm, Umlagerung in '
+                       + 'PL unzulässig!')
+            else
+                if ((Item.BASItemTypePHA = Item.BASItemTypePHA::"Semifinished Product") or
+                    (Item.BASItemTypePHA = Item.BASItemTypePHA::"Finished Product"))
                 then begin
-                    if Chargenstamm."Verkaufschargennr." <> "Verkaufschargennr." then
-                        Error('Die Verkaufschargennr. %1 stimmt nicht mit dem Chargenstammeintrag %2 überein; ' +
-                           '(Änderung ist nur mehr im Chargenstamm (Artikelnr. %3, Chargennr. %4) möglich) ',
-                          "Verkaufschargennr.", Chargenstamm."Verkaufschargennr.", "Item No.", "Lot No.");
-                    //IF StandortWeiche("Item No.",'ITEM')='LANNACH' THEN BEGIN
-                    if Chargenstamm."Expiration Date" <> "Expiration Date" then
-                        Error('Das Ablaufdatum %1 stimmt nicht mit dem Chargenstammeintrag %2 überein; ' +
-                        '(Änderung ist nur mehr im Chargenstamm (Artikelnr. %3, Chargennr. %4) möglich) ',
-                       "Expiration Date", Chargenstamm."Expiration Date", "Item No.", "Lot No.");
-                    //END ELSE IF StandortWeiche("Item No.",'ITEM')='WIEN' THEN BEGIN
-                    //  IF ("Expiration Date" <> 0D) AND (Chargenstamm."Expiration Date" <> "Expiration Date") THEN
-                    //    Error('Das Ablaufdatum %1 stimmt nicht mit dem Chargenstammeintrag %2 überein; ' +
-                    //     '(Änderung ist nur mehr im Chargenstamm (Artikelnr. %3, Chargennr. %4) möglich) ',
-                    //    "Expiration Date",Chargenstamm."Expiration Date","Item No.","Lot No.");
-                    //END;
+                    if LotNoInFormation.BASStatusPHA = LotNoInFormation.BASStatusPHA::Blocked then
+                        Error('Artikel ' + ItemJnlLine."Item No." + ', Ch.Nr.' + ItemJnlLine."Lot No." + ' ist gesperrt, Umlagerung in PL unzulässig!');
+                end else begin  // Sperren für alles außer Bulk+FW
+                    if LotNoInFormation.BASStatusPHA <> LotNoInFormation.BASStatusPHA::Free then
+                        Error('Artikel ' + ItemJnlLine."Item No." + ', Ch.Nr.' + ItemJnlLine."Lot No." + ' ist nicht freigegeben, Umlagerung in PL unzulässig!');
+                    if ExpirationDateDMP = 0D then
+                        Error('Artikel ' + ItemJnlLine."Item No." + ', Ch.Nr.' + ItemJnlLine."Lot No." +
+                           ' kein Ablaufdatum eingetragen, Umlagerung in PL unzulässig!');
+                    if ExpirationDateDMP <= WorkDate() then
+                        Error('Artikel ' + "Item No." + ', Ch.Nr.' + ItemJnlLine."Lot No." + ' ist abgelaufen, Umlagerung in PL unzulässig!');
+                end;
 
+        if (ItemJnlLine."Entry Type" = ItemJnlLine."Entry Type"::Sale) and (ItemJnlLine.Quantity > 0) then
+            if not LotNoInFormation.Get(ItemJnlLine."Item No.", '', ItemJnlLine."Lot No.") then
+                Error('Artikel ' + ItemJnlLine."Item No." + ', Ch.Nr.' + ItemJnlLine."Lot No." + ': kein Chargeneintrag vorhanden!')
+            else begin
+                if LotNoInFormation.BASStatusPHA <> LotNoInFormation.BASStatusPHA::Free then //Freigabedatum = 0D THEN
+                    Error('Artikel ' + ItemJnlLine."Item No." + ', Ch.Nr.' + ItemJnlLine."Lot No." + ' ist noch nicht freigegeben, kein Verkauf möglich');
+                if ItemJnlLine."Location Code" = 'KONL' then begin
+                    if ExpirationDateDMP <= WorkDate() then
+                        if Confirm('Artikel ' + ItemJnlLine."Item No." + ', Ch.Nr.' + ItemJnlLine."Lot No." + ' ist am ' + Format(LotNoInFormation."Expiration Date")
+                                 + ' abgelaufen!, Rechnungsposition trotzdem fakturieren?') = false then
+                            Error('Auftrag abgebrochen');
+                end else begin //alle anderen Lagerorte
+                    if ExpirationDateDMP <= (WorkDate() - 14) then
+                        Error('Artikel ' + ItemJnlLine."Item No." + ', Ch.Nr.' + ItemJnlLine."Lot No." + ' ist abgelaufen, kein Verkauf möglich');
+                    if ExpirationDateDMP <= CalcDate('<CM-9M>', WorkDate()) then
+                        if CONFIRM('Artikel ' + ItemJnlLine."Item No." + ', Ch.Nr.' + ItemJnlLine."Lot No." + ' läuft in weniger als 9 '
+                             + 'Monaten ab, trotzdem verkaufen ?') = false then
+                            Error('Auftrag abgebrochen');
                 end;
             end;
 
-            exit(lOK);
-        end;
+        if LotNoInFormation.Get(ItemJnlLine."Item No.", ItemJnlLine."Variant Code", ItemJnlLine."Lot No.") then
+            if ((ItemJnlLine."Entry Type" in [
+                    ItemJnlLine."Entry Type"::Sale,
+                    ItemJnlLine."Entry Type"::Consumption,
+                    ItemJnlLine."Entry Type"::"Negative Adjmt."]) and
+                    (ItemJnlLine.Quantity < 0)) or
+                ((ItemJnlLine."Entry Type" in [
+                    ItemJnlLine."Entry Type"::Purchase,
+                    ItemJnlLine."Entry Type"::Output, ItemJnlLine."Entry Type"::"Positive Adjmt."]) and
+                    (ItemJnlLine.Quantity > 0)) or
+                (ItemJnlLine."Entry Type" = ItemJnlLine."Entry Type"::Transfer)
+            then begin
+                if LotNoInFormation.BASSalesLotNoPHA <> ItemJnlLine.BASSalesLotNoPHA then
+                    Error('Die Verkaufschargennr. %1 stimmt nicht mit dem Chargenstammeintrag %2 überein; ' +
+                       '(Änderung ist nur mehr im Chargenstamm (Artikelnr. %3, Chargennr. %4) möglich) ',
+                        ItemJnlLine.BASSalesLotNoPHA, LotNoInFormation.BASSalesLotNoPHA,
+                            ItemJnlLine."Item No.", ItemJnlLine."Lot No.");
+                if ExpirationDateDMP <> ItemJnlLine."Expiration Date" then
+                    Error('Das Ablaufdatum %1 stimmt nicht mit dem Chargenstammeintrag %2 überein; ' +
+                    '(Änderung ist nur mehr im Chargenstamm (Artikelnr. %3, Chargennr. %4) möglich) ',
+                        ItemJnlLine."Expiration Date",
+                            ExpirationDateDMP, ItemJnlLine."Item No.", ItemJnlLine."Lot No.");
+            end;
+        exit(true);
     end;
 
-    procedure CheckArtikelBuchDatGrenze(BuchDatum: Date)
+    local procedure CheckArtikelBuchDatGrenze(PostingDate: Date)
     var
         GLSetup: Record "General Ledger Setup";
-        dBeginn: Date;
+        BeginDate: Date;
     begin
-        //Anmerkung: in Nav. 2009 gäbe es eigene Artikelbuchungsperioden...
         GLSetup.Get();
-        if GLSetup.ArtikelBuchDatGrenze then begin
-            if (Date2DMY(WORKDATE(), 2) - 1) = 0 then
-                dBeginn := DMY2Date(1, 12, Date2DMY(WORKDATE(), 3) - 1)
+
+        if GLSetup.BASArtikelBuchDatGrenzePHA then begin
+            if (Date2DMY(WorkDate(), 2) - 1) = 0 then
+                BeginDate := DMY2Date(1, 12, Date2DMY(WorkDate(), 3) - 1)
             else
-                dBeginn := DMY2Date(1, Date2DMY(WORKDATE(), 2) - 1, Date2DMY(WORKDATE(), 3));
-            if ((BuchDatum < dBeginn) or (BuchDatum >= WORKDATE() + 15)) then
-                Error('Buchungsdatum %1 liegt ausserhalb des zulässigen Bereichs von 1. des Vormonats bzw. +15 Tagen', BuchDatum);
+                BeginDate := DMY2Date(1, Date2DMY(WorkDate(), 2) - 1, Date2DMY(WorkDate(), 3));
+            if ((PostingDate < BeginDate) or (PostingDate >= WorkDate() + 15)) then
+                Error('Buchungsdatum %1 liegt ausserhalb des zulässigen Bereichs von 1. des Vormonats bzw. +15 Tagen', PostingDate);
         end;
     end;
 
+    // ToDo -> do we need this function?
+    // local procedure Ablaufdatum(artikelnummer: Code[20]; chargennummer: Code[20]; startdatum: Date) ablaufdatum: Date
+    // var
+    //     Item: Record Item;
+    //     ManufacturingSetup: Record "Manufacturing Setup";
+    //     dHilf: Date;
+    //     nJahr: Integer;
+    //     nMonat: Integer;
+    //     cHilf: Text[30];
+    // begin
+    //     ManufacturingSetup.Get();
 
-    procedure Ablaufdatum(artikelnummer: Code[20]; chargennummer: Code[20]; startdatum: Date) ablaufdatum: Date
+    //     if ManufacturingSetup.Chargennummernsystem = ManufacturingSetup.Chargennummernsystem::Lannacher then begin
+    //         if Item.Get(artikelnummer) then begin
+    //             if (CopyStr(chargennummer, 1, 4) > '2200') or (CopyStr(chargennummer, 1, 4) < '1999') or
+    //                 (CopyStr(chargennummer, 5, 1) < 'A') or (CopyStr(chargennummer, 5, 1) > 'M') then begin //keine gültige Ch.nr, nimm startdatum
+    //                 if startdatum = 0D then
+    //                     MESSAGE('weder erkennbare Chargennummer, noch Startdatum vorhanden!')
+    //                 else begin
+    //                     //dHilf := CalcDate('+1M-1T',startdatum); //Monatsletzten bestimmen
+    //                     dHilf := DMY2Date(1, Date2DMY(startdatum, 2), Date2DMY(startdatum, 3)); //Monatsersten errechnen MFU
+    //                     dHilf := CalcDate('<-1D>', dHilf); //Damit es gleich ist wie das Datum von den Chargennummern kommend MFU
+    //                     dHilf := CalcDate('<-1M>', dHilf); //Damit es gleich ist wie von den Chargennummern kommend MFU
+    //                 end;
+    //             end else begin //errechnen aus gültiger Ch.nr
+    //                 cHilf := CopyStr(chargennummer, 5, 1);
+    //                 case cHilf of
+    //                     'A':
+    //                         nMonat := 1;
+    //                     'B':
+    //                         nMonat := 2;
+    //                     'C':
+    //                         nMonat := 3;
+    //                     'D':
+    //                         nMonat := 4;
+    //                     'E':
+    //                         nMonat := 5;
+    //                     'F':
+    //                         nMonat := 6;
+    //                     'G':
+    //                         nMonat := 7;
+    //                     'H':
+    //                         nMonat := 8;
+    //                     'J':
+    //                         nMonat := 9;
+    //                     'K':
+    //                         nMonat := 10;
+    //                     'L':
+    //                         nMonat := 11;
+    //                     'M':
+    //                         nMonat := 12;
+    //                 end;
+    //                 Evaluate(nJahr, CopyStr(chargennummer, 1, 4));
+    //                 dHilf := DMY2Date(1, nMonat, nJahr);
+    //                 dHilf := CalcDate('<-1D>', dHilf); //Monatsletzten bestimmen
+    //                 dHilf := CalcDate('<-1M>', dHilf);
+    //             end;
+
+    //             if dHilf <> 0D then begin
+    //                 if Format(Item."Expiration Calculation") <> '' then begin
+    //                     ablaufdatum := CalcDate('<+' + Format(Item."Expiration Calculation") + '>', dHilf);
+    //                     //IF CalcDate('+24M',dHilf) >= ablaufdatum THEN  //016 MFU
+    //                     ablaufdatum := CalcDate('<+1M>', ablaufdatum); //Artikel unter 24 Monate Laufzeit bis letzten des lauf. Monats
+    //                     ablaufdatum := DMY2Date(1, Date2DMY(ablaufdatum, 2), Date2DMY(ablaufdatum, 3)); //Monatsletzten errechnen
+    //                     ablaufdatum := CalcDate('<+2M>', ablaufdatum); //Monatsletzten errechnen
+    //                     ablaufdatum := CalcDate('<-1D>', ablaufdatum); //Monatsletzten errechnen
+    //                 end else
+    //                     MESSAGE('Keine Haltbarkeitsformel in der Artikelkarte hinterlegt!');
+    //             end;
+    //         end;
+    //     end;
+    // end;
+
+
+    procedure AblaufdatumFremd(ItemNo: Code[20]; LotNo: Code[20]; StartDate: Date): Date
     var
         Item: Record Item;
         ManufacturingSetup: Record "Manufacturing Setup";
-        dHilf: Date;
-        nJahr: Integer;
+        DummyDate: Date;
+        Month: Integer;
         nMonat: Integer;
+        Year: Integer;
         cHilf: Text[30];
     begin
         ManufacturingSetup.Get();
 
-        if ManufacturingSetup.Chargennummernsystem = ManufacturingSetup.Chargennummernsystem::Lannacher then begin
-            if Item.GET(artikelnummer) then begin
-                if (COPYSTR(chargennummer, 1, 4) > '2200') or (COPYSTR(chargennummer, 1, 4) < '1999') or
-                    (COPYSTR(chargennummer, 5, 1) < 'A') or (COPYSTR(chargennummer, 5, 1) > 'M') then begin //keine gültige Ch.nr, nimm startdatum
-                    if startdatum = 0D then
+        if ManufacturingSetup.BASChargennummernsystemPHA = ManufacturingSetup.BASChargennummernsystemPHA::Lannacher then
+            if Item.Get(ItemNo) then begin
+                if (CopyStr(LotNo, 1, 4) > '2200') or (CopyStr(LotNo, 1, 4) < '1999') or
+                    (CopyStr(LotNo, 5, 1) < 'A') or (CopyStr(LotNo, 5, 1) > 'M') then begin //keine gültige Ch.nr, nimm startdatum
+                    if StartDate = 0D then
                         MESSAGE('weder erkennbare Chargennummer, noch Startdatum vorhanden!')
                     else begin
-                        //dHilf := CalcDate('+1M-1T',startdatum); //Monatsletzten bestimmen
-                        dHilf := DMY2Date(1, Date2DMY(startdatum, 2), Date2DMY(startdatum, 3)); //Monatsersten errechnen MFU
-                        dHilf := CalcDate('<-1D>', dHilf); //Damit es gleich ist wie das Datum von den Chargennummern kommend MFU
-                        dHilf := CalcDate('<-1M>', dHilf); //Damit es gleich ist wie von den Chargennummern kommend MFU
+                        DummyDate := CalcDate('<CM>', StartDate);
+                        DummyDate := CalcDate('<-1D>', DummyDate);
+                        DummyDate := CalcDate('<-1M>', DummyDate);
                     end;
                 end else begin //errechnen aus gültiger Ch.nr
-                    cHilf := COPYSTR(chargennummer, 5, 1);
-                    case cHilf of
-                        'A':
-                            nMonat := 1;
-                        'B':
-                            nMonat := 2;
-                        'C':
-                            nMonat := 3;
-                        'D':
-                            nMonat := 4;
-                        'E':
-                            nMonat := 5;
-                        'F':
-                            nMonat := 6;
-                        'G':
-                            nMonat := 7;
-                        'H':
-                            nMonat := 8;
-                        'J':
-                            nMonat := 9;
-                        'K':
-                            nMonat := 10;
-                        'L':
-                            nMonat := 11;
-                        'M':
-                            nMonat := 12;
-                    end;
-                    EVALUATE(nJahr, COPYSTR(chargennummer, 1, 4));
-                    dHilf := DMY2Date(1, nMonat, nJahr);
-                    dHilf := CalcDate('<-1D>', dHilf); //Monatsletzten bestimmen
-                    dHilf := CalcDate('<-1M>', dHilf);
+                    cHilf := CopyStr(LotNo, 5, 1);
+                    Month := cHilf[1] - 65;
+                    nMonat := Month;
+
+                    Evaluate(Year, CopyStr(LotNo, 1, 4));
+                    DummyDate := DMY2Date(1, nMonat, Year);
+                    DummyDate := CalcDate('<-1D>', DummyDate); //Monatsletzten bestimmen
+                    DummyDate := CalcDate('<-1M>', DummyDate);
                 end;
 
-                if dHilf <> 0D then begin
-                    if FORMAT(Item."Expiration Calculation") <> '' then begin
-                        ablaufdatum := CalcDate('<+' + FORMAT(Item."Expiration Calculation") + '>', dHilf);
-                        //IF CalcDate('+24M',dHilf) >= ablaufdatum THEN  //016 MFU
-                        ablaufdatum := CalcDate('<+1M>', ablaufdatum); //Artikel unter 24 Monate Laufzeit bis letzten des lauf. Monats
-                        ablaufdatum := DMY2Date(1, Date2DMY(ablaufdatum, 2), Date2DMY(ablaufdatum, 3)); //Monatsletzten errechnen
-                        ablaufdatum := CalcDate('<+2M>', ablaufdatum); //Monatsletzten errechnen
-                        ablaufdatum := CalcDate('<-1D>', ablaufdatum); //Monatsletzten errechnen
-                    end else
-                        MESSAGE('Keine Haltbarkeitsformel in der Artikelkarte hinterlegt!');
-                end;
-            end;
-        end;
-    end;
-
-
-    procedure AblaufdatumFremd(artikelnummer: Code[20]; chargennummer: Code[20]; startdatum: Date) ablaufdatum: Date
-    var
-        artikel: Record Item;
-        ManufacturingSetup: Record "Manufacturing Setup";
-        dHilf: Date;
-        nHilf: Integer;
-        nJahr: Integer;
-        nMonat: Integer;
-        cHilf: Text[30];
-    begin
-        ManufacturingSetup.GET;
-        if ManufacturingSetup.Chargennummernsystem = ManufacturingSetup.Chargennummernsystem::Lannacher then begin
-            if artikel.GET(artikelnummer) then begin
-                if (COPYSTR(chargennummer, 1, 4) > '2200') or (COPYSTR(chargennummer, 1, 4) < '1999') or
-                    (COPYSTR(chargennummer, 5, 1) < 'A') or (COPYSTR(chargennummer, 5, 1) > 'M') then begin //keine gültige Ch.nr, nimm startdatum
-                    if startdatum = 0D then
-                        MESSAGE('weder erkennbare Chargennummer, noch Startdatum vorhanden!')
-                    else begin
-                        //dHilf := CalcDate('+1M-1T',startdatum); //Monatsletzten bestimmen
-                        dHilf := DMY2Date(1, Date2DMY(startdatum, 2), Date2DMY(startdatum, 3)); //Monatsersten errechnen MFU
-                        dHilf := CalcDate('<-1D>', dHilf); //Damit es gleich ist wie das Datum von den Chargennummern kommend MFU
-                        dHilf := CalcDate('<-1M>', dHilf); //Damit es gleich ist wie von den Chargennummern kommend MFU
-                    end;
-                end else begin //errechnen aus gültiger Ch.nr
-                    cHilf := COPYSTR(chargennummer, 5, 1);
-                    case cHilf of
-                        'A':
-                            nMonat := 1;
-                        'B':
-                            nMonat := 2;
-                        'C':
-                            nMonat := 3;
-                        'D':
-                            nMonat := 4;
-                        'E':
-                            nMonat := 5;
-                        'F':
-                            nMonat := 6;
-                        'G':
-                            nMonat := 7;
-                        'H':
-                            nMonat := 8;
-                        'J':
-                            nMonat := 9;
-                        'K':
-                            nMonat := 10;
-                        'L':
-                            nMonat := 11;
-                        'M':
-                            nMonat := 12;
-                    end;
-                    EVALUATE(nJahr, COPYSTR(chargennummer, 1, 4));
-                    dHilf := DMY2Date(1, nMonat, nJahr);
-                    dHilf := CalcDate('<-1D>', dHilf); //Monatsletzten bestimmen
-                    dHilf := CalcDate('<-1M>', dHilf);
-                end;
-
-                if dHilf <> 0D then begin
-                    if FORMAT(artikel."Expiration Calculation") <> '' then begin
-                        ablaufdatum := CalcDate('<+' + FORMAT(artikel."Expiration Calculation") + '>', dHilf);
+                if DummyDate <> 0D then
+                    if Format(Item."Expiration Calculation") <> '' then begin
+                        ablaufdatum := CalcDate('<+' + Format(Item."Expiration Calculation") + '>', DummyDate);
                         //IF CalcDate('+24M',dHilf) >= ablaufdatum THEN  diese zeile nicht bei gerotschen artikeln
                         ablaufdatum := CalcDate('<+1M>', ablaufdatum); //Artikel unter 24 Monate Laufzeit bis letzten des lauf. Monats
                         ablaufdatum := DMY2Date(1, Date2DMY(ablaufdatum, 2), Date2DMY(ablaufdatum, 3)); //Monatsletzten errechnen
@@ -288,9 +248,7 @@ codeunit 50001 BASNaviPharmaPHA
                         ablaufdatum := CalcDate('<-1D>', ablaufdatum); //Monatsletzten errechnen
                     end else
                         MESSAGE('Keine Haltbarkeitsformel in der Artikelkarte hinterlegt!');
-                end;
             end;
-        end;
     end;
 
     procedure AblaufDatumPlausibel(sArtikelnummer: Text[20]; dtDate: Date) bResult: Boolean
@@ -306,13 +264,13 @@ codeunit 50001 BASNaviPharmaPHA
             MESSAGE('Das Ablaufdatum muss in der Zukunft liegen!\Das Datum wird zurückgesetzt.');
             exit;
         end;
-        if not recItem.GET(sArtikelnummer) then exit;
-        if (FORMAT(recItem."Expiration Calculation") <> '') then begin
+        if not recItem.Get(sArtikelnummer) then exit;
+        if (Format(recItem."Expiration Calculation") <> '') then begin
             //-GL021
             //Neu:
-            dtHelp := CalcDate('<-' + FORMAT(recItem."Expiration Calculation") + '>', dtDate);
+            dtHelp := CalcDate('<-' + Format(recItem."Expiration Calculation") + '>', dtDate);
             dtHelpToday := CalcDate('+LM', TODAY); //Auf Monatsletzten setzen
-                                                   //ORG:  IF (CalcDate('<-' + FORMAT(recItem."Expiration Calculation")+'>', dtDate) > TODAY) THEN
+                                                   //ORG:  IF (CalcDate('<-' + Format(recItem."Expiration Calculation")+'>', dtDate) > TODAY) THEN
                                                    //+GL021
             if (dtHelp > dtHelpToday) then begin
                 MESSAGE('Gemäß der Ablaufdatumsformel würde das Herstelldatum in der Zukunft liegen! Das kann nicht sein.\' +
@@ -357,87 +315,50 @@ codeunit 50001 BASNaviPharmaPHA
         cHilf: Text[30];
     begin
         produktionsdatum := 0D;
-        ManufacturingSetup.GET;
-        if ManufacturingSetup.Chargennummernsystem = ManufacturingSetup.Chargennummernsystem::Lannacher then begin
-            //Ermitteln des Produktionsdatums aus der Chargennr. (für GUS-Artikel)
-            if (COPYSTR(chargennummer, 1, 4) > '2200') or (COPYSTR(chargennummer, 1, 4) < '1999') or
-              (COPYSTR(chargennummer, 5, 1) < 'A') or (COPYSTR(chargennummer, 5, 1) > 'M') then
-                MESSAGE(chargennummer + ' ist keine gültige Lannacher Chargennummer!')
+        ManufacturingSetup.Get();
+        if ManufacturingSetup.BASChargennummernsystemPHA = ManufacturingSetup.BASChargennummernsystemPHA::Lannacher then
+            if (CopyStr(chargennummer, 1, 4) > '2200') or (CopyStr(chargennummer, 1, 4) < '1999') or
+              (CopyStr(chargennummer, 5, 1) < 'A') or (CopyStr(chargennummer, 5, 1) > 'M') then
+                Message(chargennummer + ' ist keine gültige Lannacher Chargennummer!')
             else begin
-                cHilf := COPYSTR(chargennummer, 5, 1);
-                case cHilf of
-                    'A':
-                        nMonat := 1;
-                    'B':
-                        nMonat := 2;
-                    'C':
-                        nMonat := 3;
-                    'D':
-                        nMonat := 4;
-                    'E':
-                        nMonat := 5;
-                    'F':
-                        nMonat := 6;
-                    'G':
-                        nMonat := 7;
-                    'H':
-                        nMonat := 8;
-                    'J':
-                        nMonat := 9;
-                    'K':
-                        nMonat := 10;
-                    'L':
-                        nMonat := 11;
-                    'M':
-                        nMonat := 12;
-                end;
-                EVALUATE(nJahr, COPYSTR(chargennummer, 1, 4));
+                cHilf := CopyStr(chargennummer, 5, 1);
+                nMonat := cHilf[1] - 65;
+                Evaluate(nJahr, CopyStr(chargennummer, 1, 4));
                 produktionsdatum := DMY2Date(1, nMonat, nJahr);
             end;
-        end else
-            if ManufacturingSetup.Chargennummernsystem = ManufacturingSetup.Chargennummernsystem::Gerot then begin
-
-            end;
     end;
-
-    procedure FABulkMenge()
-    begin
-    end;
-
 
     procedure LagerStandFrei(artikelnummer: Code[20]) mengefrei: Decimal
     var
-        artikel: Record Item;
-        chargenstamm: Record "Lot No. Information";
-        nFrei: Decimal;
-        nGesamt: Decimal;
+        item: Record Item;
+        LotNoInformation: Record "Lot No. InFormation";
+        Total: Decimal;
     begin
-        //Duallogik verwenden, je nachdem ob mehr Chargen frei oder unfrei sind...
-        if artikel.GET(artikelnummer) then begin
-            artikel.CALCFIELDS(Inventory);
-            mengefrei := artikel.Inventory;
+        if item.Get(artikelnummer) then begin
+            item.CALCFIELDS(Inventory);
+            mengefrei := item.Inventory;
         end;
-        chargenstamm.SETFILTER("Item No.", artikelnummer);
-        nGesamt := chargenstamm.COUNT();
-        if nGesamt = 0 then
+        LotNoInformation.SetFilter("Item No.", artikelnummer);
+        Total := LotNoInformation.COUNT();
+        if Total = 0 then
             exit(0);
         //-GL031
-        //chargenstamm.SETCURRENTKEY(Status,"Item No.","Lot No.");
-        //chargenstamm.SETFILTER(Status,'Frei');
+        //chargenstamm.SetCurrentKey(Status,"Item No.","Lot No.");
+        //chargenstamm.SetFilter(Status,'Frei');
         //nFrei := chargenstamm.COUNT();
         //IF nFrei / nGesamt > 0.8 THEN BEGIN
-        //  chargenstamm.SETFILTER(Status,'<>Frei');
-        //  chargenstamm.SETFILTER(Inventory,'>0');
-        //  IF chargenstamm.FIND('-') THEN
+        //  chargenstamm.SetFilter(Status,'<>Frei');
+        //  chargenstamm.SetFilter(Inventory,'>0');
+        //  IF chargenstamm.FindSet() THEN
         //     REPEAT
         //       chargenstamm.CALCFIELDS(Inventory);
         //       mengefrei := mengefrei - chargenstamm.Inventory;
         //     UNTIL chargenstamm.NEXT = 0;
         //END ELSE BEGIN
-        //  chargenstamm.SETFILTER(Status,'=Frei');
-        //  chargenstamm.SETFILTER(Inventory,'>0');
+        //  chargenstamm.SetFilter(Status,'=Frei');
+        //  chargenstamm.SetFilter(Inventory,'>0');
         //  mengefrei := 0;
-        //  IF chargenstamm.FIND('-') THEN
+        //  IF chargenstamm.FindSet() THEN
         //     REPEAT
         //       chargenstamm.CALCFIELDS(Inventory);
         //       mengefrei := mengefrei + chargenstamm.Inventory;
@@ -445,19 +366,19 @@ codeunit 50001 BASNaviPharmaPHA
         //END;
         //+GL031
         //-GL031 Ohne Duallogik:
-        chargenstamm.SETFILTER("Item No.", artikelnummer);
-        chargenstamm.SETFILTER(Status, '=Frei');
-        chargenstamm.SETFILTER(Inventory, '>0');
+        LotNoInformation.SetFilter("Item No.", artikelnummer);
+        LotNoInformation.SetFilter(Status, '=Frei');
+        LotNoInformation.SetFilter(Inventory, '>0');
         //GL-030
-        chargenstamm.SETFILTER("Location Filter", '<>W-RÜL & <>W-GESPERRT & <>W-PE & <>W-ANALYTIK');
+        LotNoInformation.SetFilter("Location Filter", '<>W-RÜL & <>W-GESPERRT & <>W-PE & <>W-ANALYTIK');
         //GL+030
         mengefrei := 0;
-        if chargenstamm.FIND('-') then begin
+        if LotNoInformation.FindSet() then begin
             //mengefrei := 0;
             repeat
-                chargenstamm.CALCFIELDS(Inventory);
-                mengefrei := mengefrei + chargenstamm.Inventory;
-            until chargenstamm.NEXT = 0;
+                LotNoInformation.CALCFIELDS(Inventory);
+                mengefrei := mengefrei + LotNoInformation.Inventory;
+            until LotNoInformation.NEXT() = 0;
         end;
         //+GL031
     end;
@@ -465,72 +386,57 @@ codeunit 50001 BASNaviPharmaPHA
     procedure LagerStandGesperrt(artikelnummer: Code[20]) mengegesperrt: Decimal
     var
         artikel: Record Item;
-        chargenstamm: Record "Lot No. Information";
+        chargenstamm: Record "Lot No. InFormation";
     begin
-        chargenstamm.SETCURRENTKEY(Status, "Item No.", "Lot No.");
-        chargenstamm.SETRANGE("Item No.", artikelnummer);
-        chargenstamm.SETRANGE(Status, chargenstamm.Status::Gesperrt);
-        if chargenstamm.FIND('-') then
+        chargenstamm.SetCurrentKey(Status, "Item No.", "Lot No.");
+        chargenstamm.SetRange("Item No.", artikelnummer);
+        chargenstamm.SetRange(Status, chargenstamm.Status::Gesperrt);
+        if chargenstamm.FindSet() then
             repeat
                 chargenstamm.CALCFIELDS(Inventory);
                 mengegesperrt += chargenstamm.Inventory;
-            until chargenstamm.NEXT = 0;
+            until chargenstamm.NEXT() = 0;
     end;
 
     procedure DatumsFilterVorjahr(datumsstring: Text[30]) neuerstring: Text[30]
     var
         artikel: Record Item;
     begin
-        artikel.SETFILTER("Date Filter", datumsstring);
-        neuerstring := FORMAT(CalcDate('<-1Y>', artikel.GETRANGEMIN("Date Filter"))) + '..'
-                             + FORMAT(CalcDate('<-1Y>', artikel.GETRANGEMAX("Date Filter")));
+        artikel.SetFilter("Date Filter", datumsstring);
+        neuerstring := Format(CalcDate('<-1Y>', artikel.GETRANGEMIN("Date Filter"))) + '..'
+                             + Format(CalcDate('<-1Y>', artikel.GETRANGEMAX("Date Filter")));
     end;
 
-    procedure Berechtigung(Aktion: Code[20]) ok: Boolean
+    procedure Permission(Action: Code[20]) ok: Boolean
     var
-        recAccessControl: Record "2000000053";
-        recUser: Record "2000000120";
-        MfgSetup: Record "Manufacturing Setup";
+        AccessControl: Record "Access Control";
+        User: Record User;
         UserSecurityID: Guid;
     begin
-        //Im Code verwendete Aktionen
-        //'$HALTBARKEITSINFO' Eingaberecht ins Feld Ablaufdatumsformel der Artikelkarte
-        //'$CHARGENVERGABE' Vollrechte in der Maske Chargenvergabe
-        //'$ARTIKELBEARBEITEN' Bearbeiten Button in der Artikelkarte
-        //'$EINSTANDSPREISE' (wenn nicht vorhanden, werden die Einstandspreise+DB ausgeblendet
-        //'$KALKULATION' Aufruf des Reports Produktkalkulation
-        //'$MANDANTENCHECK' Im Lannacher-System: Sperre der Mandanten über diesen Weg
-        //'$ADMIN' Administratorberechtigung
+        User.SetCurrentKey("User Name");
+        User.SetRange("User Name", UserID);
+        User.FindFirst();
+        UserSecurityID := User."User Security ID";
 
-        ok := false;
+        AccessControl.SetRange("User Security ID", UserSecurityID);
+        AccessControl.SetRange("Role ID", Action);
+        ok := AccessControl.FindFirst();
 
-        recUser.SETCURRENTKEY("User Name");
-        recUser.SETRANGE("User Name", USERID);
-        recUser.FINDFIRST;
-        UserSecurityID := recUser."User Security ID";
-
-        recAccessControl.SETRANGE("User Security ID", UserSecurityID);
-        recAccessControl.SETRANGE("Role ID", Aktion);
-        if recAccessControl.FINDFIRST then
-            ok := true;
-
-        if Aktion = '$MANDANTENCHECK' then begin
-            ok := Berechtigung('$' + UPPERCASE(COMPANYNAME)); //rekursiver Funktionsaufruf
+        if Action = '$MANDANTENCHECK' then begin
+            ok := Permission('$' + UpperCase(CompanyName));
             exit(ok);
         end;
 
-        if not ok then begin  //bei Rolle Super alle Berechtigung für
-            recAccessControl.SETRANGE("Role ID", 'SUPER');
-            if recAccessControl.FINDFIRST then
-                exit(true);
+        if not ok then begin
+            AccessControl.SetRange("Role ID", 'SUPER');
+            exit(not AccessControl.IsEmpty);
         end;
     end;
 
-    procedure Division("zähler": Decimal; nenner: Decimal) ergebnis: Decimal
+    procedure Division(Numerator: Decimal; Denominator: Decimal): Decimal
     begin
-        ergebnis := 0;
-        if nenner <> 0 then
-            ergebnis := zähler / nenner;
+        if Denominator <> 0 then
+            exit(Numerator / Denominator);
     end;
 
     procedure "DatumÜbersetzen"(dtDate: Date; sLanguage: Text[3]) sResult: Text[30]
@@ -558,11 +464,11 @@ codeunit 50001 BASNaviPharmaPHA
 
         case sLanguage of
             '':
-                sResult := FORMAT(dtDate, 0, 4);
+                sResult := Format(dtDate, 0, 4);
             'DE':
-                sResult := FORMAT(dtDate, 0, 4);
+                sResult := Format(dtDate, 0, 4);
             'EN':
-                sResult := FORMAT(dtDate, 0, 4);
+                sResult := Format(dtDate, 0, 4);
             'FR':
                 sResult := STRSUBSTNO('%1. %2 %3', iVal[1], month_french[iVal[2]], iVal[3]);
         end;
@@ -575,38 +481,40 @@ codeunit 50001 BASNaviPharmaPHA
         iResult: Integer;
         sResult: Text[50];
     begin
-
-        if not EVALUATE(iResult, source) then Error('Der übergebene Wert kann nicht in eine Zahl umgewandelt werden!');
-        if increase < 1 then Error('Der Erhöhungswert muss größer oder gleich 1 sein!');
+        if not Evaluate(iResult, source) then
+            Error('Der übergebene Wert kann nicht in eine Zahl umgewandelt werden!');
+        if increase < 1 then
+            Error('Der Erhöhungswert muss größer oder gleich 1 sein!');
         if fillupcount > 9 then
             MESSAGE('Die Auffüllung ist maximal auf 10 Zeichen möglich! Darüber hinaus wird die Auffüllung ignoriert!');
 
-        sResult := FORMAT(iResult + increase);
+        sResult := Format(iResult + increase);
 
-        if StrLen(sResult) > 10 then Error('Das Ergebnis würde eine Stringlänge von mehr als 10 Zeichen ergeben!');
+        if StrLen(sResult) > 10 then
+            Error('Das Ergebnis würde eine Stringlänge von mehr als 10 Zeichen ergeben!');
 
         if fillupcount > 0 then
             while (StrLen(sResult) < 10) and (StrLen(sResult) < fillupcount) do
-                sResult := '0' + sResult;
+                Evaluate(sResult, '0' + sResult);
 
-        result := sResult;
+        evaluate(result, sResult);
     end;
 
     procedure "PrüfeUnterstufeFrei"(sItemNr: Text[20]; sLotNr: Text[20]; bBulkOnly: Boolean; bLoop: Boolean; bWarnings: Boolean) bResult: Boolean
     var
-        recItemLedgerEntry: Record "32";
         recItem: Record Item;
-        recLotNoInformation: Record "Lot No. Information";
+        recItemLedgerEntry: Record "Item Ledger Entry";
+        recLotNoInFormation: Record "Lot No. InFormation";
         bBulk: Boolean;
         bCheck: Boolean;
         sProdOrderNr: Text[20];
     begin
-        recItemLedgerEntry.SETCURRENTKEY("Item No.", "Lot No.", "Posting Date");
-        recItemLedgerEntry.SETFILTER("Lot No.", sLotNr);
-        recItemLedgerEntry.SETFILTER("Item No.", sItemNr);
-        recItemLedgerEntry.SETRANGE("Entry Type", recItemLedgerEntry."Entry Type"::Output);
-        if not recItemLedgerEntry.FIND('-') then begin
-            recItem.GET(sItemNr);
+        recItemLedgerEntry.SetCurrentKey("Item No.", "Lot No.", "Posting Date");
+        recItemLedgerEntry.SetFilter("Lot No.", sLotNr);
+        recItemLedgerEntry.SetFilter("Item No.", sItemNr);
+        recItemLedgerEntry.SetRange("Entry Type", recItemLedgerEntry."Entry Type"::Output);
+        if not recItemLedgerEntry.FindSet() then begin
+            recItem.Get(sItemNr);
             if (recItem."Replenishment System" = recItem."Replenishment System"::"Prod. Order") and
                 bWarnings then
                 MESSAGE('Die Prüfung des Status der Unterstufen wurde abgebrochen, da für Charge ''%1'' des ' +
@@ -625,19 +533,19 @@ sLotNr, sItemNr);
         'mehrere Istmeldungen mit unterschiedlichen Fertigungsauftragsnummern verbucht sind. Bitte melden Sie diesen ' +
         'Fehler dringend der obersten Qualitätssicherung! ', recItemLedgerEntry."Lot No.", recItemLedgerEntry."Item No.");
                 end;
-            until recItemLedgerEntry.NEXT = 0;
+            until recItemLedgerEntry.NEXT() = 0;
 
-        recItemLedgerEntry.RESET;
+        recItemLedgerEntry.RESET();
         //+GL005
-        //recArtikelposten.SETCURRENTKEY("Prod. Order No.","Prod. Order Line No.","Prod. Order Comp. Line No.","Entry Type");
-        recItemLedgerEntry.SETCURRENTKEY("Order Type", "Order No.", "Order Line No.", "Entry Type", "Prod. Order Comp. Line No.");
+        //recArtikelposten.SetCurrentKey("Prod. Order No.","Prod. Order Line No.","Prod. Order Comp. Line No.","Entry Type");
+        recItemLedgerEntry.SetCurrentKey("Order Type", "Order No.", "Order Line No.", "Entry Type", "Prod. Order Comp. Line No.");
         //-GL005
-        recItemLedgerEntry.SETRANGE("Order Type", recItemLedgerEntry."Order Type"::Production);
-        recItemLedgerEntry.SETFILTER("Order No.", sProdOrderNr);
-        recItemLedgerEntry.SETRANGE("Entry Type", recItemLedgerEntry."Entry Type"::Consumption);
-        recItemLedgerEntry.SETFILTER("Source No.", sItemNr);
-        recItemLedgerEntry.SETFILTER("Item No.", '<>TA*');      //GL022
-        if not recItemLedgerEntry.FIND('-') then begin
+        recItemLedgerEntry.SetRange("Order Type", recItemLedgerEntry."Order Type"::Production);
+        recItemLedgerEntry.SetFilter("Order No.", sProdOrderNr);
+        recItemLedgerEntry.SetRange("Entry Type", recItemLedgerEntry."Entry Type"::Consumption);
+        recItemLedgerEntry.SetFilter("Source No.", sItemNr);
+        recItemLedgerEntry.SetFilter("Item No.", '<>TA*');      //GL022
+        if not recItemLedgerEntry.FindSet() then begin
             if bWarnings then
                 MESSAGE('Die Prüfung des Status der Unterstufen wurde abgebrochen, da für Charge ''%1'' des ' +
 'Artikels ''%2'' keine Herstellposten vorhanden sind! Das System lässt die Freigabe daher ohne Unterstufenprüfung zu.',
@@ -651,8 +559,8 @@ recItemLedgerEntry."Lot No.", recItemLedgerEntry."Item No.");
         //-GL007
         //+GL008
         repeat
-            recItem.GET(recItemLedgerEntry."Item No.");
-            bBulk := recItem.Artikelart = recItem.Artikelart::Halbfabrikat;
+            recItem.Get(recItemLedgerEntry."Item No.");
+            bBulk := recItem.BASItemTypePHA = recItem.BASItemTypePHA::"Semifinished Product";
 
             if ((not bBulkOnly) or (bBulk and bBulkOnly)) and (recItem."Item Tracking Code" <> '') then   //GL007 Tracking Code ergänzt
             begin
@@ -660,16 +568,16 @@ recItemLedgerEntry."Lot No.", recItemLedgerEntry."Item No.");
                 if recItem."Als Unterstufe nicht prüfen" then
                     bResult := true
                 else begin
-                    recLotNoInformation.SETFILTER("Item No.", recItemLedgerEntry."Item No.");
-                    recLotNoInformation.SETFILTER("Lot No.", recItemLedgerEntry."Lot No.");
-                    recLotNoInformation.FIND('-');
-                    bResult := recLotNoInformation.Status = recLotNoInformation.Status::Frei;
+                    recLotNoInFormation.SetFilter("Item No.", recItemLedgerEntry."Item No.");
+                    recLotNoInFormation.SetFilter("Lot No.", recItemLedgerEntry."Lot No.");
+                    recLotNoInFormation.FindSet();
+                    bResult := recLotNoInFormation.Status = recLotNoInFormation.Status::Frei;
                     if not bResult and bWarnings then
                         MESSAGE('Charge %1 von Artikel %2 ist nicht freigegeben!',
 recItemLedgerEntry."Lot No.", recItemLedgerEntry."Item No.");
                     //-GL026
-                    if recLotNoInformation."HF Kommentar" <> '' then
-                        if not CONFIRM('Kommentar bei %1:\\%2\\Freigabe fortsetzen?', false, recItemLedgerEntry."Item No.", recLotNoInformation."HF Kommentar") then
+                    if recLotNoInFormation."HF Kommentar" <> '' then
+                        if not CONFIRM('Kommentar bei %1:\\%2\\Freigabe fortsetzen?', false, recItemLedgerEntry."Item No.", recLotNoInFormation."HF Kommentar") then
                             Error('Freigabe aufgrund von HF Kommentar abgebrochen');
                     //+GL026
 
@@ -686,7 +594,7 @@ recItemLedgerEntry."Lot No.", recItemLedgerEntry."Item No.");
                 //+GL010
 
             end;
-        until (recItemLedgerEntry.NEXT = 0) or (not bResult);
+        until (recItemLedgerEntry.NEXT() = 0) or (not bResult);
         //-GL008
 
         if bBulkOnly and not bCheck then begin
@@ -719,302 +627,174 @@ recItemLedgerEntry."Lot No.", recItemLedgerEntry."Item No.");
         Result := '';
         for i := 1 to StrLen(sWord) do begin
             c := sWord[i];
-            t := STRPOS(s_CHARARRAY, FORMAT(sWord[i]));
+            t := STRPOS(s_CHARARRAY, Format(sWord[i]));
             if t > 0 then begin
                 x := RANDOM(i_ARRAYLENGTH);
-                //MESSAGE(FORMAT(x));
+                //MESSAGE(Format(x));
                 t := t + (z * x);
                 if (t < 1) or (t > i_ARRAYLENGTH) then t := t - (z * i_ARRAYLENGTH);
                 c := s_CHARARRAY[t];
             end;
-            Result := Result + FORMAT(c);
+            Result := Result + Format(c);
         end;
     end;
 
-    procedure LagerstandFreiLannacher_EXP(artikelnummer: Code[20]) mengefrei: Decimal
+    procedure LagerstandFreiLannacher_EXP(ItemNo: Code[20]): Decimal
     var
-        recCompanyInfo: Record "79";
-        artikel: Record Item;
-        chargenstamm: Record "Lot No. Information";
+        CompanyInfo: Record "Company Information";
+        Item: Record Item;
+        LotNoInformation: Record "Lot No. InFormation";
+        AvailableQuantity: Decimal;
     begin
+        CompanyInfo.Get();
+        Item.ChangeCompany('LANNACHER');
+        LotNoInformation.ChangeCompany('LANNACHER');
 
-        //+014
-        //Lagerstand fix vom Lannacher Mandanten holen
-
-        //Negativlogik verwenden, da performance besser, weil meiste Chargen ja frei sind
-        recCompanyInfo.GET;
-        artikel.CHANGECOMPANY('LANNACHER');
-        chargenstamm.CHANGECOMPANY('LANNACHER');
-
-        if artikel.GET(artikelnummer) then begin
-            artikel.CALCFIELDS(Inventory);
-            mengefrei := artikel.Inventory;
+        if Item.Get(ItemNo) then begin
+            Item.CALCFIELDS(Inventory);
+            AvailableQuantity := Item.Inventory;
         end;
-        chargenstamm.SETCURRENTKEY("Item No.", "Variant Code", "Lot No.");
-        chargenstamm.SETFILTER("Item No.", artikelnummer);
-        chargenstamm.SETFILTER(Inventory, '>0');
-        chargenstamm.SETFILTER(Status, '<>Frei');  //chargenstamm.SETRANGE(Status,chargenstamm.Status::Frei);
-        if chargenstamm.FIND('-') then
+        LotNoInformation.SetCurrentKey("Item No.", "Variant Code", "Lot No.");
+        LotNoInformation.SetFilter("Item No.", ItemNo);
+        LotNoInformation.SetFilter(Inventory, '>0');
+        LotNoInformation.SetFilter(BASStatusPHA, '<>%1', LotNoInformation.BASStatusPHA::Free);
+        if LotNoInformation.FindSet() then
             repeat
-                chargenstamm.CALCFIELDS(Inventory);
-                mengefrei := mengefrei - chargenstamm.Inventory;
-            until chargenstamm.NEXT = 0;
-        //-014
+                LotNoInformation.CalcFields(Inventory);
+                AvailableQuantity -= LotNoInformation.Inventory;
+            until LotNoInformation.NEXT() = 0;
+
+        exit(AvailableQuantity);
     end;
 
-    procedure FremdChargennrRequired(cItemNo: Code[20]): Boolean
+    procedure FremdChargennrRequired(ItemNo: Code[20]): Boolean
     var
-        recItem: Record Item;
-        recManufacturingSetup: Record "Manufacturing Setup";
-        lRequired: Boolean;
+        Item: Record Item;
+        ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        //1.7.09, Petsch
-        lRequired := false;
-        recItem.SETRANGE("No.", cItemNo);
-        if recItem.FIND('-') then begin
-            recManufacturingSetup.GET;
-            if recItem."Gen. Prod. Posting Group" = recManufacturingSetup.FremdChNrProdBuchGruppe then
-                lRequired := true;
-            if recItem."Item Tracking Code" = 'CHARGEWIEN' then
-                lRequired := true;
-        end;
-        exit(lRequired);
+        Item.Get(ItemNo);
+        ManufacturingSetup.Get();
+
+        exit((
+            Item."Gen. Prod. Posting Group" = ManufacturingSetup.BASFremdChNrProdBuchGruppePHA) and
+                (Item."Item Tracking Code" = 'CHARGEWIEN'));
     end;
 
-    procedure StandortWeiche(Datenfeld: Text[30]; Wert: Text[40]): Text[30]
+    procedure StandortWeiche(Fld: Text[30]; Value: Text[40]): Text[30]
     var
-        recLocation: Record "14";
-        recUserSetup: Record "91";
-        recProductionOrder: Record "5405";
-        recItem: Record Item;
-        iNum: Integer;
+        Item: Record Item;
+        UserSetup: Record "User Setup";
     begin
-        //+GL002
-        case Datenfeld of
+        case Fld of
             'ITEM_SITE_MANUFACTURING':
-                if recItem.GET(Wert) and (recItem."Site Manufacturing" <> '') then
-                    exit(recItem."Site Manufacturing");  //LANNACH/WIEN/EXTERN
+                if Item.Get(Value) and (Item.BASSiteManufacturingPHA <> '') then
+                    exit(Item.BASSiteManufacturingPHA);  //LANNACH/WIEN/EXTERN
             'ITEM_SITE_BATCH_RELEASE':
-                if recItem.GET(Wert) and (recItem."Site Batch Release" <> '') then
-                    exit(recItem."Site Batch Release");  //LANNACH/WIEN
+                if Item.Get(Value) and (Item.BASSiteBatchReleasePHA <> '') then
+                    exit(Item.BASSiteBatchReleasePHA);  //LANNACH/WIEN
             'ITEM_SITE_ASSIGNMENT':
-                if recItem.GET(Wert) and (recItem."Site Assignment" <> '') then
-                    exit(recItem."Site Assignment");  //LANNACH/WIEN
+                if Item.Get(Value) and (Item.BASSiteAssignmentPHA <> '') then
+                    exit(Item.BASSiteAssignmentPHA);  //LANNACH/WIEN
             'ITEM_SITE_SAMPLES':
-                if recItem.GET(Wert) and (recItem."Site Samples" <> '') then
-                    exit(recItem."Site Samples");  //LANNACH/WIEN
+                if Item.Get(Value) and (Item.BASSiteSamplesPHA <> '') then
+                    exit(Item.BASSiteSamplesPHA);  //LANNACH/WIEN
             'ITEM_SITE_ANALYSES':
-                if recItem.GET(Wert) and (recItem."Site Analyses" <> '') then
-                    exit(recItem."Site Analyses");  //LANNACH/WIEN
+                if Item.Get(Value) and (Item.BASSiteAnalysesPHA <> '') then
+                    exit(Item.BASSiteAnalysesPHA);  //LANNACH/WIEN
             'ITEM_SITE_STABILITIES':
-                if recItem.GET(Wert) and (recItem."Site Stabilities" <> '') then
-                    exit(recItem."Site Stabilities");  //LANNACH/WIEN/EXTERN
-        end;
-
-        case Datenfeld of
+                if Item.Get(Value) and (Item.BASSiteStabilitiesPHA <> '') then
+                    exit(Item.BASSiteStabilitiesPHA);  //LANNACH/WIEN/EXTERN
             'USER_SITE_MANUFACTURING':
-                if recUserSetup.GET(Wert) and (recUserSetup."Site Manufacturing" <> '') then
-                    exit(recUserSetup."Site Manufacturing");  //LANNACH/WIEN
+                if UserSetup.Get(Value) and (UserSetup."BASSite ManufacturingPHA" <> '') then
+                    exit(UserSetup."BASSite ManufacturingPHA");  //LANNACH/WIEN
             'USER_SALES_RESPONSIBILITY':
-                if recUserSetup.GET(Wert) and (recUserSetup."Sales Resp. Ctr. Filter" <> '') then
-                    exit(recUserSetup."Sales Resp. Ctr. Filter");  //EXPORT/INLAND/LOHN/MUSTER
+                if UserSetup.Get(Value) and (UserSetup."Sales Resp. Ctr. Filter" <> '') then
+                    exit(UserSetup."Sales Resp. Ctr. Filter");  //EXPORT/INLAND/LOHN/MUSTER
             'USER_PURCHASE_RESPONSIBILITY':
-                if recUserSetup.GET(Wert) and (recUserSetup."Purchase Resp. Ctr. Filter" <> '') then
-                    exit(recUserSetup."Purchase Resp. Ctr. Filter");  //EK-LANNACH/EK-WIEN
+                if UserSetup.Get(Value) and (UserSetup."Purchase Resp. Ctr. Filter" <> '') then
+                    exit(UserSetup."Purchase Resp. Ctr. Filter");  //EK-LANNACH/EK-WIEN
             'USER_SERVICE_RESPONSIBILITY':
-                if recUserSetup.GET(Wert) and (recUserSetup."Service Resp. Ctr. Filter" <> '') then
-                    exit(recUserSetup."Service Resp. Ctr. Filter");  //
-        end;
-        //-GL002
-        //+GL003
-        /*
-        CASE Datenfeld OF
-            'LOCATION_SITE_MANUFACTURING':
-                IF recLocation.GET(Wert) AND (recLocation."Site Manufacturing" <> '') THEN
-                    exit(recLocation."Site Manufacturing");  //LANNACH/WIEN
-            'LOCATION_MANUFACTURING_AREA':
-                IF recLocation.GET(Wert) AND (recLocation."Manufacturing Area" <> '') THEN
-                    exit(recLocation."Manufacturing Area");  //KONF/...
-            'LOCATION_CITY':
-                IF recLocation.GET(Wert) AND (recLocation.City <> '') THEN
-                    exit(recLocation.City);  //Wien/Lannach/...
-        END;
-       
-        //-GL003
-        //+GL004
-        CASE Datenfeld OF
-            'PROD_ORDER_SITE_MANUFACTURING':
-                BEGIN
-                    recProductionOrder.SETFILTER("No.", Wert);
-                    IF recProductionOrder.FINDLAST AND (recProductionOrder."Site Manufacturing" <> '') THEN
-                        exit(recProductionOrder."Site Manufacturing");  //LANNACH/WIEN
-                END;
-            'PROD_ORDER_MANUFACTURING_AREA':
-                BEGIN
-                    recProductionOrder.SETFILTER("No.", Wert);
-                    IF recProductionOrder.FINDLAST AND (recProductionOrder."Manufacturing Area" <> '') THEN
-                        exit(recProductionOrder."Manufacturing Area");  //KONF/...
-                END;
-        END;
-        //-GL004
-        */
-        if Datenfeld = 'USER' then begin
-            recUserSetup.SETFILTER("User ID", UPPERCASE(Wert));
-            if recUserSetup.FINDFIRST then
-                exit(recUserSetup."Site Manufacturing");
+                if UserSetup.Get(Value) and (UserSetup."Service Resp. Ctr. Filter" <> '') then
+                    exit(UserSetup."Service Resp. Ctr. Filter");  //
         end;
 
-        if Datenfeld = 'ITEM' then
-            if recItem.GET(Wert) then begin
-                if recItem."Item Tracking Code" = 'CHARGEALLE' then
+        if Fld = 'USER' then begin
+            UserSetup.SetFilter("User ID", UpperCase(Value));
+            if UserSetup.FindFirst() then
+                exit(UserSetup."BASSite ManufacturingPHA");
+        end;
+
+        if Fld = 'ITEM' then
+            if Item.Get(Value) then begin
+                if Item."Item Tracking Code" = 'CHARGEALLE' then
                     exit('LANNACH');
-                if recItem."Item Tracking Code" = 'CHARGEWIEN' then  //UPDATE2013
+                if Item."Item Tracking Code" = 'CHARGEWIEN' then  //UPDATE2013
                     exit('WIEN');
             end;
 
         //-GL006
-        if Datenfeld = 'SCHULUNG_USER' then begin
-            recUserSetup.SETFILTER("User ID", UPPERCASE(Wert));
-            if recUserSetup.FINDFIRST then
-                exit(recUserSetup.Schulung_Zuordnung)
+        if Fld = 'SCHULUNG_USER' then begin
+            UserSetup.SetFilter("User ID", UpperCase(Value));
+            if UserSetup.FindFirst() then
+                exit(UserSetup.BASSchulung_ZuordnungPHA)
             else
                 exit('');  //Wenn kein Benutzer gefunden wurde -> keine Einschränkung
         end;
-        //+GL006
-
 
         exit('LANNACH'); //Fallback
     end;
 
-
-
-    procedure LagerStandFreiVorOrt(artikelnummer: Code[20]) mengefrei: Decimal
+    procedure AvailableSiteInventory(ItemNo: Code[20]): Decimal
     var
-        recItemLedgerEntry: Record "32";
-        artikel: Record Item;
-        chargenstamm: Record "Lot No. Information";
-        recManufacturingSetup: Record "Manufacturing Setup";
-        nFrei: Decimal;
-        nGesamt: Decimal;
+        Item: Record Item;
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        LotNoInformation: Record "Lot No. InFormation";
+        ManufacturingSetup: Record "Manufacturing Setup";
+        AvailableQuantity: Decimal;
     begin
+        Item.Get(ItemNo);
+        ManufacturingSetup.Get(Item.BASSiteManufacturingPHA);
 
-        mengefrei := 0;
+        LotNoInformation.SetCurrentKey(BASStatusPHA, "Item No.", "Lot No.");
 
-        if artikel.GET(artikelnummer) then;
-        if recManufacturingSetup.GET(artikel."Site Manufacturing") then;
-
-        CLEAR(recItemLedgerEntry);
-        recItemLedgerEntry.SETCURRENTKEY("Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date");
-        recItemLedgerEntry.SETFILTER("Item No.", artikelnummer);
-        recItemLedgerEntry.SETFILTER("Location Code", recManufacturingSetup."Lagerbestand vor Ort Filter");
-        recItemLedgerEntry.SETRANGE(Open, true);
-        if recItemLedgerEntry.FIND('-') then
+        ItemLedgerEntry.Reset();
+        ItemLedgerEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date");
+        ItemLedgerEntry.SetFilter("Item No.", ItemNo);
+        ItemLedgerEntry.SetFilter("Location Code", ManufacturingSetup.BASInventorySiteFilterPHA);
+        ItemLedgerEntry.SetRange(Open, true);
+        if ItemLedgerEntry.FindSet() then
             repeat
+                LotNoInformation.SetRange(BASStatusPHA, LotNoInformation.BASStatusPHA::Free);
+                LotNoInformation.SetFilter("Item No.", ItemNo);
+                LotNoInformation.SetFilter("Lot No.", ItemLedgerEntry."Lot No.");
+                if not LotNoInformation.IsEmpty then
+                    AvailableQuantity += ItemLedgerEntry."Remaining Quantity";
+            until ItemLedgerEntry.NEXT() = 0;
 
-                //Prüfen ob die Charge frei ist
-                chargenstamm.SETCURRENTKEY(Status, "Item No.", "Lot No.");
-                chargenstamm.SETFILTER(Status, 'Frei');
-                chargenstamm.SETFILTER("Item No.", artikelnummer);
-                chargenstamm.SETFILTER("Lot No.", recItemLedgerEntry."Lot No.");
-                if chargenstamm.FINDSET then begin
-                    //Menge nur dazugeben wenn die Charge auch frei ist
-                    mengefrei += recItemLedgerEntry."Remaining Quantity";
-                end;
-
-            until recItemLedgerEntry.NEXT = 0;
-    end;
-    /* TODPBA
-    procedure IsTestEnvironment() bResult: Boolean
-    var
-        nPos: Integer;
-        cServername: Text[100];
-        cDatabasename: Text[100];
-        recDatabase: Record "2000000048";
-        ActiveSession: Record "2000000110";
-    begin
-        bResult := FALSE;
-    
-
-      
-
-        ActiveSession.SETRANGE("Server Instance ID", SERVICEINSTANCEID);
-        ActiveSession.SETRANGE("Session ID", SESSIONID);
-        ActiveSession.FINDFIRST;
-        cDatabasename := ActiveSession."Database Name";
-
-
-        //recServer.SETRANGE("My Server",TRUE);     //also not supported in 2013R2 !!!!!!!!!!!!!!
-        //recServer.FINDFIRST;
-        //cServername := recServer."Server Name";
-
-        //-GL012 Änderung schnell ohne Serverabfrage damit Echt funktioniert
-        // IF (UPPERCASE(cServername) <> 'NAVISIONSQL') OR (UPPERCASE(cDatabasename) <> 'GL-PHARMA') THEN
-        IF (UPPERCASE(cDatabasename) <> 'GL-PHARMA') THEN
-            //-GL012
-            exit(true);
-
-       
-
-    end;
-    
-    procedure GetDatabaseName() tDBName: Text[50]
-    var
-        recDatabase: Record "2000000048";
-    begin
-        //-UPDATE2013
-        tDBName := '';
-
-        //Datenbankname für SQL Zugriff ermitteln
-        recDatabase.SETRANGE("My Database", TRUE);
-        recDatabase.FINDFIRST;
-        tDBName := recDatabase."Database Name";
-
-        //tDBName := 'gl-pharma-vortagessicherung2013R2';  //Datenbankname für Tests in Vortagessicherung
-        //+UPDATE2013
+        exit(AvailableQuantity);
     end;
 
-    procedure GetUserName() sReturn: Text[30]
+    procedure GetClientartWeb(): Boolean
     var
-        recUser: Record "2000000120";
+        ActiveSession: Record "Active Session";
     begin
-        //-UPDATE2013
-        sReturn := USERID; //Defaultname
-        recUser.SETRANGE("User Name", USERID);
-        IF recUser.FINDFIRST THEN
-            sReturn := recUser."Full Name";  //Vollständiger Name (definierbarer Name aus User Einrichtung)
-        //+UPDATE2013
-    end;
-    */
-    procedure GetClientartWeb() bWebClient: Boolean
-    var
-        recActiveSession: Record "2000000110";
-    begin
-        //-UPDATE2013
-        bWebClient := false;
-        CLEAR(recActiveSession);
-        recActiveSession.SETRANGE("User ID", USERID);
-        recActiveSession.SETRANGE("Session ID", SESSIONID);
-        if recActiveSession.FINDFIRST then begin
-            if recActiveSession."Client Type" = recActiveSession."Client Type"::"Web Client" then
-                bWebClient := true;
-        end;
-        //-UPDATE2013
+        ActiveSession.Reset();
+        ActiveSession.SetRange("User ID", UserID);
+        ActiveSession.SetRange("Session ID", SessionId());
+        if ActiveSession.FindFirst() then
+            exit(ActiveSession."Client Type" = ActiveSession."Client Type"::"Web Client");
     end;
 
-
-    procedure GetArtikelMarketingLinie(cItemNo: Code[20]) cReturn: Code[20]
+    procedure GetItemMarketingLinie(ItemNo: Code[20]): Code[20]
     var
-        recStatCode: Record BASStatisticcode2PHA;
-        recItem: Record Item;
+        StatisticCode: Record BASStatisticcodePHA;
+        Item: Record Item;
     begin
-        //-GL017
-        //Rückgabewert muss HKL,ZNS,SOU,... sein -> Text in Tabelle umbenennen?
-        cReturn := '';
-        if recItem.GET(cItemNo) then
-            if StrLen(recItem."BASStatisticCode2PHA IIIPHA") > 0 then
-                if recStatCode.GET(recItem."Statistikcode III", 3) then
-                    if StrLen(recStatCode.Marketinglinie) > 0 then
-                        cReturn := recStatCode.Marketinglinie;
+        if Item.Get(ItemNo) then
+            if StrLen(Item.BASStatisticCodeIIIPHA) > 0 then
+                if StatisticCode.Get(Item.BASStatisticCodeIIIPHA, 3) then
+                    if StrLen(StatisticCode.Marketinglinie) > 0 then
+                        exit(StatisticCode.Marketinglinie);
         //+GL017
     end;
 
@@ -1023,23 +803,23 @@ recItemLedgerEntry."Lot No.", recItemLedgerEntry."Item No.");
         recSSH: Record "110";
     begin
         if CustomerNo <> '' then begin
-            recSSH.SETRANGE("Sell-to Customer No.", CustomerNo);
-            if recSSH.FINDLAST then
+            recSSH.SetRange("Sell-to Customer No.", CustomerNo);
+            if recSSH.FINDLAST() then
                 dtLastShipment := recSSH."Shipment Date";
         end;
     end;
 
-    procedure GetArtikelAufLagerplatz(cLagerort: Code[10]; cLagerplatz: Code[100]; var recTmpILE: Record "32")
+    procedure GetArtikelAufLagerplatz(cLagerort: Code[10]; cLagerplatz: Code[100]; var recTmpILE: Record "Item Ledger Entry")
     var
         recLocation: Record "14";
-        recILE: Record "32";
         recBin: Record "7302";
+        recILE: Record "Item Ledger Entry";
         nCount: Integer;
     begin
         //Artikel auf Lagerort/Lagerplatz finden und in Tmp-Tabelle schreiben
 
         if cLagerort = '' then Error('Ein Lagerort muss angegeben sein!');
-        if recLocation.GET(cLagerort) then
+        if recLocation.Get(cLagerort) then
             if recLocation."Bin Mandatory" = true then
                 if cLagerplatz = '' then Error('Ein Lagerplatz muss bei Lagerorten mit Lagerplatzpflicht angegeben sein!');
 
@@ -1049,12 +829,12 @@ recItemLedgerEntry."Lot No.", recItemLedgerEntry."Item No.");
         if cLagerplatz > '' then begin
 
             //Lagerplatz finden
-            recBin.SETRANGE("Location Code", cLagerort);
-            //recBin.SETRANGE("Item No.", recILE."Item No.");
-            //recBin.SETRANGE("Lot No.", recILE."Lot No.");
-            recBin.SETFILTER(Quantity, '>0');
-            recBin.SETFILTER("Bin Code", cLagerplatz);
-            if recBin.FINDFIRST then
+            recBin.SetRange("Location Code", cLagerort);
+            //recBin.SetRange("Item No.", recILE."Item No.");
+            //recBin.SetRange("Lot No.", recILE."Lot No.");
+            recBin.SetFilter(Quantity, '>0');
+            recBin.SetFilter("Bin Code", cLagerplatz);
+            if recBin.FindFirst() then
                 repeat
 
                     recBin.CALCFIELDS(Quantity, "Quantity (Base)");
@@ -1066,19 +846,19 @@ recItemLedgerEntry."Lot No.", recItemLedgerEntry."Item No.");
                         recTmpILE.Lagerplatzhilfsfeld := recBin."Bin Code";
                         recTmpILE."Entry No." := nCount;
                         nCount += 1;
-                        recTmpILE.INSERT;
+                        recTmpILE.INSERT();
                     end;
 
-                until (recBin.NEXT = 0);
+                until (recBin.NEXT() = 0);
 
         end else begin
 
             CLEAR(recILE);
-            recILE.SETCURRENTKEY("Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date");
-            recILE.SETRANGE("Location Code", cLagerort);
-            recILE.SETRANGE(Open, true);
-            recILE.SETFILTER("Remaining Quantity", '>0');
-            if recILE.FINDSET then
+            recILE.SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date");
+            recILE.SetRange("Location Code", cLagerort);
+            recILE.SetRange(Open, true);
+            recILE.SetFilter("Remaining Quantity", '>0');
+            if recILE.FindSet() then
                 repeat
 
                     //Nur Lagerort ohne Lagerplätze
@@ -1089,9 +869,9 @@ recItemLedgerEntry."Lot No.", recItemLedgerEntry."Item No.");
                     recTmpILE."Remaining Quantity" := recILE."Remaining Quantity";
                     recTmpILE."Entry No." := nCount;
                     nCount += 1;
-                    recTmpILE.INSERT;
+                    recTmpILE.INSERT();
 
-                until (recILE.NEXT = 0);
+                until (recILE.NEXT() = 0);
 
         end;
     end;
@@ -1099,31 +879,31 @@ recItemLedgerEntry."Lot No.", recItemLedgerEntry."Item No.");
     procedure CheckLagerstandAeltereChargeAufLagerort(cItemNo: Code[20]; cLotNo: Code[20]; cLocationCode: Code[20]) bVorhanden: Boolean
     var
         recBin: Record "7302";
-        recLot: Record "Lot No. Information";
-        recLotVergleich: Record "Lot No. Information";
+        recLot: Record "Lot No. InFormation";
+        recLotVergleich: Record "Lot No. InFormation";
     begin
         //-GL036
         bVorhanden := false;
-        if recLot.GET(cItemNo, '', cLotNo) then begin
+        if recLot.Get(cItemNo, '', cLotNo) then begin
             //Gibt es andere Chargen am Prüflagerort?
-            recLotVergleich.SETRANGE("Item No.", cItemNo);
-            recLotVergleich.SETFILTER("Location Filter", cLocationCode);
-            recLotVergleich.SETFILTER(Inventory, '>0');
-            if recLotVergleich.FINDFIRST then
+            recLotVergleich.SetRange("Item No.", cItemNo);
+            recLotVergleich.SetFilter("Location Filter", cLocationCode);
+            recLotVergleich.SetFilter(Inventory, '>0');
+            if recLotVergleich.FindFirst() then
                 repeat
                     if recLotVergleich.Status = recLotVergleich.Status::Frei then  //Nur freie Chargen
                         if recLot."Expiration Date" > recLotVergleich."Expiration Date" then begin
 
                             //Differenz Lagerplatz ausnehmen
-                            recBin.SETRANGE("Location Code", cLocationCode);
-                            recBin.SETRANGE("Item No.", cItemNo);
-                            //GLDE recBin.SETRANGE("Lot No.", recLotVergleich."Lot No.");
-                            recBin.SETFILTER(Quantity, '>0');
-                            recBin.SETFILTER("Bin Code", 'DIFFERENZ|BRUCH');
-                            if recBin.FINDFIRST = false then
+                            recBin.SetRange("Location Code", cLocationCode);
+                            recBin.SetRange("Item No.", cItemNo);
+                            //GLDE recBin.SetRange("Lot No.", recLotVergleich."Lot No.");
+                            recBin.SetFilter(Quantity, '>0');
+                            recBin.SetFilter("Bin Code", 'DIFFERENZ|BRUCH');
+                            if recBin.FindFirst() = false then
                                 bVorhanden := true;
                         end;
-                until (recLotVergleich.NEXT = 0) or (bVorhanden = true);
+                until (recLotVergleich.NEXT() = 0) or (bVorhanden = true);
         end;
         //+GL036
     end;
@@ -1136,12 +916,12 @@ recItemLedgerEntry."Lot No.", recItemLedgerEntry."Item No.");
 
         // >> 176.01
         cItemNoReturn := '';
-        if recItem_.GET(sItemNo) then begin
+        if recItem_.Get(sItemNo) then begin
 
             recItem_.CALCFIELDS("Substitutes Exist");
             if recItem_."Substitutes Exist" = true then begin
-                recItemSubstitution.SETRANGE("No.", recItem_."No.");
-                if recItemSubstitution.FINDFIRST then
+                recItemSubstitution.SetRange("No.", recItem_."No.");
+                if recItemSubstitution.FindFirst() then
                     cItemNoReturn := recItemSubstitution."Substitute No.";
             end;
 
@@ -1155,14 +935,14 @@ recItemLedgerEntry."Lot No.", recItemLedgerEntry."Item No.");
     begin
         // >> CCU507.03
         //Zusätzliche Kriterien einbauen? SKU mit Beschaffung <> Prod. Auftrag? Standort Herstellung leer?
-        if not recItem.GET(ItemNo) then
+        if not recItem.Get(ItemNo) then
             exit(false);
 
-        //Artikelart muss "Rohstoff", "Fertigware" oder "Halbfabrikat" sein
-        case recItem.Artikelart of
-            recItem.Artikelart::" ",
-          recItem.Artikelart::Verpackungsstoff,
-          recItem.Artikelart::Arbeitsschritt:
+        //BASItemTypePHA muss "Rohstoff", "Fertigware" oder "Halbfabrikat" sein
+        case recItem.BASItemTypePHA of
+            recItem.BASItemTypePHA::" ",
+          recItem.BASItemTypePHA::Verpackungsstoff,
+          recItem.BASItemTypePHA::Arbeitsschritt:
                 exit(false);
         end;
 
@@ -1192,9 +972,9 @@ recItemLedgerEntry."Lot No.", recItemLedgerEntry."Item No.");
         sReturn: Text[30];
     begin
 
-        sReturn := USERID; //Defaultname
-        recUser.SETRANGE("User Name", USERID);
-        if recUser.FINDFIRST then
+        sReturn := UserID; //Defaultname
+        recUser.SetRange("User Name", UserID);
+        if recUser.FindFirst() then
             sReturn := recUser."Full Name";  //Vollständiger Name (definierbarer Name aus User Einrichtung)
     end;
 }

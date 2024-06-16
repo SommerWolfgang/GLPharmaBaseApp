@@ -70,19 +70,19 @@ tableextension 50015 BASPurchaseLineExtPHA extends "Purchase Line"
         {
 
             Editable = false;
-            TableRelation = BASStatisticCode2PHA where(Level = const(1));
+            TableRelation = BASStatisticcodePHA where(Level = const(1));
         }
         field(50508; "BASStatisticCode2PHA IIPHA"; Code[10])
         {
 
             Editable = false;
-            TableRelation = BASStatisticCode2PHA where(Level = const(2));
+            TableRelation = BASStatisticcodePHA where(Level = const(2));
         }
         field(50509; "BASStatisticCode2PHA IIIPHA"; Code[10])
         {
 
             Editable = false;
-            TableRelation = BASStatisticCode2PHA where(Level = const(3));
+            TableRelation = BASStatisticcodePHA where(Level = const(3));
         }
         field(50510; "BASCountry/Region CodePHA"; Code[10])
         {
@@ -324,7 +324,7 @@ tableextension 50015 BASPurchaseLineExtPHA extends "Purchase Line"
     begin
         if Type = Type::Item then
             if recItem.Get("No.") then
-                cPackungsgroesse := recItem."Packungsgröße";
+                cPackungsgroesse := recItem.BASPackageSizePHA;
     end;
 
     procedure LotNoCheck()

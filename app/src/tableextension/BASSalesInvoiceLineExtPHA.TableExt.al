@@ -20,8 +20,8 @@ tableextension 50029 BASSalesInvoiceLineExtPHA extends "Sales Invoice Line"
         {
             Caption = 'Lot No.';
             Description = 'LAN1.00';
-            TableRelation = IF (Type = CONST(Item)) "Lot No. Information"."Lot No." WHERE("Item No." = FIELD("No."),
-                                                                                         "Variant Code" = FIELD("Variant Code"));
+            TableRelation = if (Type = const(Item)) "Lot No. Information"."Lot No." where("Item No." = field("No."),
+                                                                                         "Variant Code" = field("Variant Code"));
         }
         field(50014; "Zugehörigkeitsdatum"; Date)
         {
@@ -30,29 +30,28 @@ tableextension 50029 BASSalesInvoiceLineExtPHA extends "Sales Invoice Line"
         {
             Description = 'LAN1.00';
             Editable = false;
-            //GLDE nciht benötigt TableRelation = IF (Type=CONST(Item)) Table50502.Field2 WHERE (Field1=CONST(0));
+            //GLDE nciht benötigt TableRelation = IF (Type=const(Item)) Table50502.Field2 where (Field1=const(0));
         }
         field(50507; "BASStatistikcode IPHA"; Code[10])
         {
             Description = 'LAN1.00';
             Editable = false;
-            TableRelation = Statistikcode2 WHERE(Ebene = CONST(1));
+            TableRelation = BASStatisticcodePHA where(Level = const(1));
         }
         field(50508; "BASStatistikcode IIPHA"; Code[10])
         {
             Description = 'LAN1.00';
             Editable = false;
-            TableRelation = Statistikcode2 WHERE(Ebene = CONST(2));
+            TableRelation = BASStatisticcodePHA where(Level = const(2));
         }
         field(50509; "BASStatistikcode IIIPHA"; Code[10])
         {
             Description = 'LAN1.00';
             Editable = false;
-            TableRelation = Statistikcode2 WHERE(Ebene = CONST(3));
+            TableRelation = BASStatisticcodePHA where(Level = const(3));
         }
-        field(50510; "BASZuordnung zu Artikelnr.PHA"; Code[20])
+        field(50510; BASAssignToItemNoPHA; Code[20])
         {
-            Description = 'LAN1.00';
             TableRelation = Item;
         }
         field(50511; "BASWertkorrektur zu ArtikelpostenPHA"; Integer)
@@ -73,7 +72,7 @@ tableextension 50029 BASSalesInvoiceLineExtPHA extends "Sales Invoice Line"
         field(50515; BASVerkaufsstatistikcodePHA; Code[10])
         {
             Description = 'LAN1.00';
-            //GLDE nicht benötigt TableRelation = IF (Type=CONST(Item)) Table50502.Field2 WHERE (Field1=CONST(3));
+            //GLDE nicht benötigt TableRelation = IF (Type=const(Item)) Table50502.Field2 where (Field1=const(3));
         }
         field(50516; "BASExpiration DatePHA"; Date)
         {
@@ -100,23 +99,22 @@ tableextension 50029 BASSalesInvoiceLineExtPHA extends "Sales Invoice Line"
     }
     keys
     {
-        key(Key8; "Zuordnung zu Artikelnr.")
+        key(Key8; BASAssignToItemNoPHA)
         {
         }
     }
-    procedure Packungsgroesse() cPackungsgroesse: Code[10]
+    procedure GetPackageSize(): Code[10]
     var
-        recItem: Record "27";
+        Item: Record Item;
     begin
-        //-GL035
-        cPackungsgroesse := '';
-        IF Type = Type::Item THEN
-            IF recItem.GET("No.") THEN
-                cPackungsgroesse := recItem."Packungsgröße";
-
-        IF ((Type = Type::"G/L Account") OR (Type = Type::"Charge (Item)")) THEN
-            IF recItem.GET("Zuordnung zu Artikelnr.") THEN
-                cPackungsgroesse := recItem."Packungsgröße";
-        //+GL035
+        case Type of
+            Type::Item:
+                if Item.Get("No.") then
+                    exit(Item.BASPackageSizePHA);
+            Type::"G/L Account",
+            Type::"Charge (Item)":
+                if Item.Get(BASAssignToItemNoPHA) then
+                    exit(Item.BASPackageSizePHA);
+        end;
     end;
 }

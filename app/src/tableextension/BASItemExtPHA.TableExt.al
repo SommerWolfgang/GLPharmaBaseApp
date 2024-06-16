@@ -276,58 +276,51 @@ tableextension 50009 BASItemExtPHA extends Item
         {
             Description = 'Regdat';
         }
-        field(50500; "BASPharmazentralnr.PHA"; Code[20])
+        field(50500; BASPharmaCentralNoPHA; Code[20])
         {
-
         }
         field(50501; BASHaltbarkeitsinfoPHA; Code[4])
         {
             DateFormula = true;
 
         }
-        field(50502; "BASBeschreibung 1 lt. ArzneibuchPHA"; Text[150])
+        field(50502; BASDescription1ByEPPHA; Text[150])
         {
-
+            Caption = 'Description 1 by EP', comment = 'DEA="Beschreibung 1 lt. Arzneibuch"';
         }
-        field(50503; "BASBeschreibung 2 lt. ArzneibuchPHA"; Text[150])
+        field(50503; BASDescription2ByEPPHA; Text[150])
         {
-
+            Caption = 'Description 2 by EP', comment = 'DEA="Beschreibung 2 lt. Arzneibuch"';
         }
-        field(50504; BASSuchtgiftPHA; Boolean)
+        field(50504; BASDrugPHA; Boolean)
         {
-
-
+            Caption = 'Drug', comment = 'DEA="Suchgift"';
             trigger OnValidate()
             begin
-                "BASPsychotroper StoffPHA" := BASSuchtgiftbasePHA <> 0;
+                BASPsychotroperStoffPHA := BASDrugBasePHA <> 0;
             end;
         }
-        field(50505; "BASPsychotroper StoffPHA"; Boolean)
+        field(50505; BASPsychotroperStoffPHA; Boolean)
         {
-
-
             trigger OnValidate()
             begin
-                BASSuchtgiftPHA := not "BASPsychotroper StoffPHA";
+                BASDrugPHA := not BASPsychotroperStoffPHA;
             end;
         }
-        field(50506; "BASArtikel StatistikgruppePHA"; Code[10])
+        field(50506; BASStatisticCodeGroupPHA; Code[10])
         {
-
-
         }
-        field(50507; "BASStatisticCode2PHA IPHA"; Code[10])
+        field(50507; BASStatisticCodeIPHA; Code[10])
         {
-            TableRelation = BASStatisticcode2PHA.Code where(Level = const(1));
+            TableRelation = BASStatisticcodePHA.Code where(Level = const(1));
         }
-        field(50508; "BASStatisticCode2PHA IIPHA"; Code[10])
+        field(50508; BASStatisticCodeIIPHA; Code[10])
         {
-
-            TableRelation = BASStatisticcode2PHA.Code where(Level = const(2));
+            TableRelation = BASStatisticcodePHA.Code where(Level = const(2));
         }
-        field(50509; "BASStatisticCode2PHA IIIPHA"; Code[10])
+        field(50509; BASStatisticCodeIIIPHA; Code[10])
         {
-            TableRelation = BASStatisticcode2PHA.Code where(Level = const(3));
+            TableRelation = BASStatisticcodePHA.Code where(Level = const(3));
         }
         field(50510; BASInventurbewertungPHA; Decimal)
         {
@@ -339,10 +332,9 @@ tableextension 50009 BASItemExtPHA extends Item
 
             TableRelation = "Country/Region";
         }
-        field(50512; "Packungsgröße"; Text[10])
+        field(50512; BASPackageSizePHA; Text[10])
         {
             Caption = 'Packing size';
-
         }
         field(50513; "BASEAN CodePHA"; Text[13])
         {
@@ -378,9 +370,9 @@ tableextension 50009 BASItemExtPHA extends Item
         {
 
         }
-        field(50518; "BASItemKred ShipmentMethodCodePHA"; Code[10])
+        field(50518; BASItemVendorShipMethodCodePHA; Code[10])
         {
-            Description = 'MFU';
+            // Description = 'Item Vendor Shipment Method Code',comment = 'DEA="Artikel Kreditor "';
             TableRelation = "Shipment Method";
         }
         field(50520; "BASMatGemeinkosten%7EPPHA"; Decimal)
@@ -409,16 +401,16 @@ tableextension 50009 BASItemExtPHA extends Item
         {
 
         }
-        field(50525; "BASSuchtgiftnr.PHA"; Code[20])
+        field(50525; BASDrugNoPHA; Code[20])
         {
-
+            Caption = 'Drug No.', comment = 'DEA="Suchtgift Nr."';
         }
         field(50526; BASSuchtgiftgehaltPHA; Decimal)
         {
             DecimalPlaces = 0 : 5;
 
         }
-        field(50527; BASSuchtgiftbasePHA; Decimal)
+        field(50527; BASDrugBasePHA; Decimal)
         {
             DecimalPlaces = 0 : 5;
 
@@ -570,11 +562,9 @@ tableextension 50009 BASItemExtPHA extends Item
         {
             Description = 'MFU';
         }
-        field(50559; "BASSite AssignmentPHA"; Code[20])
+        field(50559; BASSiteAssignmentPHA; Code[20])
         {
             Caption = 'Standort Zuordnung';
-
-
         }
         field(50560; "BASManufacturing AreaPHA"; Code[20])
         {
@@ -584,48 +574,37 @@ tableextension 50009 BASItemExtPHA extends Item
         {
             Caption = 'Site Manufacturing', comment = 'DEA="Standort Herstellung"';
         }
-        field(50562; "BASSite Batch ReleasePHA"; Code[20])
+        field(50562; BASSiteBatchReleasePHA; Code[20])
         {
             Caption = 'Standort Freigabe';
-
-
         }
-        field(50563; "BASSite AnalysesPHA"; Code[20])
+        field(50563; BASSiteAnalysesPHA; Code[20])
         {
             Caption = 'Standort Analysen';
-
-
         }
-        field(50564; "BASSite SamplesPHA"; Code[20])
+        field(50564; BASSiteSamplesPHA; Code[20])
         {
             Caption = 'Standort Rückstellmuster';
-
-
         }
-        field(50565; "BASSite StabilitiesPHA"; Code[20])
+        field(50565; BASSiteStabilitiesPHA; Code[20])
         {
             Caption = 'Standort Stabilitäten';
-
-
         }
-        field(50566; "BASRegistration CompanyPHA"; Code[20])
+        field(50566; BASRegistrationCompanyPHA; Code[20])
         {
             Caption = 'Zulassungsinhaber';
-
-
         }
-        field(50567; "BASManufacturing ForPHA"; Code[20])
+        field(50567; BASManufacturingForPHA; Code[20])
         {
             Caption = 'Contract Manufacturing for';
             Description = 'GL';
-
         }
-        field(50568; "BASType ForecastPHA"; Option)
+        field(50568; BASTypeForecastPHA; Option)
         {
             FieldClass = FlowFilter;
             OptionMembers = " ",Verkauf,Kolo,Muster,Planungsauftrag,Forecast;
         }
-        field(50569; "BASStorage ConditionPHA"; Option)
+        field(50569; BASStorageConditionPHA; Option)
         {
             Caption = 'Lagerbedingung';
 
@@ -645,18 +624,17 @@ tableextension 50009 BASItemExtPHA extends Item
 
             Editable = false;
         }
-        field(65801; "BASSeite SuchtgiftlistePHA"; Integer)
+        field(65801; BASSeiteDrugListPHA; Integer)
         {
-
             Editable = false;
         }
     }
     keys
     {
-        key(Key17; "BASPharmazentralnr.PHA")
+        key(Key17; """BASPharmaCentralNoPHA")
         {
         }
-        key(Key18; BASItemTypePHA, "BASStatisticCode2PHA IPHA", "BASStatisticCode2PHA IIPHA", "BASStatisticCode2PHA IIIPHA")
+        key(Key18; BASItemTypePHA, BASStatisticCodeIPHA, BASStatisticCodeIIPHA, BASStatisticCodeIIIPHA)
         {
         }
     }
@@ -749,17 +727,17 @@ tableextension 50009 BASItemExtPHA extends Item
 
     procedure GetStatisticCode(CodeLevel: Integer): Text[30]
     var
-        StatisticCode: Record BASStatisticcode2PHA;
+        StatisticCode: Record BASStatisticcodePHA;
     begin
         case CodeLevel of
             1:
-                if StatisticCode.Get("BASStatisticCode2PHA IPHA", 1) then
+                if StatisticCode.Get(BASStatisticCodeIPHA, 1) then
                     exit(StatisticCode.Description);
             2:
-                if StatisticCode.Get("BASStatisticCode2PHA IIPHA", 2) then
+                if StatisticCode.Get(BASStatisticCodeIIPHA, 2) then
                     exit(StatisticCode.Description);
             3:
-                if StatisticCode.Get("BASStatisticCode2PHA IIIPHA", 3) then
+                if StatisticCode.Get(BASStatisticCodeIIIPHA, 3) then
                     exit(StatisticCode.Description);
         end;
     end;

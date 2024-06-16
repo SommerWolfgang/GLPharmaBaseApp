@@ -15,7 +15,7 @@ permissionset 50000 BASPermissionPHA
         tabledata BASGenericTempTablePHA = RIMD,
         tabledata BASItemAdditivePHA = RIMD,
         tabledata "BASRechnung MailversandPHA" = RIMD,
-        tabledata BASStatisticcode2PHA = RIMD,
+        tabledata BASStatisticcodePHA = RIMD,
         tabledata BASStatTempPHA = RIMD,
         tabledata BASVerkauf_VAXPHA = RIMD,
         tabledata "BASWindream ButtonPHA" = RIMD,
@@ -23,7 +23,7 @@ permissionset 50000 BASPermissionPHA
         table BASGenericTempTablePHA = X,
         table BASItemAdditivePHA = X,
         table "BASRechnung MailversandPHA" = X,
-        table BASStatisticcode2PHA = X,
+        table BASStatisticcodePHA = X,
         table BASStatTempPHA = X,
         table BASVerkauf_VAXPHA = X,
         table "BASWindream ButtonPHA" = X;

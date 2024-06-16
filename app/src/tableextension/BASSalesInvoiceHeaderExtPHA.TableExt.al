@@ -178,7 +178,7 @@ tableextension 50021 BASSalesInvoiceHeaderExtPHA extends "Sales Invoice Header"
         recSalesInvoiceLine.SETRANGE("Document No.", "No.");
         recSalesInvoiceLine.SETRANGE(Type, recSalesInvoiceLine.Type::Item);
         recSalesInvoiceLine.SETFILTER(Quantity, '<>0');
-        IF recSalesInvoiceLine.FIND('-') THEN
+        IF recSalesInvoiceLine.FindSet() THEN
             REPEAT
                 recDatenAustausch.INIT;
                 recDatenAustausch.Quelle := COMPANYNAME;
