@@ -135,7 +135,7 @@ tableextension 50036 BASUserSetupPHA extends "User Setup"
                 Value := Rec.BASBenutzerEinstellungenPHA;
                 Value[Pos] := ch[1];
                 Rec.BASBenutzerEinstellungenPHA := Value;
-                Rec.modify();
+                Rec.Modify();
             end;
     end;
 

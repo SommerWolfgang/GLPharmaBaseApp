@@ -1,25 +1,22 @@
-tableextension 50027 BASLotNoInformationExtPHA extends "Lot No. Information"
+tableextension 50027 BASLotNoInformatioNextPHA extends "Lot No. Information"
 {
     fields
     {
         field(50000; BASExpirationDatePHA; Date)
         {
             Caption = 'Expiration Date';
-
-
+            // ToDo
             trigger OnValidate()
-            var
-                ChargenVerw: Codeunit BASChargeMgtPHA;
+            // var
+            //     ChargenVerw: Codeunit BASChargeMgtPHA;
             begin
-
-                // ToDo
                 // if Rec.BASExpirationDatePHA <> xRec.BASExpirationDatePHA then
                 //     ChargenVerw."Aktualisiere Verkaufscharge"("Item No.", BASLotNoPHA, 1, BASSalesLotNoPHA, BASExpirationDatePHA);
 
                 ChangeStatus('E');
             end;
         }
-        field(50001; BASSalesLotNoPHA; Code[20])
+        field(50001; BASSalesLotNoPHA; Code[50])
         {
             trigger OnValidate()
             // var
@@ -114,7 +111,7 @@ tableextension 50027 BASLotNoInformationExtPHA extends "Lot No. Information"
                 end;
 
                 if bLotStatusMismatch then
-                    if not Confirm('Neuer Chargenstatus: ''%1'' entspricht nicht dem Lims-Chargenstatus: ''%2''. Trotzdem übernehmen?', false, FORMAT(Rec.Status), Rec.LimsStatus) then
+                    if not Confirm('Neuer Chargenstatus: ''%1'' entspricht nicht dem Lims-Chargenstatus: ''%2''. Trotzdem übernehmen?', false, Format(Rec.BASStatusPHA), Rec.BASLimsStatusPHA) then
                         Error('');
 
                 if Rec.BASStatusPHA = Rec.BASStatusPHA::Free then begin
@@ -142,7 +139,7 @@ tableextension 50027 BASLotNoInformationExtPHA extends "Lot No. Information"
                     if Item.Get("Item No.") then
                         if Item.BASItemTypePHA = Item.BASItemTypePHA::"Finished Product" then
                             if Item."BASPatentschutz bisPHA" >= Today then
-                                if Confirm('Patentschutz für Artikel %1 ist bis zum %2 eingetragen! Trotzdem Freigeben?', false, "Item No.", Item."Patentschutz bis") = false then
+                                if not Confirm('Patentschutz für Artikel %1 ist bis zum %2 eingetragen! Trotzdem Freigeben?', false, "Item No.", Item."BASPatentschutz bisPHA") then
                                     Error('Chargenfreigabe wurde abgebrochen!');
 
                 if (BASStatusPHA = BASStatusPHA::Free) and (xRec.BASStatusPHA <> BASStatusPHA::Free) then
@@ -168,12 +165,13 @@ tableextension 50027 BASLotNoInformationExtPHA extends "Lot No. Information"
                 if not Item.Get("Item No.") then
                     Error('Artikel %1 ist nicht im Artikelstamm angelegt!', "Item No.");
 
-                if (Item.BASItemTypePHA = Item.BASItemTypePHA::"Finished Product") then
+                if Item.BASItemTypePHA = Item.BASItemTypePHA::"Finished Product" then
                     if uNaviPharma.Permission('$MARKTFREIGABE') = false then
                         Error('Berechtigung für Marktfreigabe nicht vorhanden!');
 
                 if Rec.BASStatusPHA <> xRec.BASStatusPHA then
-                    CheckMarktfreigabePin();
+                    // ToDo
+                    ;//CheckMarktfreigabePin();
 
                 // if (BASStatusPHA = BASStatusPHA::Free) and (xRec.BASStatusPHA <> BASStatusPHA::Free) then begin
                 //     BASFreigabedatumPHA := Today;
@@ -336,7 +334,7 @@ tableextension 50027 BASLotNoInformationExtPHA extends "Lot No. Information"
     begin
         if Item.GET(ItemNo) then
             if Item.BASItemTypePHA = Item.BASItemTypePHA::"Row Material" then begin
-                cInfoText := 'Rohstoffe werden nicht geprüft!';  //UPDATE2013
+                cInfoText := 'Rohstoffe werden nicht geprüft!';  //Update2013
                 exit;
             end;
 
@@ -357,8 +355,8 @@ tableextension 50027 BASLotNoInformationExtPHA extends "Lot No. Information"
                     if LotNoInformation.FindFirst() then
                         if LotNoInformation.BASStatusPHA <> LotNoInformation.BASStatusPHA::Free then begin
                             if not ItemIsBulk(ItemNo) and ItemIsBulk(LotNoInformation."Item No.") then
-                                cMeldung := cMeldung + '\' + 'Artikel ' + LotNoInformation."Item No." + ' Chargennr. ' + LotNoInformation.BASLotNoPHA + ' ist ';
-                            cMeldung := cMeldung + FORMAT(LotNoInformation.BASStatusPHA) + ' ';
+                                cMeldung := cMeldung + '\' + 'Artikel ' + LotNoInformation."Item No." + ' Chargennr. ' + LotNoInformation.BASSalesLotNoPHA + ' ist ';
+                            cMeldung := cMeldung + Format(LotNoInformation.BASStatusPHA) + ' ';
                         end;
                     CountChecked += 1;
                 until ItemLedgerEntry2.Next() = 0;
@@ -386,7 +384,7 @@ tableextension 50027 BASLotNoInformationExtPHA extends "Lot No. Information"
         tYearHelpDM: Text[4];
     begin
         if BASExpirationDateDMPHA <> '' then begin
-            if strLen(BASExpirationDateDMPHA) < 6 then
+            if StrLen(BASExpirationDateDMPHA) < 6 then
                 Error('DataMatrix Ablaufdatum muss Format JJMMTT (YYMMDD) haben!');
 
             if Evaluate(iMonHelp, CopyStr(BASExpirationDateDMPHA, 3, 2)) then begin
@@ -402,10 +400,10 @@ tableextension 50027 BASLotNoInformationExtPHA extends "Lot No. Information"
                 Error('DataMatrix Ablaufdatum muss Format JJMMTT (YYMMDD) haben!');
 
             if (BASExpirationDatePHA <> 0D) then begin
-                tYearHelp := FORMAT(DATE2DMY(BASExpirationDatePHA, 3));
+                tYearHelp := Format(DATE2DMY(BASExpirationDatePHA, 3));
                 tYearHelpDM := '20' + CopyStr(BASExpirationDateDMPHA, 1, 2);
                 // ToDo
-                // tMonHelp := cuCodesammlung.TextAuffuellen(FORMAT(DATE2DMY(BASExpirationDatePHA, 2)), 2, '0');
+                // tMonHelp := cuCodesammlung.TextAuffuellen(Format(DATE2DMY(BASExpirationDatePHA, 2)), 2, '0');
                 tMonHelpDM := CopyStr(BASExpirationDateDMPHA, 3, 2);
                 if (tYearHelp <> tYearHelpDM) or (tMonHelp <> tMonHelpDM) then
                     if not Confirm('DataMatrix Ablaufdatum: %1-%2 weicht von Ablaufdatum: %3-%4 ab. Trotzdem übernehmen?', false, tMonHelp, tYearHelp, tMonHelpDM, tYearHelpDM) then
@@ -461,7 +459,6 @@ tableextension 50027 BASLotNoInformationExtPHA extends "Lot No. Information"
         ReservEntry: Record "Reservation Entry";
         SalesLine: Record "Sales Line";
         TrackSpec: Record "Tracking Specification";
-        TransLine: Record "Transfer Line";
     begin
         CheckLotNo();
         if BASSalesLotNoPHA <> xRec.BASSalesLotNoPHA then begin

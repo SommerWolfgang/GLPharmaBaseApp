@@ -3,7 +3,7 @@ tableextension 50017 BASItemJournalLinePHA extends "Item Journal Line"
 {
     fields
     {
-        modify("Expiration Date")
+        Modify("Expiration Date")
         {
             trigger OnAfterValidate()
             begin
@@ -14,7 +14,7 @@ tableextension 50017 BASItemJournalLinePHA extends "Item Journal Line"
                         DeleteCharge();
             end;
         }
-        modify("Lot No.")
+        Modify("Lot No.")
         {
             trigger OnAfterValidate()
             var
@@ -62,7 +62,7 @@ tableextension 50017 BASItemJournalLinePHA extends "Item Journal Line"
             end;
         }
 
-        modify(Quantity)
+        Modify(Quantity)
         {
             trigger OnBeforeValidate()
             var
@@ -90,14 +90,14 @@ tableextension 50017 BASItemJournalLinePHA extends "Item Journal Line"
 
             trigger Onlookup()
             var
-                tempRecItemLedgerEntry: Record 32 temporary;
+                tempItemLedgerEntry: Record 32 temporary;
             begin
                 // ToDo -> hardcoded!!!
                 if "Journal Template Name" = 'FAVERB' then begin
                     Testfield("Item No.");
-                    tempRecItemLedgerEntry."Item No." := "Item No.";
-                    tempRecItemLedgerEntry.SetRange("Item No.", "Item No.");
-                    tempRecItemLedgerEntry.SetRange(Open, true);
+                    tempItemLedgerEntry."Item No." := "Item No.";
+                    tempItemLedgerEntry.SetRange("Item No.", "Item No.");
+                    tempItemLedgerEntry.SetRange(Open, true);
                 end;
             end;
         }
@@ -134,31 +134,26 @@ tableextension 50017 BASItemJournalLinePHA extends "Item Journal Line"
         {
             Editable = false;
         }
-        field(50507; "BASStatisticCode2PHA IPHA"; Code[10])
+        field(50507; BASStatisticCodeIPHA; Code[10])
         {
-
             Editable = false;
             TableRelation = BASStatisticcodePHA where(Level = const(1));
         }
-        field(50508; "BASStatisticCode2PHA IIPHA"; Code[10])
+        field(50508; BASStatisticCodeIIPHA; Code[10])
         {
-
             Editable = false;
             TableRelation = BASStatisticcodePHA where(Level = const(2));
         }
-        field(50509; "BASStatisticCode2PHA IIIPHA"; Code[10])
+        field(50509; BASStatisticCodeIIIPHA; Code[10])
         {
-
             Editable = false;
             TableRelation = BASStatisticcodePHA where(Level = const(3));
         }
-        field(50510; "BASBestellnr.PHA"; Code[20])
+        field(50510; BASOrderNoPHA; Code[20])
         {
-
         }
-        field(50511; BASBestelldatumPHA; Date)
+        field(50511; BASOrderDatePHA; Date)
         {
-
         }
         field(50512; "Ländercode"; Code[10])
         {
@@ -168,7 +163,6 @@ tableextension 50017 BASItemJournalLinePHA extends "Item Journal Line"
         field(50513; BASNaturalrabattmengePHA; Decimal)
         {
             DecimalPlaces = 0 : 5;
-
         }
         field(50514; BASSalesStatisticCode2PHA; Code[10])
         {
@@ -246,34 +240,34 @@ tableextension 50017 BASItemJournalLinePHA extends "Item Journal Line"
 
             trigger Onlookup()
             var
-                tempRecItemLedgerEntry: Record "Item Ledger Entry" temporary;
+                tempItemLedgerEntry: Record "Item Ledger Entry" temporary;
                 ActionReturn: Action;
             begin
 
                 Testfield("Item No.");
-                tempRecItemLedgerEntry."Item No." := "Item No.";
-                tempRecItemLedgerEntry.SetRange("Item No.", "Item No.");
-                tempRecItemLedgerEntry.SetRange(Open, true);
+                tempItemLedgerEntry."Item No." := "Item No.";
+                tempItemLedgerEntry.SetRange("Item No.", "Item No.");
+                tempItemLedgerEntry.SetRange(Open, true);
                 if "Location Code" <> '' then begin
-                    tempRecItemLedgerEntry."Location Code" := "Location Code";
-                    tempRecItemLedgerEntry.SetRange("Location Code", "Location Code");
+                    tempItemLedgerEntry."Location Code" := "Location Code";
+                    tempItemLedgerEntry.SetRange("Location Code", "Location Code");
                 end;
 
                 //ToDo
-                // ActionReturn := PAGE.RUNMODAL(PAGE::UmlagerInfoNeu, tempRecItemLedgerEntry);
+                // ActionReturn := PAGE.RUNMODAL(PAGE::UmlagerInfoNeu, tempItemLedgerEntry);
                 if (ActionReturn = ACTION::lookupOK) or (ActionReturn = ACTION::OK) then begin
-                    "Location Code" := tempRecItemLedgerEntry."Location Code";
-                    "Bin Code" := tempRecItemLedgerEntry.BASBinCodeHelpFieldPHA;
+                    "Location Code" := tempItemLedgerEntry."Location Code";
+                    "Bin Code" := tempItemLedgerEntry.BASBinCodeHelpFieldPHA;
 
                     if "Entry Type" in ["Entry Type"::Transfer, "Entry Type"::"Negative Adjmt."] then begin
                         if ("Entry Type" = "Entry Type"::"Negative Adjmt.") then
-                            Validate(Quantity, tempRecItemLedgerEntry."Remaining Quantity");
+                            Validate(Quantity, tempItemLedgerEntry."Remaining Quantity");
 
-                        Validate("Lot No.", tempRecItemLedgerEntry."Lot No.");
+                        Validate("Lot No.", tempItemLedgerEntry."Lot No.");
 
-                        //Wird mit dem Validate der LotNo schon befüllt  "BASVerkaufschargennr.PHA" := tempRecItemLedgerEntry."BASVerkaufschargennr.PHA";
+                        //Wird mit dem Validate der LotNo schon befüllt  "BASVerkaufschargennr.PHA" := tempItemLedgerEntry."BASVerkaufschargennr.PHA";
                         if ("Entry Type" = "Entry Type"::Transfer) then
-                            Validate(Quantity, tempRecItemLedgerEntry."Remaining Quantity");
+                            Validate(Quantity, tempItemLedgerEntry."Remaining Quantity");
 
                     end;
                 end;

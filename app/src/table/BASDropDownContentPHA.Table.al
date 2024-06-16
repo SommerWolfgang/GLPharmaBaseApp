@@ -106,7 +106,7 @@ table 50105 BASDropDownContentPHA
         //+GL001
     end;
 
-    trigger Onmodify()
+    trigger OnModify()
     begin
         DropDownContentParameter.SetFilter(Table, '%1', Tabelle);
         DropDownContentParameter.SetFilter(Field, Feld);
@@ -119,21 +119,21 @@ table 50105 BASDropDownContentPHA
                     Error('Für Tabelle=''%1'', Feld=''%2'', ID=''%3'' darf die Beschreibung nicht verändert werden!', Tabelle, Feld, ID);
 
 
-            if not DropDownContentParameter.Allow_modify then
+            if not DropDownContentParameter.Allow_Modify then
                 Error('Für Tabelle=''%1'', Feld=''%2'', ID=''%3'' darf keine Änderung erfolgen!', Tabelle, Feld, ID);
             exit;
         end;
 
         DropDownContentParameter.SetFilter(ID, '%1', '');
         if DropDownContentParameter.FindSet() then begin
-            if not DropDownContentParameter.Allow_modify then
+            if not DropDownContentParameter.Allow_Modify then
                 Error('Für Tabelle=''%1'', Feld=''%2'' darf keine Änderung erfolgen!', Tabelle, Feld);
             exit;
         end;
 
         DropDownContentParameter.SetFilter(Field, '%1', '');
         if DropDownContentParameter.FindSet() then begin
-            if not DropDownContentParameter.Allow_modify then
+            if not DropDownContentParameter.Allow_Modify then
                 Error('Für Tabelle=''%1'' darf keine Änderung erfolgen!', Tabelle);
             exit;
         end;
@@ -152,21 +152,21 @@ table 50105 BASDropDownContentPHA
                     Error('Für Tabelle=''%1'', Feld=''%2'', ID=''%3'' darf die Beschreibung nicht verändert werden!', Tabelle, Feld, ID);
 
 
-            if not DropDownContentParameter.Allow_modify then
+            if not DropDownContentParameter.Allow_Modify then
                 Error('Für Tabelle=''%1'', Feld=''%2'', ID=''%3'' darf keine Änderung erfolgen!', Tabelle, Feld, ID);
             exit
         end;
 
         DropDownContentParameter.SetFilter(ID, '%1', '');
         if DropDownContentParameter.FindSet() then begin
-            if not DropDownContentParameter.Allow_modify then
+            if not DropDownContentParameter.Allow_Modify then
                 Error('Für Tabelle=''%1'', Feld=''%2'' darf keine Änderung erfolgen!', Tabelle, Feld);
             exit;
         end;
 
         DropDownContentParameter.SetFilter(Field, '%1', '');
         if DropDownContentParameter.FindSet() then begin
-            if not DropDownContentParameter.Allow_modify then
+            if not DropDownContentParameter.Allow_Modify then
                 Error('Für Tabelle=''%1'' darf keine Änderung erfolgen!', Tabelle);
             exit;
         end;

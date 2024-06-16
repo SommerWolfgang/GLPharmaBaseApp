@@ -14,7 +14,7 @@ tableextension 50023 BASPurchaseReceiptLineExtPHA extends "Purch. Rcpt. Line"
     // 2012-09-25 | MFU     | ok         | Neuer Key: Pay-to Vendor No., Location Code, Line No., Qty. Rcd. Not Invoiced
     //                                     für Sortierungs Verbesserung in Wareneingangszeilen holen
     // --------------------------------------------------------------------------------------------------------
-    // 2014-05-02 | MFU     | ok         | Neuer Key bei UPDATE2013: Pay-to Vendor No.,Buy-from Vendor No.,Qty. Rcd. Not Invoiced
+    // 2014-05-02 | MFU     | ok         | Neuer Key bei Update2013: Pay-to Vendor No.,Buy-from Vendor No.,Qty. Rcd. Not Invoiced
     //                                     für Sortierungs Verbesserung in Wareneingangszeilen holen
     // --------------------------------------------------------------------------------------------------------
     // 2016-05-23 | MFU     | ok         | Feld "BeschreibungLang" eingebaut

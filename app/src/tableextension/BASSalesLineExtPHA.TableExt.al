@@ -172,7 +172,7 @@ tableextension 50013 BASSalesLineExtPHA extends "Sales Line"
                         end;
                     end;
 
-                //+UPDATE2013
+                //+Update2013
             end;
         }
         field(50506; BASArtikelgruppePHA; Code[10])

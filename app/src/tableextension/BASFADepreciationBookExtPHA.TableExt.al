@@ -18,7 +18,7 @@ tableextension 50052 BASFADepreciationBookExtPHA extends "FA Depreciation Book"
     // ---------------------------------------------------------------------------------------------------------
     fields
     {
-        modify("FA Posting Group")
+        Modify("FA Posting Group")
         {
             trigger OnAfterValidate()
             var

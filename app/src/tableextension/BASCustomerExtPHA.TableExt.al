@@ -133,7 +133,7 @@ tableextension 50000 BASCustomerExtPHA extends Customer
         AssignValuesStandardTrigger();
     end;
 
-    trigger Onmodify()
+    trigger OnModify()
     begin
         AssignValuesStandardTrigger();
     end;

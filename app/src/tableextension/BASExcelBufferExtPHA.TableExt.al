@@ -12,7 +12,7 @@ tableextension 50026 BASExcelBufferExtPHA extends "Excel Buffer"
     //                                   |       Funktion SaveBook() eingefügt
     //                                   |       Funktion CloseBook() eingefügt
     // ------------------------------------------------------------------------------------------------------------------------------------
-    // 2014-06-04 | MFU     | ok         | UPDATE 2013
+    // 2014-06-04 | MFU     | ok         | Update 2013
     //                                     Funktion SaveAs() noch nicht Upgedaten -> bei Bedarf
     //                                     Primär Key um Worksheet Name erweitern auf Worksheet Name,Row No.,Column No.
     // ------------------------------------------------------------------------------------------------------------------------------------
