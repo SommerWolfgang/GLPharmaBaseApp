@@ -21,7 +21,7 @@ codeunit 50005 BASItemPostingEventMgtPHA
     begin
         if Item.GET(NewItemLedgEntry."Item No.") then begin
             NewItemLedgEntry.BASStatisticCodeIPHA := Item.BASStatisticCodeIIPHA;
-            NewItemLedgEntry.BASStatisticCodeIIPHA := Item.BASStatisticCodeIIPHA;
+            NewItemLedgEntry.BASStatisticCodeIPHA := Item.BASStatisticCodeIIPHA;
             NewItemLedgEntry.BASStatisticCodeIIIPHA := Item.BASStatisticCodeIIIPHA;
         end;
     end;

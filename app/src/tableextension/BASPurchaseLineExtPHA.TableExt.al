@@ -36,9 +36,8 @@ tableextension 50015 BASPurchaseLineExtPHA extends "Purchase Line"
             CalcFormula = lookup("Purchase Header"."Order Date" where("Document Type" = field("Document Type"), "No." = field("Document No.")));
             FieldClass = FlowField;
         }
-        field(50005; BASHerstellerNrPHA; Code[20])
+        field(50005; BASManufaturingNoPHA; Code[20])
         {
-
         }
         field(50006; BASCEPNoPHA; Code[50])
         {

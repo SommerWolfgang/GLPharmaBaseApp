@@ -81,10 +81,8 @@ tableextension 50027 BASLotNoInformatioNextPHA extends "Lot No. Information"
                 ChangeStatus('M');
             end;
         }
-        field(50009; "BASLaetus-CodePHA"; Text[15])
+        field(50009; BASLaetusCodePHA; Text[15])
         {
-
-
         }
         field(50010; BASStatusPHA; enum BASStatusLotNoInformationPHA)
         {
@@ -198,7 +196,7 @@ tableextension 50027 BASLotNoInformatioNextPHA extends "Lot No. Information"
         {
 
         }
-        field(50014; BASArtikelnamePHA; Text[50])
+        field(50014; BASItemDescriptionPHA; Text[100])
         {
             CalcFormula = lookup(Item.Description where("No." = field("Item No.")));
             FieldClass = FlowField;
@@ -227,8 +225,9 @@ tableextension 50027 BASLotNoInformatioNextPHA extends "Lot No. Information"
         field(50102; "BASCEP NrPHA"; Code[50])
         {
         }
-        field(50103; BASHerstellerNrPHA; Code[20])
+        field(50103; BASManufaturingNoPHA; Code[20])
         {
+            Caption = 'Manufacturing No.', comment = 'DEA="Herstellernr."';
         }
         field(50104; BASExpirationDateDMPHA; Text[6])
         {

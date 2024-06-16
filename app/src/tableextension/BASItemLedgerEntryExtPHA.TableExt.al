@@ -46,25 +46,22 @@ tableextension 50011 BASItemLedgerEntryExtPHA extends "Item Ledger Entry"
         {
 
         }
-        field(50506; BASArtikelgruppePHA; Code[10])
+        field(50506; BASItemGroupPHA; Code[10])
         {
-
             Editable = false;
         }
-        field(50507; "BASStatisticCode2PHA IPHA"; Code[10])
+        field(50507; BASStatisticCodeIPHA; Code[10])
         {
             Editable = false;
             TableRelation = BASStatisticcodePHA where(Level = const(1));
         }
-        field(50508; "BASStatisticCode2PHA IIPHA"; Code[10])
+        field(50508; BASStatisticCodeIIPHA; Code[10])
         {
-
             Editable = false;
             TableRelation = BASStatisticcodePHA where(Level = const(2));
         }
-        field(50509; "BASStatisticCode2PHA IIIPHA"; Code[10])
+        field(50509; BASStatisticCodeIIIPHA; Code[10])
         {
-
             Editable = false;
             TableRelation = BASStatisticcodePHA where(Level = const(3));
         }

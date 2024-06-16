@@ -228,7 +228,7 @@ tableextension 50013 BASSalesLineExtPHA extends "Sales Line"
             trigger OnValidate()
             begin
                 Validate(BASSubsetPHA);
-                Testfield("Qty. per Unit of Measure");
+                TestField("Qty. per Unit of Measure");
 
                 if (Type <> Type::Item) and (BASNaturalrabattmengePHA <> 0) then
                     Error('FEHLENDE TEXTVARIABLE T37');
@@ -265,10 +265,10 @@ tableextension 50013 BASSalesLineExtPHA extends "Sales Line"
                 if "Document Type" <> "Document Type"::"Credit Memo" then
                     exit;
 
-                Testfield(Type, Type::Item);
+                TestField(Type, Type::Item);
 
                 Item.Get("No.");
-                Item.Testfield("Item Tracking Code");
+                Item.TestField("Item Tracking Code");
                 if (BASSalesLotNoPHA <> xRec.BASSalesLotNoPHA) then begin
                     if BASSalesLotNoPHA <> '' then begin
                         LotNoInformation.SetCurrentKey("Item No.", "Variant Code", BASSalesLotNoPHA);
