@@ -90,7 +90,7 @@ codeunit 50006 BASLotMgtPHA
                 LotNoInformation.Description := Format(ItemJnlLine2."Document Type") + ', ' + ItemJnlLine2."Document No." + ', ' + Format(ItemJnlLine2."Document Date");
                 LotNoInformation.Modify(false);
             end;
-    end
+    end;
 
     [EventSubscriber(ObjectType::CodeUnit, 99000831, 'OnBeforeUpdateItemTracking', '', false, false)]
     local procedure CU9000831OnBeforeUpdateItemTracking(var ReservEntry: Record "Reservation Entry"; var TrackingSpecification: Record "Tracking Specification")
@@ -208,289 +208,226 @@ codeunit 50006 BASLotMgtPHA
         ReservationEntry.BASSalesLotNoPHA := FromReservationEntry.BASSalesLotNoPHA;
         ReservationEntry."Expiration Date" := FromReservationEntry."Expiration Date";
     end;
-    // << TASK58.01
 
-
-    // >> TASK58.01
-    procedure EingabeChargeForItemJnlLine(var ItemJnlLine: Record "Item Journal Line")
+    procedure InputLotNoForItemJnlLine(var ItemJnlLine: Record "Item Journal Line")
     var
-        ReservEntry: Record "Reservation Entry";
-        recTrackingSpecification: Record "Tracking Specification";
-        ItemTrackMgt: Codeunit "6500";
-        CreateReservEntry: Codeunit "Create Reserv. Entry";
+        TrackingSpecification: Record "Tracking Specification";
         ForBatchName: Code[10];
         ForID: Code[20];
         ForLotNo: Code[50];
-        ForProdOrderLine: Integer;
         ForRefNo: Integer;
         ForSubtype: Integer;
         ForType: Integer;
-        CurrentEntryStatus: Option Reservation,Tracking,Surplus,Prospect;
-
     begin
+        ForType := Database::"Item Journal Line";
 
-        with ItemJnlLine do begin
-
-            //Befüllen von Variablen für weitere Schritte
-            ForType := 83;
-            if ItemJnlLine."Entry Type" = ItemJnlLine."Entry Type"::"Negative Adjmt." then
-                ForSubtype := 3
-            else
-                ForSubtype := 2;
-
-            ForID := "Journal Template Name";
-            ForBatchName := "Journal Batch Name";
-            ForProdOrderLine := 0;
-            ForRefNo := "Line No.";
-            ForLotNo := "Lot No.";
-
-            //Werte in Tracking Tabelle füllen um mit Standart Funktionen weiter machen zu können
-            recTrackingSpecification."Source Type" := ForType;
-            recTrackingSpecification."Source Subtype" := ForSubtype;
-            recTrackingSpecification."Source ID" := ForID;
-            recTrackingSpecification."Source Batch Name" := ForBatchName;
-            recTrackingSpecification."Source Prod. Order Line" := 0;
-            recTrackingSpecification."Source Ref. No." := ForRefNo;
-            recTrackingSpecification."Qty. per Unit of Measure" := "Qty. per Unit of Measure";
-            recTrackingSpecification."Quantity (Base)" := Quantity;  //"Quantity (Base)";
-            recTrackingSpecification."Item No." := "Item No.";
-            recTrackingSpecification."Lot No." := ForLotNo;
-            recTrackingSpecification.BASSalesLotNoPHA := BASSalesLotNoPHA;
-            recTrackingSpecification."Expiration Date" := "Expiration Date";
-            recTrackingSpecification."Location Code" := "Location Code";
-
-
-
-        end;
-
-        if ItemTrackMgt.IsOrderNetworkEntity(
-        ForType,
-        ForSubtype)
-        then
-            CurrentEntryStatus := CurrentEntryStatus::Surplus
+        if ItemJnlLine."Entry Type" = ItemJnlLine."Entry Type"::"Negative Adjmt." then
+            ForSubtype := 3
         else
-            CurrentEntryStatus := CurrentEntryStatus::Prospect;
+            ForSubtype := 2;
 
-        //Suche, ob Reservierungsposten zu Charge vorhanden
-        ReservEntry.SetRange("Source Type", ForType);
-        ReservEntry.SetRange("Source Subtype", ForSubtype);
-        ReservEntry.SetRange("Source ID", ForID);
-        ReservEntry.SetRange("Source Batch Name", ForBatchName);
-        ReservEntry.SetRange("Source Prod. Order Line", ForProdOrderLine);
-        ReservEntry.SetRange("Source Ref. No.", ForRefNo);
-        ReservEntry.SetFilter(
-        "Reservation Status", '%1|%2', ReservEntry."Reservation Status"::Surplus, ReservEntry."Reservation Status"::Prospect);
-        ReservEntry.SetRange("Lot No.", ForLotNo);
-        if ReservEntry.FINDFIRST() then begin
-            if CompareChargeToItemJnlLine(ReservEntry, ItemJnlLine) then
-                exit;
-            LöscheCharge(ForType, ForSubtype, ForID, ForBatchName, ForProdOrderLine, ForRefNo, ForLotNo);
-        end;
+        ForID := ItemJnlLine."Journal Template Name";
+        ForBatchName := ItemJnlLine."Journal Batch Name";
+        ForRefNo := ItemJnlLine."Line No.";
+        ForLotNo := ItemJnlLine."Lot No.";
 
-        //Anlegen einer Artikelverfolgung mit den eigenen Feldern
-        CLEAR(ReservEntry);
-        ReservEntry.CopyTrackingFromSpec(recTrackingSpecification);
+        TrackingSpecification."Source Type" := ForType;
+        TrackingSpecification."Source Subtype" := ForSubtype;
+        TrackingSpecification."Source ID" := ForID;
+        TrackingSpecification."Source Batch Name" := ForBatchName;
+        TrackingSpecification."Source Prod. Order Line" := 0;
+        TrackingSpecification."Source Ref. No." := ForRefNo;
+        TrackingSpecification."Qty. per Unit of Measure" := ItemJnlLine."Qty. per Unit of Measure";
+        TrackingSpecification."Quantity (Base)" := ItemJnlLine.Quantity;
+        TrackingSpecification."Item No." := ItemJnlLine."Item No.";
+        TrackingSpecification."Lot No." := ForLotNo;
+        TrackingSpecification.BASSalesLotNoPHA := ItemJnlLine.BASSalesLotNoPHA;
+        TrackingSpecification."Expiration Date" := ItemJnlLine."Expiration Date";
+        TrackingSpecification."Location Code" := ItemJnlLine."Location Code";
 
-        CreateReservEntry.CreateReservEntryFor(
-                      recTrackingSpecification."Source Type",
-                      recTrackingSpecification."Source Subtype",
-                      recTrackingSpecification."Source ID",
-                      recTrackingSpecification."Source Batch Name",
-                      recTrackingSpecification."Source Prod. Order Line",
-                      recTrackingSpecification."Source Ref. No.",
-                      recTrackingSpecification."Qty. per Unit of Measure",
-                      0,
-                      recTrackingSpecification."Quantity (Base)", ReservEntry);
+        // ToDo -> all
+        // if ItemTrackMgt.IsOrderNetworkEntity(ForType, ForSubtype) then
+        //     CurrentEntryStatus := CurrentEntryStatus::Surplus
+        // else
+        //     CurrentEntryStatus := CurrentEntryStatus::Prospect;
 
-        CreateReservEntry.CreateEntry(recTrackingSpecification."Item No.",
-                      recTrackingSpecification."Variant Code",
-                      recTrackingSpecification."Location Code",
-                      recTrackingSpecification.Description,
-                      ItemJnlLine."Posting Date",
-                      ItemJnlLine."Posting Date", 0, CurrentEntryStatus);
+        // ReservEntry.SetRange("Source Type", ForType);
+        // ReservEntry.SetRange("Source Subtype", ForSubtype);
+        // ReservEntry.SetRange("Source ID", ForID);
+        // ReservEntry.SetRange("Source Batch Name", ForBatchName);
+        // ReservEntry.SetRange("Source Prod. Order Line", ForProdOrderLine);
+        // ReservEntry.SetRange("Source Ref. No.", ForRefNo);
+        // ReservEntry.SetFilter(
+        // "Reservation Status", '%1|%2', ReservEntry."Reservation Status"::Surplus, ReservEntry."Reservation Status"::Prospect);
+        // ReservEntry.SetRange("Lot No.", ForLotNo);
+        // if ReservEntry.FINDFIRST() then begin
+        //     if CompareChargeToItemJnlLine(ReservEntry, ItemJnlLine) then
+        //         exit;
+        //     LöscheCharge(ForType, ForSubtype, ForID, ForBatchName, ForProdOrderLine, ForRefNo, ForLotNo);
+        // end;
 
-        CreateReservEntry.GetLastEntry(ReservEntry);
-        //Eigene Werte direkt in Reservierungsposten schreiben?
+        // //Anlegen einer Artikelverfolgung mit den eigenen Feldern
+        // CLEAR(ReservEntry);
+        // ReservEntry.CopyTrackingFromSpec(recTrackingSpecification);
 
+        // CreateReservEntry.CreateReservEntryFor(
+        //               recTrackingSpecification."Source Type",
+        //               recTrackingSpecification."Source Subtype",
+        //               recTrackingSpecification."Source ID",
+        //               recTrackingSpecification."Source Batch Name",
+        //               recTrackingSpecification."Source Prod. Order Line",
+        //               recTrackingSpecification."Source Ref. No.",
+        //               recTrackingSpecification."Qty. per Unit of Measure",
+        //               0,
+        //               recTrackingSpecification."Quantity (Base)", ReservEntry);
+
+        // CreateReservEntry.CreateEntry(recTrackingSpecification."Item No.",
+        //               recTrackingSpecification."Variant Code",
+        //               recTrackingSpecification."Location Code",
+        //               recTrackingSpecification.Description,
+        //               ItemJnlLine."Posting Date",
+        //               ItemJnlLine."Posting Date", 0, CurrentEntryStatus);
+
+        // CreateReservEntry.GetLastEntry(ReservEntry);
     end;
-    // << TASK58.01
 
+    // ToDo -> all
     procedure EingabeChargeForSalesLine(var SalesLine: Record "Sales Line")
     var
-        ReservEntry: Record "Reservation Entry";
-        recTrackingSpecification: Record "Tracking Specification";
-        ItemTrackMgt: Codeunit "6500";
-        CreateReservEntry: Codeunit "Create Reserv. Entry";
-        ForBatchName: Code[10];
+        TrackingSpecification: Record "Tracking Specification";
         ForID: Code[20];
         ForLotNo: Code[50];
-        ForProdOrderLine: Integer;
         ForRefNo: Integer;
         ForSubtype: Integer;
         ForType: Integer;
-        CurrentEntryStatus: Option Reservation,Tracking,Surplus,Prospect;
-
     begin
-
-        with SalesLine do begin
-
-            //Befüllen von Variablen für weitere Schritte
-            ForType := 37;
-            if SalesLine."Document Type" = SalesLine."Document Type"::Order then
-                ForSubtype := 1
-            else
-                ForSubtype := 2;  //Passt das für alles außer Auftrag??
-
-            ForID := "Document No.";
-            //ForBatchName := "Journal Batch Name";
-            ForProdOrderLine := 0;
-            ForRefNo := "Line No.";
-            ForLotNo := "Lot No.";
-
-            //Werte in Tracking Tabelle füllen um mit Standart Funktionen weiter machen zu können
-            recTrackingSpecification."Source Type" := ForType;
-            recTrackingSpecification."Source Subtype" := ForSubtype;
-            recTrackingSpecification."Source ID" := ForID;
-            recTrackingSpecification."Source Batch Name" := '';
-            recTrackingSpecification."Source Prod. Order Line" := 0;
-            recTrackingSpecification."Source Ref. No." := ForRefNo;
-            recTrackingSpecification."Qty. per Unit of Measure" := "Qty. per Unit of Measure";
-            recTrackingSpecification."Quantity (Base)" := Quantity;  //"Quantity (Base)";
-            recTrackingSpecification."Item No." := "No.";
-            recTrackingSpecification."Lot No." := ForLotNo;
-            recTrackingSpecification.BASSalesLotNoPHA := BASSalesLotNoPHA;
-            recTrackingSpecification."Expiration Date" := "Expiration Date";
-            recTrackingSpecification."Location Code" := "Location Code";
-
-        end;
-
-        if ItemTrackMgt.IsOrderNetworkEntity(
-        ForType,
-        ForSubtype)
-        then
-            CurrentEntryStatus := CurrentEntryStatus::Surplus
+        ForType := 37;
+        if SalesLine."Document Type" = SalesLine."Document Type"::Order then
+            ForSubtype := 1
         else
-            CurrentEntryStatus := CurrentEntryStatus::Prospect;
+            ForSubtype := 2;
 
-        //Suche, ob Reservierungsposten zu Charge vorhanden
-        ReservEntry.SetRange("Source Type", ForType);
-        ReservEntry.SetRange("Source Subtype", ForSubtype);
-        ReservEntry.SetRange("Source ID", ForID);
-        ReservEntry.SetRange("Source Batch Name", ForBatchName);
-        ReservEntry.SetRange("Source Prod. Order Line", ForProdOrderLine);
-        ReservEntry.SetRange("Source Ref. No.", ForRefNo);
-        ReservEntry.SetFilter(
-        "Reservation Status", '%1|%2', ReservEntry."Reservation Status"::Surplus, ReservEntry."Reservation Status"::Prospect);
-        ReservEntry.SetRange("Lot No.", ForLotNo);
-        if ReservEntry.FINDFIRST() then begin
-            //IF CompareChargeToItemJnlLine(ReservEntry, ItemJnlLine) THEN
-            //    EXIT;
-            LöscheCharge(ForType, ForSubtype, ForID, ForBatchName, ForProdOrderLine, ForRefNo, ForLotNo);
-        end;
+        ForID := SalesLine."Document No.";
+        ForRefNo := SalesLine."Line No.";
+        // ToDo
+        // ForLotNo := SalesLine."Lot No.";
 
-        //Anlegen einer Artikelverfolgung mit den eigenen Feldern
-        CLEAR(ReservEntry);
-        ReservEntry.CopyTrackingFromSpec(recTrackingSpecification);
+        TrackingSpecification."Source Type" := ForType;
+        TrackingSpecification."Source Subtype" := ForSubtype;
+        TrackingSpecification."Source ID" := ForID;
+        TrackingSpecification."Source Batch Name" := '';
+        TrackingSpecification."Source Prod. Order Line" := 0;
+        TrackingSpecification."Source Ref. No." := ForRefNo;
+        TrackingSpecification."Qty. per Unit of Measure" := SalesLine."Qty. per Unit of Measure";
+        TrackingSpecification."Quantity (Base)" := SalesLine.Quantity;
+        TrackingSpecification."Item No." := SalesLine."No.";
+        TrackingSpecification."Lot No." := ForLotNo;
+        TrackingSpecification.BASSalesLotNoPHA := SalesLine.BASSalesLotNoPHA;
+        TrackingSpecification."Expiration Date" := SalesLine.BASExpirationDatePHA;
+        TrackingSpecification."Location Code" := SalesLine."Location Code";
 
-        CreateReservEntry.CreateReservEntryFor(
-                      recTrackingSpecification."Source Type",
-                      recTrackingSpecification."Source Subtype",
-                      recTrackingSpecification."Source ID",
-                      recTrackingSpecification."Source Batch Name",
-                      recTrackingSpecification."Source Prod. Order Line",
-                      recTrackingSpecification."Source Ref. No.",
-                      recTrackingSpecification."Qty. per Unit of Measure",
-                      0,
-                      recTrackingSpecification."Quantity (Base)", ReservEntry);
+        // if ItemTrackingMgt.IsOrderNetworkEntity(ForType, ForSubtype) then
+        //     CurrentEntryStatus := CurrentEntryStatus::Surplus
+        // else
+        //     CurrentEntryStatus := CurrentEntryStatus::Prospect;
 
-        CreateReservEntry.CreateEntry(recTrackingSpecification."Item No.",
-                      recTrackingSpecification."Variant Code",
-                      recTrackingSpecification."Location Code",
-                      recTrackingSpecification.Description,
-                      SalesLine."Posting Date",
-                      SalesLine."Posting Date", 0, CurrentEntryStatus);
+        // //Suche, ob Reservierungsposten zu Charge vorhanden
+        // ReservEntry.SetRange("Source Type", ForType);
+        // ReservEntry.SetRange("Source Subtype", ForSubtype);
+        // ReservEntry.SetRange("Source ID", ForID);
+        // ReservEntry.SetRange("Source Batch Name", ForBatchName);
+        // ReservEntry.SetRange("Source Prod. Order Line", ForProdOrderLine);
+        // ReservEntry.SetRange("Source Ref. No.", ForRefNo);
+        // ReservEntry.SetFilter(
+        // "Reservation Status", '%1|%2', ReservEntry."Reservation Status"::Surplus, ReservEntry."Reservation Status"::Prospect);
+        // ReservEntry.SetRange("Lot No.", ForLotNo);
+        // if ReservEntry.FINDFIRST() then begin
+        //     //IF CompareChargeToItemJnlLine(ReservEntry, ItemJnlLine) THEN
+        //     //    EXIT;
+        //     LöscheCharge(ForType, ForSubtype, ForID, ForBatchName, ForProdOrderLine, ForRefNo, ForLotNo);
+        // end;
 
-        CreateReservEntry.GetLastEntry(ReservEntry);
-        //Eigene Werte direkt in Reservierungsposten schreiben?
+        // //Anlegen einer Artikelverfolgung mit den eigenen Feldern
+        // CLEAR(ReservEntry);
+        // ReservEntry.CopyTrackingFromSpec(TrackingSpecification);
+
+        // CreateReservEntry.CreateReservEntryFor(
+        //               TrackingSpecification."Source Type",
+        //               TrackingSpecification."Source Subtype",
+        //               TrackingSpecification."Source ID",
+        //               TrackingSpecification."Source Batch Name",
+        //               TrackingSpecification."Source Prod. Order Line",
+        //               TrackingSpecification."Source Ref. No.",
+        //               TrackingSpecification."Qty. per Unit of Measure",
+        //               0,
+        //               TrackingSpecification."Quantity (Base)", ReservEntry);
+
+        // CreateReservEntry.CreateEntry(TrackingSpecification."Item No.",
+        //               TrackingSpecification."Variant Code",
+        //               TrackingSpecification."Location Code",
+        //               TrackingSpecification.Description,
+        //               SalesLine."Posting Date",
+        //               SalesLine."Posting Date", 0, CurrentEntryStatus);
+
+        // CreateReservEntry.GetLastEntry(ReservEntry);
+        // //Eigene Werte direkt in Reservierungsposten schreiben?
 
     end;
-    // << TASK58.01
 
-
-
-    // >> TASK58.01
     procedure "LöscheCharge"(ForType: Option; ForSubtype: Integer; ForID: Code[20]; ForBatchName: Code[10]; ForProdOrderLine: Integer; ForRefNo: Integer; ForLotNo: Code[50])
     var
         ReservEntry: Record "Reservation Entry";
     begin
-
-        //Suche, ob Reservierungsposten zu Charge vorhanden
         ReservEntry.SetRange("Source Type", ForType);
         ReservEntry.SetRange("Source Subtype", ForSubtype);
         ReservEntry.SetRange("Source ID", ForID);
         ReservEntry.SetRange("Source Batch Name", ForBatchName);
         ReservEntry.SetRange("Source Prod. Order Line", ForProdOrderLine);
         ReservEntry.SetRange("Source Ref. No.", ForRefNo);
-        //ReservEntry.SetRange("Lot No.", ForLotNo); //Nicht nach Charge Filtern, damit beim ändern der Charge die Reservierung gefunden wird
-        ReservEntry.SetFilter(
-          "Reservation Status", '%1|%2', ReservEntry."Reservation Status"::Surplus, ReservEntry."Reservation Status"::Prospect);
-        if ReservEntry.FINDFIRST() then
-            ReservEntry.DELETE();
-
+        ReservEntry.SetFilter("Reservation Status", '%1|%2', ReservEntry."Reservation Status"::Surplus, ReservEntry."Reservation Status"::Prospect);
+        ReservEntry.Delete();
     end;
-    // << TASK58.01
 
-
-    procedure CompareChargeToItemJnlLine(var ReservationEntry: Record "337"; var ItemJnlLine: Record "83") Identical: Boolean
-    var
-        recRE2: Record "337";
+    // ToDo -> all
+    procedure CompareChargeToItemJnlLine(var ReservationEntry: Record "Reservation Entry"; var ItemJnlLine: Record "Item Journal Line") Identical: Boolean
+    // var
+    //     ReservationEntry2: Record "Reservation Entry";
     begin
-        if ReservationEntry."Item No." <> ItemJnlLine."Item No." then
-            exit(false);
-        if ReservationEntry."Lot No." <> ItemJnlLine."Lot No." then
-            exit(false);
-        if ReservationEntry."Variant Code" <> ItemJnlLine."Variant Code" then
-            exit(false);
-        if (ReservationEntry."Source Ref. No." <> ItemJnlLine."Line No.") then
-            exit(false);
-        if (ReservationEntry."Source Subtype" <> ItemJnlLine."Entry Type") then
-            exit(false);
-        if (ReservationEntry."Source ID" <> ItemJnlLine."Journal Template Name") then
-            exit(false);
-        if (ReservationEntry."Source Batch Name" <> ItemJnlLine."Journal Batch Name") then
-            exit(false);
+        // if ReservationEntry."Item No." <> ItemJnlLine."Item No." then
+        //     exit(false);
+        // if ReservationEntry."Lot No." <> ItemJnlLine."Lot No." then
+        //     exit(false);
+        // if ReservationEntry."Variant Code" <> ItemJnlLine."Variant Code" then
+        //     exit(false);
+        // if (ReservationEntry."Source Ref. No." <> ItemJnlLine."Line No.") then
+        //     exit(false);
+        // if (ReservationEntry."Source Subtype" <> ItemJnlLine."Entry Type") then
+        //     exit(false);
+        // if (ReservationEntry."Source ID" <> ItemJnlLine."Journal Template Name") then
+        //     exit(false);
+        // if (ReservationEntry."Source Batch Name" <> ItemJnlLine."Journal Batch Name") then
+        //     exit(false);
 
-        if (ReservationEntry."Expiration Date" <> ItemJnlLine."Expiration Date") and (ItemJnlLine."Expiration Date" <> 0D) then
-            exit(false);
-        if (ReservationEntry."Serial No." <> ItemJnlLine."Serial No.") and (ItemJnlLine."Serial No." <> '') then
-            exit(false);
-        if (ReservationEntry."Lieferantenchargennr." <> ItemJnlLine."Lieferantenchargennr.") and (ItemJnlLine."Lieferantenchargennr." <> '') then
-            exit(false);
-        //IF (ReservationEntry.BASSalesLotNoPHA <> ItemJnlLine.ex) AND (ItemJnlLine."External Lot No." <> '') THEN
-        //  EXIT(FALSE);
-        //IF (ReservationEntry.Gebindeanzahl <> ItemJnlLine.Gebindeanzahl) AND (ItemJnlLine.Gebindeanzahl <> 0) THEN
-        //  EXIT(FALSE);
-        //IF (ReservationEntry.Gebindeartencode <> ItemJnlLine.Gebindeartencode) AND (ItemJnlLine.Gebindeartencode <> '') THEN
-        //  EXIT(FALSE);
-        //IF (ReservationEntry.Palettenanzahl <> ItemJnlLine.Palettenanzahl) AND (ItemJnlLine.Palettenanzahl <> 0) THEN
-        //  EXIT(FALSE);
+        // if (ReservationEntry."Expiration Date" <> ItemJnlLine."Expiration Date") and (ItemJnlLine."Expiration Date" <> 0D) then
+        //     exit(false);
+        // if (ReservationEntry."Serial No." <> ItemJnlLine."Serial No.") and (ItemJnlLine."Serial No." <> '') then
+        //     exit(false);
+        // if (ReservationEntry."BASLieferantenchargennr.PHA" <> ItemJnlLine."BASLieferantenchargennr.PHA") and (ItemJnlLine."Lieferantenchargennr." <> '') then
+        //     exit(false);
 
-        recRE2.SetRange("Source Type", ReservationEntry."Source Type");
-        recRE2.SetRange("Source Subtype", ReservationEntry."Source Subtype");
-        recRE2.SetRange("Source ID", ReservationEntry."Source ID");
-        recRE2.SetRange("Source Batch Name", ReservationEntry."Source Batch Name");
-        recRE2.SetRange("Source Prod. Order Line", ReservationEntry."Source Prod. Order Line");
-        recRE2.SetRange("Source Ref. No.", ReservationEntry."Source Ref. No.");
-        recRE2.SetFilter(
-          "Reservation Status", '%1|%2', recRE2."Reservation Status"::Surplus, recRE2."Reservation Status"::Prospect);
-        if recRE2.CALCSUMS("Quantity (Base)") then begin
-            if (recRE2."Quantity (Base)" <> ItemJnlLine."Quantity (Base)") then
-                exit(false);
-        end;
+        // ReservationEntry2.SetRange("Source Type", ReservationEntry."Source Type");
+        // ReservationEntry2.SetRange("Source Subtype", ReservationEntry."Source Subtype");
+        // ReservationEntry2.SetRange("Source ID", ReservationEntry."Source ID");
+        // ReservationEntry2.SetRange("Source Batch Name", ReservationEntry."Source Batch Name");
+        // ReservationEntry2.SetRange("Source Prod. Order Line", ReservationEntry."Source Prod. Order Line");
+        // ReservationEntry2.SetRange("Source Ref. No.", ReservationEntry."Source Ref. No.");
+        // ReservationEntry2.SetFilter("Reservation Status", '%1|%2', ReservationEntry2."Reservation Status"::Surplus, ReservationEntry2."Reservation Status"::Prospect);
+        // if ReservationEntry2.CalcSums("Quantity (Base)") then
+        //     if (ReservationEntry2."Quantity (Base)" <> ItemJnlLine."Quantity (Base)") then
+        //         exit(false);
 
-        exit(true);
+        // exit(true);
     end;
-
 
     procedure GetChargenStatus(cItemNo: Code[20]; cLotNo: Code[20]) tChargenStatus: Text[20]
     var
@@ -499,37 +436,20 @@ codeunit 50006 BASLotMgtPHA
         tChargenStatus := '';
         if (StrLen(cItemNo) > 0) and (StrLen(cLotNo) > 0) then
             if LotNoInformation.GET(cItemNo, '', cLotNo) then
-                tChargenStatus := Format(LotNoInformation.Status);
+                tChargenStatus := Format(LotNoInformation.BASStatusPHA);
     end;
 
-
-    // >> TASK59.01
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Tracking Data Collection", 'OnAssistEditTrackingNoOnBeforeSetSources', '', false, false)]
     local procedure CU6501OnAssistEditTrackingNoOnBeforeSetSources(var TempTrackingSpecification: Record "Tracking Specification" temporary; var TempGlobalEntrySummary: Record "Entry Summary" temporary; var MaxQuantity: Decimal)
     var
         LotNoInformation: Record "Lot No. Information";
-        bOK: Boolean;
     begin
-        /*
-        //Befüllen der TempTrackingSpecification mit den zusätzlichen Infos zur Charge
-        IF TempTrackingSpecification."Entry No." = 0 then
-            bOK := TempTrackingSpecification.FindFirst()
-        else
-            bOK := true;
-        */
-        bOK := true;
-        if bOK then begin
-            if TempGlobalEntrySummary.FindSet() then
-                repeat
-                    if LotNoInformation.GET(TempTrackingSpecification."Item No.", TempTrackingSpecification."Variant Code", TempGlobalEntrySummary."Lot No.") then begin
-                        TempGlobalEntrySummary.Chargenstatus := Format(LotNoInformation.Status);
-                        TempGlobalEntrySummary.Modify(false);
-                    end;
-                until TempGlobalEntrySummary.Next() = 0;
-        end;
-
+        if TempGlobalEntrySummary.FindSet() then
+            repeat
+                if LotNoInformation.GET(TempTrackingSpecification."Item No.", TempTrackingSpecification."Variant Code", TempGlobalEntrySummary."Lot No.") then begin
+                    TempGlobalEntrySummary.BASChargenstatusPHA := Format(LotNoInformation.BASStatusPHA);
+                    TempGlobalEntrySummary.Modify(false);
+                end;
+            until TempGlobalEntrySummary.Next() = 0;
     end;
-    // << TASK59.01
-
-
 }

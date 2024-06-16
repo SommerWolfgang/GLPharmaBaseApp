@@ -105,15 +105,13 @@ codeunit 50000 BASCodeCollectionPHA
             until PurchaseLine.Next() = 0;
     end;
 
-    procedure Verkaufslager() Lagerort: Code[10]
+    procedure SalesLocation(): Code[10]
     var
-        LagerEinrichtung: Record "313";
+        InventorySetup: Record "Inventory Setup";
     begin
-        //-LAN001
-        LagerEinrichtung.GET();
-        LagerEinrichtung.TESTFIELD(Verkaufslagerortcode);
-        Lagerort := LagerEinrichtung.Verkaufslagerortcode;
-        //+LAN001
+        InventorySetup.Get();
+        InventorySetup.TestField(BASVerkaufslagerortcodePHA);
+        exit(InventorySetup.BASVerkaufslagerortcodePHA);
     end;
 
     procedure AktArtikelkonto(Item: Record Item)
@@ -158,7 +156,8 @@ codeunit 50000 BASCodeCollectionPHA
                 TempValueEntry.Description := PurchInvLine.Description;
                 TempValueEntry."No." := PurchInvLine."No.";          //Sachkontonr.
                 TempValueEntry."Item No." := PurchInvLine."BASZuordnung zu Artikelnr.PHA";
-                TempValueEntry."Item Ledger Entry No." := PurchInvLine."BASZuordnung zu ArtikelpostenPHA";
+                // ToDo
+                // TempValueEntry."Item Ledger Entry No." := PurchInvLine."BASZuordnung zu ArtikelpostenPHA";
                 TempValueEntry."Item Ledger Entry Type" := TempValueEntry."Item Ledger Entry Type"::Purchase;
                 TempValueEntry."Global Dimension 1 Code" := PurchInvLine."Shortcut Dimension 1 Code";
                 TempValueEntry."Valued Quantity" := PurchInvLine."Quantity (Base)";
@@ -444,7 +443,7 @@ codeunit 50000 BASCodeCollectionPHA
         if PurchaseLine.FindSet() then
             repeat
                 if (PurchaseLine."Qty. to Receive" > 0) or (PurchaseLine."Qty. to Invoice" > 0) then
-                    if Artikelprüfen(PurchaseLine, 20) then
+                    if CheckItem(PurchaseLine, 20) then
                         exit(false);
             until PurchaseLine.Next() = 0;
 
@@ -464,61 +463,55 @@ codeunit 50000 BASCodeCollectionPHA
 
     end;
 
-    procedure "Artikelprüfen"(EinkkaufszeileRec: Record "Purchase Line"; WarningValue: Decimal): Boolean
+    procedure CheckItem(PurchaseLine: Record "Purchase Line"; WarningValue: Decimal): Boolean
     var
         Item: Record Item;
-        EinkRechZeile: Record "Purch. Inv. Line";
+        PurchInvLine: Record "Purch. Inv. Line";
         nhilf: Decimal;
         cHilf: Text[150];
     begin
-
-        if Item.GET(EinkkaufszeileRec."No.") then begin
-            if CopyStr(EinkRechZeile."No.", 1, 2) = 'DI' then  //Diverse Artikel nicht abprüfen
-                if Format(Item.Artikelart) = ' ' then
+        if Item.Get(PurchaseLine."No.") then begin
+            if CopyStr(PurchInvLine."No.", 1, 2) = 'DI' then
+                if Format(Item.BASItemTypePHA) = ' ' then
                     exit(false);
 
-            nhilf := Abweichung(Item."Unit Cost",
-                               EinkkaufszeileRec."Unit Cost" / EinkkaufszeileRec."Qty. per Unit of Measure");    //GL020 "Unit Cost" statt "Unit Cost (LCY)" genommen
-            cHilf := 'bisher: ' + Format(Item."Unit Cost") + ' jetzt: ' + Format(EinkkaufszeileRec."Unit Cost" / EinkkaufszeileRec."Qty. per Unit of Measure");
-            cHilf := '(' + cHilf + ')';
+            nhilf := Difference(Item."Unit Cost",
+                               PurchaseLine."Unit Cost" / PurchaseLine."Qty. per Unit of Measure");    //GL020 "Unit Cost" statt "Unit Cost (LCY)" genommen
+            cHilf := 'bisher: ' + Format(Item."Unit Cost") + ' jetzt: ' + Format(PurchaseLine."Unit Cost" / PurchaseLine."Qty. per Unit of Measure");
+            Evaluate(cHilf, '(' + cHilf + ')');
 
             if Item."Costing Method" = Item."Costing Method"::Standard then begin
-                //Bei Fertigwaren/HF immer zum Einstandspreis genau Einkaufen, sonst Meldung
                 if ABS(nhilf) > 0 then
                     if not Confirm(
                       'Der Einstandspreis von %1 weicht um %2 Prozent ab.%3\' +
-                      'Wollen Sie trotzdem Buchen?', false, EinkkaufszeileRec."No.", ROUND(nhilf, 0.1), cHilf) then
+                      'Wollen Sie trotzdem Buchen?', false, PurchaseLine."No.", ROUND(nhilf, 0.1), cHilf) then
                         exit(true);
 
-            end else begin
-                //Bei FiFo-Artikel den Toleranzwert zulassen (Preiserhöhung)
+            end else
                 if ABS(nhilf) >= WarningValue then
                     if not Confirm(
                       'Der Einstandspreis von %1 weicht um %2 Prozent ab.%3\' +
-                      'Wollen Sie trotzdem Buchen?', false, EinkkaufszeileRec."No.", ROUND(nhilf, 0.1), cHilf) then
+                      'Wollen Sie trotzdem Buchen?', false, PurchaseLine."No.", ROUND(nhilf, 0.1), cHilf)
+                    then
                         exit(true);
-            end;
         end;
 
         exit(false);
     end;
 
-    procedure Abweichung(Wert1: Decimal; Wert2: Decimal) Abweich: Decimal
+    procedure Difference(Value1: Decimal; Wert2: Decimal) Abweich: Decimal
     begin
-        if Wert1 <> 0 then
-            Abweich := (Wert2 / Wert1 - 1) * 100
-        else
-            Abweich := 0;
-        //Abweich := abs(Abweich);
+        if Value1 <> 0 then
+            exit((Wert2 / Value1 - 1) * 100);
     end;
 
-    procedure Bereitstellungslager(var "Location Name": Code[10]) Result: Boolean
+    procedure Bereitstellungslager(var LocationName: Code[10]) Result: Boolean
     var
         InventorySetup: Record "Inventory Setup";
     begin
         InventorySetup.Get();
         Result := InventorySetup.BASBereitstellungslagerortcodePHA <> '';
-        "Location Name" := InventorySetup.BASBereitstellungslagerortcodePHA;
+        LocationName := InventorySetup.BASBereitstellungslagerortcodePHA;
     end;
 
     procedure FAPDatum(ItemNo: Code[20]; tDatum: Text[30]): Decimal
@@ -644,7 +637,7 @@ codeunit 50000 BASCodeCollectionPHA
 
     procedure BemerkungsmeldungEKRechnung(KreditorenNr: Code[20])
     var
-        Bemerkzeile: Record "97";
+        Bemerkzeile: Record "Comment Line";
         BemerkungsText: Text[1000];
     begin
         //-GL013
@@ -653,8 +646,9 @@ codeunit 50000 BASCodeCollectionPHA
         Bemerkzeile.SetCurrentKey("Table Name", "No.");
         Bemerkzeile.SetRange("Table Name", Bemerkzeile."Table Name"::Vendor);
         Bemerkzeile.SetRange("No.", KreditorenNr);
-        Bemerkzeile.SetRange("Meldung in Einkauf Rechnung an", true);
-        if Bemerkzeile.FindSet() then begin
+        // ToDo
+        // Bemerkzeile.SetRange("Meldung in Einkauf Rechnung an", true);
+        if Bemerkzeile.FindSet() then
             repeat
                 if Bemerkzeile.Comment <> '' then begin
                     BemerkungsText += CopyStr(Bemerkzeile.Comment, 1,
@@ -663,11 +657,9 @@ codeunit 50000 BASCodeCollectionPHA
                         BemerkungsText += '\';
                 end;
             until Bemerkzeile.Next() = 0;
-        end;
 
         if BemerkungsText <> '' then
             Message(CopyStr(BemerkungsText, 1, StrLen(BemerkungsText) - 1));
-        //+GL013
     end;
 
     procedure GetLagerplatzinhaltStichtag(cLagerort: Code[10]; cLagerplatz: Code[20]; cItemNo: Code[20]; dtStichtag_: Date) nReturn: Decimal
@@ -854,7 +846,6 @@ codeunit 50000 BASCodeCollectionPHA
     var
         tTemp: Text[250];
     begin
-        //-GL034
         tTemp := CONVERTSTR(tOriginal, '<', '-');
         tTemp := CONVERTSTR(tTemp, '>', '-');
         tTemp := CONVERTSTR(tTemp, ':', '.');
@@ -865,7 +856,6 @@ codeunit 50000 BASCodeCollectionPHA
         tTemp := CONVERTSTR(tTemp, '?', '_');
         tTemp := CONVERTSTR(tTemp, '*', '_');
         tFormatted := tTemp;
-        //+GL034
     end;
 
     procedure RemoveBadChars(BCText: Text[250]) tBCReturn: Text[250]
@@ -883,148 +873,26 @@ codeunit 50000 BASCodeCollectionPHA
 
     procedure BemerkungsmeldungUmlagerung("Artikelnr.": Code[20])
     var
-        Bemerkzeile: Record "97";
-        BemerkungsText: Text[1000];
+        CommentLine: Record "Comment Line";
+        CommentText: Text;
     begin
-        //-GL036
-        //Artikelbemerkungs Meldung Umlagerung
-        BemerkungsText := '';
-        Bemerkzeile.SetCurrentKey("Table Name", "No.");
-        Bemerkzeile.SetRange("Table Name", Bemerkzeile."Table Name"::Item);
-        Bemerkzeile.SetRange("No.", "Artikelnr.");
-        Bemerkzeile.SetRange("Meldung bei Umlagerung", true);
-        if Bemerkzeile.FindSet() then begin
+        CommentText := '';
+        CommentLine.SetCurrentKey("Table Name", "No.");
+        CommentLine.SetRange("Table Name", CommentLine."Table Name"::Item);
+        CommentLine.SetRange("No.", "Artikelnr.");
+        // ToDo
+        // Bemerkzeile.SetRange("Meldung bei Umlagerung", true);
+        if CommentLine.FindSet() then
             repeat
-                if Bemerkzeile.Comment <> '' then begin
-                    BemerkungsText += CopyStr(Bemerkzeile.Comment, 1,
-                      MaxStrLen(BemerkungsText) - StrLen(BemerkungsText));
-                    if MaxStrLen(BemerkungsText) > StrLen(BemerkungsText) then
-                        BemerkungsText += '\';
+                if CommentLine.Comment <> '' then begin
+                    CommentText += CopyStr(CommentLine.Comment, 1,
+                      MaxStrLen(CommentText) - StrLen(CommentText));
+                    if MaxStrLen(CommentText) > StrLen(CommentText) then
+                        CommentText += '\';
                 end;
-            until Bemerkzeile.Next() = 0;
-        end;
+            until CommentLine.Next() = 0;
 
-        if BemerkungsText <> '' then
-            Message(CopyStr(BemerkungsText, 1, StrLen(BemerkungsText) - 1));
-        //+GL036
+        if CommentText <> '' then
+            Message(CopyStr(CommentText, 1, StrLen(CommentText) - 1));
     end;
-    /*
-    procedure PDFMailBestellungErstellen(recPurchHeader: Record "38"; tTyp: Code[20]; bSuppressWindow: Boolean)
-    var
-        PurchaseHeader: Record "38";
-        recVendor: Record "23";
-        recSalespersonPurchaser: Record "13";
-        tFileNameFrom: Text[250];
-        tFileNameTo: Text[250];
-        iRenameVersuche: Integer;
-        recGenLedSetup: Record "98";
-        recBestellungMailversand: Record "50091";
-        cuUserManagement: Codeunit "418";
-        WSHFile: Automation;
-        bOK: Boolean;
-        recPurchHeaderLocal: Record "38";
-        iRechnungskopien_: Integer;
-        tMailToAdresse: Text[100];
-        recShipToAddress: Record "222";
-        cuFile_: Codeunit "419";
-        tPfadSpeicherort: Text[250];
-        cuNavipharma: Codeunit "50506";
-        repOrder: Report "405";
-        bProceed: Boolean;
-    begin
-        //-GL037
-        //-GL032
-        //IF cuNavipharma.IsTestEnvironment() THEN
-        //  ERROR('PDF-Mail im Testsystem nicht zulässig!');
-        //+GL032
-        recPurchHeader.SetRange("No.", recPurchHeader."No.");
-
-        bOK := recVendor.GET(recPurchHeader."Buy-from Vendor No.");
-        IF recVendor.Bestellemail = '' THEN
-            IF DIALOG.Confirm('Kreditor %1 hat keine Bestell-Email hinterlegt. Kontakt Email (%2) verwenden?', FALSE, recPurchHeader."Buy-from Vendor No.", recVendor."E-Mail") THEN
-                tMailToAdresse := recVendor."E-Mail"
-            ELSE
-                EXIT
-        ELSE
-            tMailToAdresse := recVendor.Bestellemail;
-
-        IF bOK = TRUE THEN BEGIN   //Buy-From Vendor No.
-            IF StrLen(tMailToAdresse) > 0 THEN BEGIN
-                //Dateipfade am Server
-                recGenLedSetup.GET;
-                tPfadSpeicherort := recGenLedSetup.PDFPfadEK;
-
-                IF StrLen(tPfadSpeicherort) = 0 THEN
-                    ERROR('Kein Speicherpfad definiert!');
-
-                tFileNameTo := tPfadSpeicherort + GetWFScompatibleString(recPurchHeader."No.") + '.pdf';
-
-                //Speichern nur am \\Server1\Export zulassen -> Lokal müsste ein Stream Download gemacht werden
-                IF (CopyStr(tFileNameTo, 1, 9) = '\\server1') OR (CopyStr(tFileNameTo, 1, 9) = '\\SERVER1') THEN BEGIN
-
-                    //Existiert die PDF Datei schon? -> Dann löschen!
-                    IF cuFile_.ServerFileExists(tFileNameTo) = TRUE THEN
-                        cuFile_.DeleteServerFile(tFileNameTo);
-
-                    bOK := FALSE;  //Bool Variable wieder benutzen
-                    repOrder.SETTABLEVIEW(recPurchHeader);  //Datensatz dem Bericht zuweisen
-                    IF repOrder.SAVEASPDF(tFileNameTo) = TRUE THEN
-                        bOK := TRUE;
-                    //+GL028
-                    IF bOK = TRUE THEN BEGIN
-                        IF cuFile_.ServerFileExists(tFileNameTo) = FALSE THEN
-                            ERROR('PDF-Bestellung %1 wurde nicht erstellt!', tFileNameTo);
-
-                        //PDF vorhanden -> Mailversand an Kunde wenn Datei erstellt wurde
-                        //Eintragen von Mailversand Informationen in einer Tabelle
-                        bProceed := TRUE;
-                        recBestellungMailversand.SetRange("Order No", recPurchHeader."No.");
-                        IF recBestellungMailversand.FindSet() THEN BEGIN
-                            bProceed := FALSE;
-                            IF recBestellungMailversand.Versendet = FALSE THEN BEGIN
-                                recBestellungMailversand.DELETE;
-                                bProceed := TRUE;
-                            END
-                            ELSE BEGIN
-                                IF DIALOG.Confirm('Zu Bestellung %1 wurde bereits ein Mail versandt. Erneut erstellen?', TRUE, recPurchHeader."No.") THEN BEGIN
-                                    recBestellungMailversand.DELETE;
-                                    bProceed := TRUE;
-                                END;
-                            END;
-                        END;
-
-                        IF bProceed THEN BEGIN
-                            CLEAR(recBestellungMailversand);
-                            recBestellungMailversand.Init;
-                            recBestellungMailversand.EMailEmpfaenger := tMailToAdresse;
-                            recBestellungMailversand.Versendet := FALSE;
-                            recBestellungMailversand."Order No" := recPurchHeader."No.";
-                            recBestellungMailversand.Buchungsdatum := recPurchHeader."Posting Date";
-                            recBestellungMailversand.BestellKdnNr := recPurchHeader."Buy-from Vendor No.";
-                            recBestellungMailversand."Language Code" := recPurchHeader."Language Code";
-                            recBestellungMailversand.Insert;
-                            COMMIT;  //Damit RUNMODAL funktioniert
-                        END;
-
-                        IF NOT (bSuppressWindow = TRUE) THEN BEGIN
-                            recBestellungMailversand.FILTERGROUP(2); //Versteckte Filter
-                            recBestellungMailversand.SetRange(Versendet, FALSE);
-                            recBestellungMailversand.FILTERGROUP(0);
-                            PAGE.RUN(50228, recBestellungMailversand);
-                        END;
-                    END ELSE
-                        ERROR('Das PDF %1 konnte nicht erstellt werden!', tFileNameTo);
-
-                END ELSE
-                    ERROR('PDF-Datei kann nur am Server1 erstellt werden!');
-            END ELSE
-                Message('E-Mail Adresse zu Rechnungskunde nicht vorhanden!');
-        END ELSE
-            Message('Rechnungskunde wurde nicht gefunden!');
-        //+GL037
-    end;
-*/
-
-
 }
-

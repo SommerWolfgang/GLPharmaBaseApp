@@ -73,7 +73,7 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table BASDropDownContentParameterPHA - Field Allow_Description - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Table 3654438918 - Field 2497862234 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+        <trans-unit id="Table 3654438918 - Field 2982916666 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Ändern</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table BASDropDownContentParameterPHA - Field Allow_Modify - Property Caption</note>
@@ -1028,6 +1028,21 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table BASWindream ButtonPHA - Field Table ID - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Codeunit 25025670 - NamedType 597739368" size-unit="char" translate="yes" xml:space="preserve">
+          <source>$BEREITST.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit BASCodeCollectionPHA - NamedType BATCH_NAME</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 25025670 - NamedType 969175921" size-unit="char" translate="yes" xml:space="preserve">
+          <source>BEREITSTELLUNG</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit BASCodeCollectionPHA - NamedType DOCUMENT_NAME</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 25025670 - NamedType 53747284" size-unit="char" translate="yes" xml:space="preserve">
+          <source>UMLAGERUNG</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit BASCodeCollectionPHA - NamedType TEMPLATE_NAME</note>
+        </trans-unit>
         <trans-unit id="Codeunit 2081604298 - Method 1386027358 - NamedType 3777985252" size-unit="char" translate="yes" xml:space="preserve">
           <source></source>
           <note from="Developer" annotates="general" priority="2">DEA="Artikel %1 Chargennr. eingegeben, aber Artikel nicht chargenpflichtig!\n(Feld Artikelverfolgungscode in Artikelkarte leer)"</note>
@@ -1052,6 +1067,21 @@
           <source></source>
           <note from="Developer" annotates="general" priority="2">DEA="Die Prüfung des Status der Unterstufen wurde abgebrochen, da für Charge '%1' des Artikels '%2' keine Istmeldungsposten vorhanden sind! Dies deutet darauf hin, dass die Charge '%1' nicht im Haus gefertigt wurde. Das System lässt die Freigabe daher ohne weitere Prüfung dieser Unterstufe zu."</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit BASNaviPharmaPHA - Method PrüfeUnterstufeFrei - NamedType InfoTestMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3872592017 - NamedType 2476940767" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Verarbeitung unterbrochen!</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Chargenverwaltung - NamedType Text000</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3872592017 - NamedType 3114637384" size-unit="char" translate="yes" xml:space="preserve">
+          <source>%1 in den Posten wird mitverändert!\ Wollen Sie Fortfahren?</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Chargenverwaltung - NamedType Text001</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3872592017 - NamedType 3752334001" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Von Artikel %1, Charge %2 sind im Lager %3 nur mehr %4 vorhanden!</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Chargenverwaltung - NamedType Text002</note>
         </trans-unit>
         <trans-unit id="TableExtension 2515398030 - Field 240111775 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 4206333399">
           <source>BASAktualisieren sperrenPHA</source>
@@ -1823,10 +1853,10 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASItemExtPHA - Field BASDurchschnittsgehaltPHA - Property Caption</note>
         </trans-unit>
-        <trans-unit id="TableExtension 4077311439 - Field 2833869818 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3276313895">
-          <source>BASEAN CodePHA</source>
+        <trans-unit id="TableExtension 4077311439 - Field 3153944834 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3276313895">
+          <source>BASEANCodePHA</source>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASItemExtPHA - Field BASEAN CodePHA - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASItemExtPHA - Field BASEANCodePHA - Property Caption</note>
         </trans-unit>
         <trans-unit id="TableExtension 4077311439 - Field 2807049301 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3276313895">
           <source>BASEinstandspreis (neuester)PHA</source>
@@ -1973,10 +2003,10 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASItemExtPHA - Field BASKreditornamePHA - Property Caption</note>
         </trans-unit>
-        <trans-unit id="TableExtension 4077311439 - Field 2439191813 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3276313895">
-          <source>BASLaetus-CodePHA</source>
+        <trans-unit id="TableExtension 4077311439 - Field 1313298770 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3276313895">
+          <source>BASLaetusCodePHA</source>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASItemExtPHA - Field BASLaetus-CodePHA - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASItemExtPHA - Field BASLaetusCodePHA - Property Caption</note>
         </trans-unit>
         <trans-unit id="TableExtension 4077311439 - Field 1763998472 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3276313895">
           <source>BASLagerungsartPHA</source>
@@ -2338,16 +2368,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASItemJournalLinePHA - Field BASArtikelgruppePHA - Property Caption</note>
         </trans-unit>
-        <trans-unit id="TableExtension 1135869253 - Field 3904646671 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 346005766">
-          <source>BASBestelldatumPHA</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASItemJournalLinePHA - Field BASBestelldatumPHA - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="TableExtension 1135869253 - Field 3435604010 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 346005766">
-          <source>BASBestellnr.PHA</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASItemJournalLinePHA - Field BASBestellnr.PHA - Property Caption</note>
-        </trans-unit>
         <trans-unit id="TableExtension 1135869253 - Field 1023020221 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 346005766">
           <source>BASCEP NrPHA</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -2393,6 +2413,16 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASItemJournalLinePHA - Field BASNaturalrabattmengePHA - Property Caption</note>
         </trans-unit>
+        <trans-unit id="TableExtension 1135869253 - Field 1711590293 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 346005766">
+          <source>BASOrderDatePHA</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASItemJournalLinePHA - Field BASOrderDatePHA - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 1135869253 - Field 3060317682 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 346005766">
+          <source>BASOrderNoPHA</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASItemJournalLinePHA - Field BASOrderNoPHA - Property Caption</note>
+        </trans-unit>
         <trans-unit id="TableExtension 1135869253 - Field 189361001 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 346005766">
           <source>BASPackmittelversionPHA</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -2423,20 +2453,20 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASItemJournalLinePHA - Field BASSortierungPHA - Property Caption</note>
         </trans-unit>
-        <trans-unit id="TableExtension 1135869253 - Field 66630796 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 346005766">
-          <source>BASStatisticCode2PHA IIIPHA</source>
+        <trans-unit id="TableExtension 1135869253 - Field 3893670997 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 346005766">
+          <source>BASStatisticCodeIIIPHA</source>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASItemJournalLinePHA - Field BASStatisticCode2PHA IIIPHA - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASItemJournalLinePHA - Field BASStatisticCodeIIIPHA - Property Caption</note>
         </trans-unit>
-        <trans-unit id="TableExtension 1135869253 - Field 3275595 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 346005766">
-          <source>BASStatisticCode2PHA IIPHA</source>
+        <trans-unit id="TableExtension 1135869253 - Field 3761292846 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 346005766">
+          <source>BASStatisticCodeIIPHA</source>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASItemJournalLinePHA - Field BASStatisticCode2PHA IIPHA - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASItemJournalLinePHA - Field BASStatisticCodeIIPHA - Property Caption</note>
         </trans-unit>
-        <trans-unit id="TableExtension 1135869253 - Field 2195059396 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 346005766">
-          <source>BASStatisticCode2PHA IPHA</source>
+        <trans-unit id="TableExtension 1135869253 - Field 1031574781 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 346005766">
+          <source>BASStatisticCodeIPHA</source>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASItemJournalLinePHA - Field BASStatisticCode2PHA IPHA - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASItemJournalLinePHA - Field BASStatisticCodeIPHA - Property Caption</note>
         </trans-unit>
         <trans-unit id="TableExtension 1135869253 - Field 3750931032 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 346005766">
           <source>BASSuchtgift/PsychotropPHA</source>
@@ -2598,167 +2628,167 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASItemLedgerEntryExtPHA - Field Ländercode - Property Caption</note>
         </trans-unit>
-        <trans-unit id="TableExtension 1345612550 - Field 3654008189 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
+        <trans-unit id="TableExtension 3157014342 - Field 3654008189 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
           <source>ArtikelPackungsgröße</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASLotNoInformatioNextPHA - Field ArtikelPackungsgröße - Property Caption</note>
         </trans-unit>
-        <trans-unit id="TableExtension 1345612550 - Field 1553444790 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
+        <trans-unit id="TableExtension 3157014342 - Field 1553444790 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
           <source>BASArtikelartPHA</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASLotNoInformatioNextPHA - Field BASArtikelartPHA - Property Caption</note>
         </trans-unit>
-        <trans-unit id="TableExtension 1345612550 - Field 4184324278 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
-          <source>BASArtikelnamePHA</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASLotNoInformatioNextPHA - Field BASArtikelnamePHA - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="TableExtension 1345612550 - Field 1023020221 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
+        <trans-unit id="TableExtension 3157014342 - Field 1023020221 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
           <source>BASCEP NrPHA</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASLotNoInformatioNextPHA - Field BASCEP NrPHA - Property Caption</note>
         </trans-unit>
-        <trans-unit id="TableExtension 1345612550 - Field 3648879965 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
+        <trans-unit id="TableExtension 3157014342 - Field 3648879965 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
           <source>Change Status</source>
           <note from="Developer" annotates="general" priority="2">DEA="Änderungsstatus"</note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASLotNoInformatioNextPHA - Field BASChangeStatusPHA - Property Caption</note>
         </trans-unit>
-        <trans-unit id="TableExtension 1345612550 - Field 4068769859 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
+        <trans-unit id="TableExtension 3157014342 - Field 4068769859 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
           <source>Zugangsdatum</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASLotNoInformatioNextPHA - Field BASEntryDatePHA - Property Caption</note>
         </trans-unit>
-        <trans-unit id="TableExtension 1345612550 - Field 393677287 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
+        <trans-unit id="TableExtension 3157014342 - Field 393677287 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
           <source>BASErstablaufdatumPHA</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASLotNoInformatioNextPHA - Field BASErstablaufdatumPHA - Property Caption</note>
         </trans-unit>
-        <trans-unit id="TableExtension 1345612550 - Field 1440804489 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
+        <trans-unit id="TableExtension 3157014342 - Field 1440804489 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
           <source>BASExpirationDateDMPHA</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASLotNoInformatioNextPHA - Field BASExpirationDateDMPHA - Property Caption</note>
         </trans-unit>
-        <trans-unit id="TableExtension 1345612550 - Field 3279935330 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
+        <trans-unit id="TableExtension 3157014342 - Field 3279935330 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
           <source>Expiration Date</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASLotNoInformatioNextPHA - Field BASExpirationDatePHA - Property Caption</note>
         </trans-unit>
-        <trans-unit id="TableExtension 1345612550 - Field 80653869 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
+        <trans-unit id="TableExtension 3157014342 - Field 80653869 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
           <source>BASFABeschreibung2PHA</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASLotNoInformatioNextPHA - Field BASFABeschreibung2PHA - Property Caption</note>
         </trans-unit>
-        <trans-unit id="TableExtension 1345612550 - Field 730475782 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
+        <trans-unit id="TableExtension 3157014342 - Field 730475782 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
           <source>BASGehaltPHA</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASLotNoInformatioNextPHA - Field BASGehaltPHA - Property Caption</note>
         </trans-unit>
-        <trans-unit id="TableExtension 1345612550 - Field 597253057 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
-          <source>BASHerstellerNrPHA</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASLotNoInformatioNextPHA - Field BASHerstellerNrPHA - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="TableExtension 1345612550 - Field 183255800 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
+        <trans-unit id="TableExtension 3157014342 - Field 183255800 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
           <source>BASHFCommentPHA</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASLotNoInformatioNextPHA - Field BASHFCommentPHA - Property Caption</note>
         </trans-unit>
-        <trans-unit id="TableExtension 1345612550 - Field 1088322352 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
+        <trans-unit id="TableExtension 3157014342 - Field 1088322352 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
           <source>Artikel gesperrt</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASLotNoInformatioNextPHA - Field BASItemBlockedPHA - Property Caption</note>
         </trans-unit>
-        <trans-unit id="TableExtension 1345612550 - Field 2524400173 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
+        <trans-unit id="TableExtension 3157014342 - Field 3389132926 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
+          <source>BASItemDescriptionPHA</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASLotNoInformatioNextPHA - Field BASItemDescriptionPHA - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 3157014342 - Field 2524400173 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
           <source>BASLaborkommentarPHA</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASLotNoInformatioNextPHA - Field BASLaborkommentarPHA - Property Caption</note>
         </trans-unit>
-        <trans-unit id="TableExtension 1345612550 - Field 2439191813 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
-          <source>BASLaetus-CodePHA</source>
+        <trans-unit id="TableExtension 3157014342 - Field 1313298770 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
+          <source>BASLaetusCodePHA</source>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASLotNoInformatioNextPHA - Field BASLaetus-CodePHA - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASLotNoInformatioNextPHA - Field BASLaetusCodePHA - Property Caption</note>
         </trans-unit>
-        <trans-unit id="TableExtension 1345612550 - Field 3511904233 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
+        <trans-unit id="TableExtension 3157014342 - Field 3511904233 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
           <source>BASLimsBacklogEntriesPHA</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASLotNoInformatioNextPHA - Field BASLimsBacklogEntriesPHA - Property Caption</note>
         </trans-unit>
-        <trans-unit id="TableExtension 1345612550 - Field 920535767 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
+        <trans-unit id="TableExtension 3157014342 - Field 920535767 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
           <source>BASLimsImportInProgressPHA</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASLotNoInformatioNextPHA - Field BASLimsImportInProgressPHA - Property Caption</note>
         </trans-unit>
-        <trans-unit id="TableExtension 1345612550 - Field 4290700706 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
+        <trans-unit id="TableExtension 3157014342 - Field 4290700706 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
           <source>BASLimsStatusPHA</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASLotNoInformatioNextPHA - Field BASLimsStatusPHA - Property Caption</note>
         </trans-unit>
-        <trans-unit id="TableExtension 1345612550 - Field 1881597146 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
+        <trans-unit id="TableExtension 3157014342 - Field 1756368629 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
+          <source>Manufacturing No.</source>
+          <note from="Developer" annotates="general" priority="2">DEA="Herstellernr."</note>
+          <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASLotNoInformatioNextPHA - Field BASManufaturingNoPHA - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 3157014342 - Field 1881597146 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
           <source>BASMIBIPHA</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASLotNoInformatioNextPHA - Field BASMIBIPHA - Property Caption</note>
         </trans-unit>
-        <trans-unit id="TableExtension 1345612550 - Field 3772210487 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
+        <trans-unit id="TableExtension 3157014342 - Field 3772210487 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
           <source>Open</source>
           <note from="Developer" annotates="general" priority="2">DEA="Offen"</note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASLotNoInformatioNextPHA - Field BASOpenPHA - Property Caption</note>
         </trans-unit>
-        <trans-unit id="TableExtension 1345612550 - Field 189361001 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
+        <trans-unit id="TableExtension 3157014342 - Field 189361001 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
           <source>BASPackmittelversionPHA</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASLotNoInformatioNextPHA - Field BASPackmittelversionPHA - Property Caption</note>
         </trans-unit>
-        <trans-unit id="TableExtension 1345612550 - Field 1035973468 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
+        <trans-unit id="TableExtension 3157014342 - Field 1035973468 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
           <source>BASProduktionsdatumPHA</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASLotNoInformatioNextPHA - Field BASProduktionsdatumPHA - Property Caption</note>
         </trans-unit>
-        <trans-unit id="TableExtension 1345612550 - Field 3337210880 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
+        <trans-unit id="TableExtension 3157014342 - Field 3337210880 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
           <source>Release Date</source>
           <note from="Developer" annotates="general" priority="2">DEA="Freigabedatum"</note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASLotNoInformatioNextPHA - Field BASReleaseDatePHA - Property Caption</note>
         </trans-unit>
-        <trans-unit id="TableExtension 1345612550 - Field 3787404233 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
+        <trans-unit id="TableExtension 3157014342 - Field 3787404233 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
           <source>Release Name</source>
           <note from="Developer" annotates="general" priority="2">DEA="Freigabename"</note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASLotNoInformatioNextPHA - Field BASReleaseNamePHA - Property Caption</note>
         </trans-unit>
-        <trans-unit id="TableExtension 1345612550 - Field 2166915225 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
+        <trans-unit id="TableExtension 3157014342 - Field 2166915225 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
           <source>BASSalesLotNoPHA</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASLotNoInformatioNextPHA - Field BASSalesLotNoPHA - Property Caption</note>
         </trans-unit>
-        <trans-unit id="TableExtension 1345612550 - Field 1749116289 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
+        <trans-unit id="TableExtension 3157014342 - Field 1749116289 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
           <source>BASShipmentFinishedDatePHA</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASLotNoInformatioNextPHA - Field BASShipmentFinishedDatePHA - Property Caption</note>
         </trans-unit>
-        <trans-unit id="TableExtension 1345612550 - Field 4079357345 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
+        <trans-unit id="TableExtension 3157014342 - Field 4079357345 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
           <source>BASShipmentLotNoPHA</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASLotNoInformatioNextPHA - Field BASShipmentLotNoPHA - Property Caption</note>
         </trans-unit>
-        <trans-unit id="TableExtension 1345612550 - Field 3611182653 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
+        <trans-unit id="TableExtension 3157014342 - Field 3611182653 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
           <source>BASStatistikcode IIIPHA</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASLotNoInformatioNextPHA - Field BASStatistikcode IIIPHA - Property Caption</note>
         </trans-unit>
-        <trans-unit id="TableExtension 1345612550 - Field 1842979782 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
+        <trans-unit id="TableExtension 3157014342 - Field 1842979782 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
           <source>BASStatistikcode IIPHA</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASLotNoInformatioNextPHA - Field BASStatistikcode IIPHA - Property Caption</note>
         </trans-unit>
-        <trans-unit id="TableExtension 1345612550 - Field 157409957 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
+        <trans-unit id="TableExtension 3157014342 - Field 157409957 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
           <source>BASStatistikcode IPHA</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASLotNoInformatioNextPHA - Field BASStatistikcode IPHA - Property Caption</note>
         </trans-unit>
-        <trans-unit id="TableExtension 1345612550 - Field 3277430335 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
+        <trans-unit id="TableExtension 3157014342 - Field 3277430335 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
           <source>BASStatusPHA</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASLotNoInformatioNextPHA - Field BASStatusPHA - Property Caption</note>
         </trans-unit>
-        <trans-unit id="TableExtension 1345612550 - Field 523045232 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
+        <trans-unit id="TableExtension 3157014342 - Field 523045232 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 3361278800">
           <source>Rückstellmuster</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASLotNoInformatioNextPHA - Field Rückstellmuster - Property Caption</note>
@@ -3328,15 +3358,15 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASPurchaseLineExtPHA - Field BASDirect Unit Cost PEPHA - Property Caption</note>
         </trans-unit>
-        <trans-unit id="TableExtension 3111154359 - Field 394230706 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 1519909599">
-          <source>Expiration Date</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASPurchaseLineExtPHA - Field BASExpiration DatePHA - Property Caption</note>
-        </trans-unit>
         <trans-unit id="TableExtension 3111154359 - Field 1440804489 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 1519909599">
           <source>BASExpirationDateDMPHA</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASPurchaseLineExtPHA - Field BASExpirationDateDMPHA - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 3111154359 - Field 3279935330 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 1519909599">
+          <source>Expiration Date</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASPurchaseLineExtPHA - Field BASExpirationDatePHA - Property Caption</note>
         </trans-unit>
         <trans-unit id="TableExtension 3111154359 - Field 2697392601 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 1519909599">
           <source>BASGebindeanzahlPHA</source>
@@ -3348,11 +3378,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASPurchaseLineExtPHA - Field BASGebindeartencodePHA - Property Caption</note>
         </trans-unit>
-        <trans-unit id="TableExtension 3111154359 - Field 597253057 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 1519909599">
-          <source>BASHerstellerNrPHA</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASPurchaseLineExtPHA - Field BASHerstellerNrPHA - Property Caption</note>
-        </trans-unit>
         <trans-unit id="TableExtension 3111154359 - Field 1905447706 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 1519909599">
           <source>BASLieferantenchargennr.PHA</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -3362,6 +3387,11 @@
           <source>Lot No.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASPurchaseLineExtPHA - Field BASLotNoPHA - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 3111154359 - Field 1756368629 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 1519909599">
+          <source>BASManufaturingNoPHA</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASPurchaseLineExtPHA - Field BASManufaturingNoPHA - Property Caption</note>
         </trans-unit>
         <trans-unit id="TableExtension 3111154359 - Field 743159548 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 1519909599">
           <source>BASMengeninfo MengenstaffelPHA</source>
@@ -4533,17 +4563,17 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASShipToAdressExtPHA - Field BASVAT Registration No.PHA - Property Caption</note>
         </trans-unit>
-        <trans-unit id="TableExtension 2737070646 - Field 189361001 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 1470081326">
+        <trans-unit id="TableExtension 105293110 - Field 189361001 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 1470081326">
           <source>BASPackmittelversionPHA</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASTrackingSpecificatioNextPHA - Field BASPackmittelversionPHA - Property Caption</note>
         </trans-unit>
-        <trans-unit id="TableExtension 2737070646 - Field 2166915225 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 1470081326">
+        <trans-unit id="TableExtension 105293110 - Field 2166915225 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 1470081326">
           <source>BASSalesLotNoPHA</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASTrackingSpecificatioNextPHA - Field BASSalesLotNoPHA - Property Caption</note>
         </trans-unit>
-        <trans-unit id="TableExtension 2737070646 - Field 2854371607 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 1470081326">
+        <trans-unit id="TableExtension 105293110 - Field 2854371607 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 1470081326">
           <source>BASShipLotNoPHA</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASTrackingSpecificatioNextPHA - Field BASShipLotNoPHA - Property Caption</note>
@@ -4648,10 +4678,10 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASUserSetupPHA - Field BASWiegeUserLevelPHA - Property Caption</note>
         </trans-unit>
-        <trans-unit id="TableExtension 2160154641 - Field 2742231228 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 467645625">
-          <source>BASArtikelgruppePHA</source>
+        <trans-unit id="TableExtension 2160154641 - Field 1981434078 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 467645625">
+          <source>BASAItemGroupPHA</source>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASValueEntryExtPHA - Field BASArtikelgruppePHA - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASValueEntryExtPHA - Field BASAItemGroupPHA - Property Caption</note>
         </trans-unit>
         <trans-unit id="TableExtension 2160154641 - Field 3904646671 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 467645625">
           <source>BASBestelldatumPHA</source>
@@ -4703,20 +4733,20 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASValueEntryExtPHA - Field BASNaturalrabattmengePHA - Property Caption</note>
         </trans-unit>
-        <trans-unit id="TableExtension 2160154641 - Field 3611182653 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 467645625">
-          <source>BASStatistikcode IIIPHA</source>
+        <trans-unit id="TableExtension 2160154641 - Field 3738395029 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 467645625">
+          <source>BASStatistiCcodeIIIPHA</source>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASValueEntryExtPHA - Field BASStatistikcode IIIPHA - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASValueEntryExtPHA - Field BASStatistiCcodeIIIPHA - Property Caption</note>
         </trans-unit>
-        <trans-unit id="TableExtension 2160154641 - Field 1842979782 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 467645625">
-          <source>BASStatistikcode IIPHA</source>
+        <trans-unit id="TableExtension 2160154641 - Field 710244590 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 467645625">
+          <source>BASStatistiCcodeIIPHA</source>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASValueEntryExtPHA - Field BASStatistikcode IIPHA - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASValueEntryExtPHA - Field BASStatistiCcodeIIPHA - Property Caption</note>
         </trans-unit>
-        <trans-unit id="TableExtension 2160154641 - Field 157409957 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 467645625">
-          <source>BASStatistikcode IPHA</source>
+        <trans-unit id="TableExtension 2160154641 - Field 1912566077 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 467645625">
+          <source>BASStatistiCcodeIPHA</source>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASValueEntryExtPHA - Field BASStatistikcode IPHA - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASValueEntryExtPHA - Field BASStatistiCcodeIPHA - Property Caption</note>
         </trans-unit>
         <trans-unit id="TableExtension 2160154641 - Field 2906453091 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 467645625">
           <source>BASVerkaufsstatistikcodePHA</source>

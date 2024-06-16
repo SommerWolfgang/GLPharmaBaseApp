@@ -94,7 +94,7 @@ tableextension 50017 BASItemJournalLinePHA extends "Item Journal Line"
             begin
                 // ToDo -> hardcoded!!!
                 if "Journal Template Name" = 'FAVERB' then begin
-                    Testfield("Item No.");
+                    TestField("Item No.");
                     tempItemLedgerEntry."Item No." := "Item No.";
                     tempItemLedgerEntry.SetRange("Item No.", "Item No.");
                     tempItemLedgerEntry.SetRange(Open, true);
@@ -244,7 +244,7 @@ tableextension 50017 BASItemJournalLinePHA extends "Item Journal Line"
                 ActionReturn: Action;
             begin
 
-                Testfield("Item No.");
+                TestField("Item No.");
                 tempItemLedgerEntry."Item No." := "Item No.";
                 tempItemLedgerEntry.SetRange("Item No.", "Item No.");
                 tempItemLedgerEntry.SetRange(Open, true);
@@ -313,9 +313,10 @@ tableextension 50017 BASItemJournalLinePHA extends "Item Journal Line"
     var
         Item: Record Item;
         LotNoInformation: Record "Lot No. Information";
-        // LotMgt: Codeunit bas "50002";
-        ChargeMgt: Codeunit BASChargeMgtPHA;
+    // LotMgt: Codeunit bas "50002";
+    // ChargeMgt: Codeunit BASLotMgtPHA;
 
+    // ToDo
     procedure DeleteCharge()
     begin
         if "Line No." = 0 then
@@ -344,7 +345,7 @@ tableextension 50017 BASItemJournalLinePHA extends "Item Journal Line"
         //     "BASVerkaufschargennr.PHA" := LotNoInformation.."BASVerkaufschargennr.PHA";
         //     "Expiration Date" := LotNoInformation."Expiration Date";
         //     if Item.BASItemTypePHA = Item.BASItemTypePHA::"Finished Product" then
-        //         Testfield("BASVerkaufschargennr.PHA");
+        //         TestField("BASVerkaufschargennr.PHA");
         //     Validate("Lot No.", LotNoInformation."Lot No.");
         // end;
     end;

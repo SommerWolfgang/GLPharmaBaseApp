@@ -16,26 +16,22 @@ tableextension 50032 BASValueEntryExtPHA extends "Value Entry"
         {
 
         }
-        field(50506; BASArtikelgruppePHA; Code[10])
+        field(50506; BASAItemGroupPHA; Code[10])
         {
-
             Editable = false;
         }
-        field(50507; "BASStatistikcode IPHA"; Code[10])
+        field(50507; BASStatistiCcodeIPHA; Code[10])
         {
-
             Editable = false;
             TableRelation = BASStatisticCodePHA where(Level = const(1));
         }
-        field(50508; "BASStatistikcode IIPHA"; Code[10])
+        field(50508; BASStatistiCcodeIIPHA; Code[10])
         {
-
             Editable = false;
             TableRelation = BASStatisticCodePHA where(Level = const(2));
         }
-        field(50509; "BASStatistikcode IIIPHA"; Code[10])
+        field(50509; BASStatistiCcodeIIIPHA; Code[10])
         {
-
             Editable = false;
             TableRelation = BASStatisticCodePHA where(Level = const(3));
         }

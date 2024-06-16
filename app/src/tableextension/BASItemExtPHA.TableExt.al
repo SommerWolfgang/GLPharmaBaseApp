@@ -332,13 +332,11 @@ tableextension 50009 BASItemExtPHA extends Item
         {
             Caption = 'Packing size';
         }
-        field(50513; "BASEAN CodePHA"; Text[13])
+        field(50513; BASEANCodePHA; Text[13])
         {
-
         }
-        field(50514; "BASLaetus-CodePHA"; Text[10])
+        field(50514; BASLaetusCodePHA; Text[10])
         {
-
         }
         field(50515; BASSchwund_BeschreibungPHA; Text[50])
         {
