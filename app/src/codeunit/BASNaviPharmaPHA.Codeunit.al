@@ -604,9 +604,7 @@ codeunit 50001 BASNaviPharmaPHA
         Item.Get(ItemNo);
         ManufacturingSetup.Get();
 
-        exit((
-            Item."Gen. Prod. Posting Group" = ManufacturingSetup.BASFremdChNrProdBuchGruppePHA) and
-                (Item."Item Tracking Code" = 'CHARGEWIEN'));
+        exit((Item."Gen. Prod. Posting Group" = ManufacturingSetup.BASFremdChNrProdBuchGruppePHA) and (Item."Item Tracking Code" = 'CHARGEWIEN'));
     end;
 
     procedure StandortWeiche(Fld: Text[30]; Value: Text[40]): Text[30]

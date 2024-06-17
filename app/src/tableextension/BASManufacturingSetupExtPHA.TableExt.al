@@ -49,9 +49,9 @@ tableextension 50033 BASManufacturingSetupExtPHA extends "Manufacturing Setup"
         {
 
         }
-        field(50015; BASFertigungsgemeinkostensatzPHA; Decimal)
+        field(50015; BASManufactOverheadRatePHA; Decimal) //Gemeinkostenzuschlag
         {
-
+            Caption = 'Manufacturing Overhead Rate';
         }
         field(50016; BASSchwundBulkPHA; Decimal)
         {
@@ -73,13 +73,13 @@ tableextension 50033 BASManufacturingSetupExtPHA extends "Manufacturing Setup"
         {
 
         }
-        field(50021; BASPfadKonfektionierungsprotokollPHA; Text[150])
+        field(50021; BASPathPackagingProtocolPHA; Text[150]) //PfadKonfektionierungsprotokoll
         {
-
+            Caption = 'Path Packaging Protocol';
         }
-        field(50022; BASHerstellprotokollDirektDruckenPHA; Boolean)
+        field(50022; BASManuProtocolDirectPrintPHA; Boolean)
         {
-
+            Caption = 'Manufacturing Protocol Direct Print', comment = 'DEA="Herstellprotokoll direkt Drucken"';
         }
         field(50023; BASMaterialgemeinkosten2PHA; Decimal)
         {
@@ -104,220 +104,223 @@ tableextension 50033 BASManufacturingSetupExtPHA extends "Manufacturing Setup"
 
             OptionMembers = Lannacher,Gerot;
         }
-        field(50028; "BASVerp.-Schwundklasse 1PHA"; Decimal)
-        {
 
-        }
-        field(50029; "BASVerp.-Schwundklasse 1 vonPHA"; Decimal)
-        {
+        // ToDo -> English?
+        // field(50028; "BASVerp.-Schwundklasse 1PHA"; Decimal)
+        // {
 
-        }
-        field(50030; "BASVerp.-Schwundklasse 1 bisPHA"; Decimal)
-        {
+        // }
+        // field(50029; "BASVerp.-Schwundklasse 1 vonPHA"; Decimal)
+        // {
 
-        }
-        field(50031; "BASVerp.-Schwundklasse 2PHA"; Decimal)
-        {
+        // }
+        // field(50030; "BASVerp.-Schwundklasse 1 bisPHA"; Decimal)
+        // {
 
-        }
-        field(50032; "BASVerp.-Schwundklasse 2 vonPHA"; Decimal)
-        {
+        // }
+        // field(50031; "BASVerp.-Schwundklasse 2PHA"; Decimal)
+        // {
 
-        }
-        field(50033; "BASVerp.-Schwundklasse 2 bisPHA"; Decimal)
-        {
+        // }
+        // field(50032; "BASVerp.-Schwundklasse 2 vonPHA"; Decimal)
+        // {
 
-        }
-        field(50034; "BASVerp.-Schwundklasse 3PHA"; Decimal)
-        {
+        // }
+        // field(50033; "BASVerp.-Schwundklasse 2 bisPHA"; Decimal)
+        // {
 
-        }
-        field(50035; "BASVerp.-Schwundklasse 3 vonPHA"; Decimal)
-        {
+        // }
+        // field(50034; "BASVerp.-Schwundklasse 3PHA"; Decimal)
+        // {
 
-        }
-        field(50036; "BASVerp.-Schwundklasse 3 bisPHA"; Decimal)
-        {
+        // }
+        // field(50035; "BASVerp.-Schwundklasse 3 vonPHA"; Decimal)
+        // {
 
-        }
-        field(50037; "BASVerp.-Bulk-Schwundklasse 1PHA"; Decimal)
-        {
+        // }
+        // field(50036; "BASVerp.-Schwundklasse 3 bisPHA"; Decimal)
+        // {
 
-        }
-        field(50038; "BASVerp.-Bulk-Schwundklasse 1 vonPHA"; Decimal)
-        {
+        // }
+        // field(50037; "BASVerp.-Bulk-Schwundklasse 1PHA"; Decimal)
+        // {
 
-        }
-        field(50039; "BASVerp.-Bulk-Schwundklasse 1 bisPHA"; Decimal)
-        {
+        // }
+        // field(50038; "BASVerp.-Bulk-Schwundklasse 1 vonPHA"; Decimal)
+        // {
 
-        }
-        field(50040; "BASVerp.-Bulk-Schwundklasse 2PHA"; Decimal)
-        {
+        // }
+        // field(50039; "BASVerp.-Bulk-Schwundklasse 1 bisPHA"; Decimal)
+        // {
 
-        }
-        field(50041; "BASVerp.-Bulk-Schwundklasse 2 vonPHA"; Decimal)
-        {
+        // }
+        // field(50040; "BASVerp.-Bulk-Schwundklasse 2PHA"; Decimal)
+        // {
 
-        }
-        field(50042; "BASVerp.-Bulk-Schwundklasse 2 bisPHA"; Decimal)
-        {
+        // }
+        // field(50041; "BASVerp.-Bulk-Schwundklasse 2 vonPHA"; Decimal)
+        // {
 
-        }
-        field(50043; "BASVerp.-Bulk-Schwundklasse 3PHA"; Decimal)
-        {
+        // }
+        // field(50042; "BASVerp.-Bulk-Schwundklasse 2 bisPHA"; Decimal)
+        // {
 
-        }
-        field(50044; "BASVerp.-Bulk-Schwundklasse 3 vonPHA"; Decimal)
-        {
+        // }
+        // field(50043; "BASVerp.-Bulk-Schwundklasse 3PHA"; Decimal)
+        // {
 
-        }
-        field(50045; "BASVerp.-Bulk-Schwundklasse 3 bisPHA"; Decimal)
-        {
+        // }
+        // field(50044; "BASVerp.-Bulk-Schwundklasse 3 vonPHA"; Decimal)
+        // {
 
-        }
-        field(50050; "WaagePinVerschlüsselung"; Integer)
-        {
+        // }
+        // field(50045; "BASVerp.-Bulk-Schwundklasse 3 bisPHA"; Decimal)
+        // {
 
-            InitValue = 0;
-            MaxValue = 10;
-            MinValue = 0;
-        }
-        field(50051; "BASBackend Due DatePHA"; Boolean)
-        {
-            Caption = 'Komponentenfälligkeit ist FA-Enddatum';
+        // }
+        // field(50050; "WaagePinVerschlüsselung"; Integer)
+        // {
 
-        }
-        field(50052; BASPlanungsauftragsnummerPHA; Code[10])
-        {
+        //     InitValue = 0;
+        //     MaxValue = 10;
+        //     MinValue = 0;
+        // }
+        // field(50051; "BASBackend Due DatePHA"; Boolean)
+        // {
+        //     Caption = 'Komponentenfälligkeit ist FA-Enddatum';
 
-            TableRelation = "No. Series";
-            ValidateTableRelation = false;
-        }
-        field(50053; "BASVerp.-Schwundklasse 4PHA"; Decimal)
-        {
+        // }
+        // field(50052; BASPlanungsauftragsnummerPHA; Code[10])
+        // {
 
-        }
-        field(50054; "BASVerp.-Schwundklasse 4 vonPHA"; Decimal)
-        {
+        //     TableRelation = "No. Series";
+        //     ValidateTableRelation = false;
+        // }
 
-        }
-        field(50055; "BASVerp.-Schwundklasse 4 bisPHA"; Decimal)
-        {
+        // field(50053; "BASVerp.-Schwundklasse 4PHA"; Decimal)
+        // {
 
-        }
-        field(50056; "BASVerp.-Schwundklasse 5PHA"; Decimal)
-        {
+        // }
+        // field(50054; "BASVerp.-Schwundklasse 4 vonPHA"; Decimal)
+        // {
 
-        }
-        field(50057; "BASVerp.-Schwundklasse 5 vonPHA"; Decimal)
-        {
+        // }
+        // field(50055; "BASVerp.-Schwundklasse 4 bisPHA"; Decimal)
+        // {
 
-        }
-        field(50058; "BASVerp.-Schwundklasse 5 bisPHA"; Decimal)
-        {
+        // }
+        // field(50056; "BASVerp.-Schwundklasse 5PHA"; Decimal)
+        // {
 
-        }
-        field(50059; BASFremdChargenNrPHA; Code[20])
-        {
+        // }
+        // field(50057; "BASVerp.-Schwundklasse 5 vonPHA"; Decimal)
+        // {
 
-            TableRelation = "No. Series".Code;
-        }
+        // }
+        // field(50058; "BASVerp.-Schwundklasse 5 bisPHA"; Decimal)
+        // {
+
+        // }
+        // field(50059; BASFremdChargenNrPHA; Code[20])
+        // {
+
+        //     TableRelation = "No. Series".Code;
+        // }
         field(50060; BASFremdChNrProdBuchGruppePHA; Code[20])
         {
 
             TableRelation = "Gen. Product Posting Group".Code;
         }
-        field(50061; BASPfadKartonetikettenPHA; Text[150])
-        {
+        // field(50061; BASPfadKartonetikettenPHA; Text[150])
+        // {
 
-        }
-        field(50062; "BASVerp.-Bulk-Schwundklasse 4PHA"; Decimal)
-        {
+        // }
+        // field(50062; "BASVerp.-Bulk-Schwundklasse 4PHA"; Decimal)
+        // {
 
-        }
-        field(50063; "BASVerp.-Bulk-Schwundklasse 4 vonPHA"; Decimal)
-        {
+        // }
+        // field(50063; "BASVerp.-Bulk-Schwundklasse 4 vonPHA"; Decimal)
+        // {
 
-        }
-        field(50064; "BASVerp.-Bulk-Schwundklasse 4 bisPHA"; Decimal)
-        {
+        // }
+        // field(50064; "BASVerp.-Bulk-Schwundklasse 4 bisPHA"; Decimal)
+        // {
 
-        }
-        field(50065; "BASVerp.-Bulk-Schwundklasse 5PHA"; Decimal)
-        {
+        // }
+        // field(50065; "BASVerp.-Bulk-Schwundklasse 5PHA"; Decimal)
+        // {
 
-        }
-        field(50066; "BASVerp.-Bulk-Schwundklasse 5 vonPHA"; Decimal)
-        {
+        // }
+        // field(50066; "BASVerp.-Bulk-Schwundklasse 5 vonPHA"; Decimal)
+        // {
 
-        }
-        field(50067; "BASVerp.-Bulk-Schwundklasse 5 bisPHA"; Decimal)
-        {
+        // }
+        // field(50067; "BASVerp.-Bulk-Schwundklasse 5 bisPHA"; Decimal)
+        // {
 
-        }
-        field(50068; BASdtWartungAngelegtPHA; Date)
-        {
+        // }
+        // field(50068; BASdtWartungAngelegtPHA; Date)
+        // {
 
-        }
+        // }
         field(50069; BASRohstoffchargennummernPHA; Code[10])
         {
             TableRelation = "No. Series";
         }
-        field(50070; BASPfadProbenEtikettenPHA; Text[150])
-        {
-        }
-        field(50071; BASProbenetikettenDruckerPHA; Text[150])
-        {
-        }
-        field(50072; BASProbenetikettenPreviewPHA; Boolean)
-        {
-        }
+        // field(50070; BASPfadProbenEtikettenPHA; Text[150])
+        // {
+        // }
+        // field(50071; BASProbenetikettenDruckerPHA; Text[150])
+        // {
+        // }
+        // field(50072; BASProbenetikettenPreviewPHA; Boolean)
+        // {
+        // }
         field(50073; BASInventorySiteFilterPHA; Code[50])
         {
         }
-        field(50074; BASdtWartungPruefmittelAngelegtPHA; Date)
-        {
+        // field(50074; BASdtWartungPruefmittelAngelegtPHA; Date)
+        // {
 
-        }
-        field(50075; BASPfadKonfektionierungsFuellkontPHA; Text[200])
-        {
+        // }
+        // field(50075; BASPfadKonfektionierungsFuellkontPHA; Text[200])
+        // {
 
-        }
-        field(50076; BASPfadUmpackprotokollPHA; Text[200])
-        {
+        // }
+        // field(50076; BASPfadUmpackprotokollPHA; Text[200])
+        // {
 
-        }
-        field(50077; BASPfadRohstoffPruefBerichtPHA; Text[200])
-        {
-        }
-        field(50078; BASChargenFreigabeLegendePHA; BLOB)
-        {
-            SubType = Bitmap;
-        }
-        field(50079; BASMaterialgemeinkosten3_7EPMGKPHA; Decimal)
-        {
+        // }
+        // field(50077; BASPfadRohstoffPruefBerichtPHA; Text[200])
+        // {
+        // }
+        // field(50078; BASChargenFreigabeLegendePHA; BLOB)
+        // {
+        //     SubType = Bitmap;
+        // }
+        // field(50079; BASMaterialgemeinkosten3_7EPMGKPHA; Decimal)
+        // {
 
-        }
-        field(50080; BASPfadPalettenetikettenPHA; Text[200])
-        {
+        // }
+        // field(50080; BASPfadPalettenetikettenPHA; Text[200])
+        // {
 
-        }
-        field(50081; BASLagerbestandProduktionVorOrtPHA; Code[40])
-        {
+        // }
+        // field(50081; BASLagerbestandProduktionVorOrtPHA; Code[40])
+        // {
 
-        }
-        field(50082; BASCmrLastUpdatePHA; DateTime)
-        {
-        }
-        field(50083; "BASVariable-8GK HW-MGKPHA"; Decimal)
-        {
-        }
-        field(50084; "BASVariable-7EP HW-MGKPHA"; Decimal)
-        {
-        }
-        field(50085; "BASVariable-9HK HW-MGKPHA"; Decimal)
-        {
-        }
+        // }
+        // field(50082; BASCmrLastUpdatePHA; DateTime)
+        // {
+        // }
+        // field(50083; "BASVariable-8GK HW-MGKPHA"; Decimal)
+        // {
+        // }
+        // field(50084; "BASVariable-7EP HW-MGKPHA"; Decimal)
+        // {
+        // }
+        // field(50085; "BASVariable-9HK HW-MGKPHA"; Decimal)
+        // {
+        // }
     }
 }

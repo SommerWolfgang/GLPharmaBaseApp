@@ -22,7 +22,7 @@ codeunit 50000 BASCodeCollectionPHA
         tabledata "Sales Cr.Memo Header" = RM,
         tabledata "Sales Header" = RM,
         tabledata "Sales Invoice Header" = RM,
-        tabledata "Sales Price" = R,
+        // tabledata "Sales Price" = R,
         tabledata "Sales Shipment Header" = R,
         tabledata "Ship-to Address" = R,
         tabledata "Transfer Header" = R,
@@ -31,15 +31,8 @@ codeunit 50000 BASCodeCollectionPHA
         tabledata Vendor = R,
         tabledata "Warehouse Entry" = R;
 
-    trigger OnRun()
-    begin
-    end;
-
     var
         HasBeenInitialized: Boolean;
-        BATCH_NAME: Label '$BEREITST.';
-        DOCUMENT_NAME: Label 'BEREITSTELLUNG';
-        TEMPLATE_NAME: Label 'UMLAGERUNG';
         ANSI: Text[94];
         ASCII: Text[94];
 
@@ -52,278 +45,278 @@ codeunit 50000 BASCodeCollectionPHA
         exit(LotNoInformation.FindFirst() and (StrLen(LotNoInformation."Lot No.") > 0));
     end;
 
+    // ToDo -> all
     procedure ImportPSPharmaCSVOrder(Path: Text)
-    var
-        recSalesPerson: Record "13";
-        recCust: Record "18";
-        recItem: Record "27";
-        recSH: Record "36";
-        recTempSH: Record "36" temporary;
-        recSL: Record "37";
-        recTempSL: Record "37" temporary;
-        recGebVKRech: Record "112";
-        recLot: Record "Lot No. Information";
-        cuSalesPriceCalcMgt: Codeunit "7000";
-        cuChargenverwaltung: Codeunit ChargenverwaltungPageApp;
-        cuCodesammlung: Codeunit Codesammlung;
-        InputFileManagement: Codeunit "File Management";
-        pTest: Page 348;
-        bAuftragsKopfErstelltVorhanden: Boolean;
-        bAuftragsNrGefunden: Boolean;
-        cAuftragNr: Code[20];
-        cAuftragNrVorher: Code[20];
-        cKunde: Code[20];
-        cKundenNr: Code[20];
-        tCharge: Code[20];
-        cAuftragNrVorhanden: Code[50];
-        dtLieferdatum: Date;
-        dMenge: Decimal;
-        InputFile: File;
+    // var
+    //     recSalesPerson: Record "13";
+    //     recCust: Record "18";
+    //     recItem: Record "27";
+    //     recSH: Record "36";
+    //     recTempSH: Record "36" temporary;
+    //     recSL: Record "37";
+    //     recTempSL: Record "37" temporary;
+    //     recGebVKRech: Record "112";
+    //     recLot: Record "Lot No. Information";
+    //     cuSalesPriceCalcMgt: Codeunit "7000";
+    //     cuChargenverwaltung: Codeunit ChargenverwaltungPageApp;
+    //     cuCodesammlung: Codeunit Codesammlung;
+    //     InputFileManagement: Codeunit "File Management";
+    //     pTest: Page 348;
+    //     bAuftragsKopfErstelltVorhanden: Boolean;
+    //     bAuftragsNrGefunden: Boolean;
+    //     cAuftragNr: Code[20];
+    //     cAuftragNrVorher: Code[20];
+    //     cKunde: Code[20];
+    //     cKundenNr: Code[20];
+    //     tCharge: Code[20];
+    //     cAuftragNrVorhanden: Code[50];
+    //     dtLieferdatum: Date;
+    //     dMenge: Decimal;
+    //     InputFile: File;
 
-        //recCSVBuffer: Record "CSV Buffer";
-        InS: InStream;
-        iAuftraegeAngelegt: Integer;
-        iAuftraegeDatei: Integer;
-        iLine: Integer;
-        iLinesInRecord: Integer;
-        iPos: Integer;
-        iZeilennrIntern: Integer;
-        tMatNr: Text[20];
-        tExtBelegNr: Text[50];
-        tReferenz: Text[50];
-        tRef: Text[100];
-        tRefVorher: Text[100];
-        FileName: Text[250];
-        tBemerkung: Text[250];
-        tLine: Text[1024];
-
+    //     //recCSVBuffer: Record "CSV Buffer";
+    //     InS: InStream;
+    //     iAuftraegeAngelegt: Integer;
+    //     iAuftraegeDatei: Integer;
+    //     iLine: Integer;
+    //     iLinesInRecord: Integer;
+    //     iPos: Integer;
+    //     iZeilennrIntern: Integer;
+    //     tMatNr: Text[20];
+    //     tExtBelegNr: Text[50];
+    //     tReferenz: Text[50];
+    //     tRef: Text[100];
+    //     tRefVorher: Text[100];
+    //     FileName: Text[250];
+    //     tBemerkung: Text[250];
+    //     tLine: Text[1024];
     begin
 
-        //Öffnen der XML Datei und Durchparsen
+        // //Öffnen der XML Datei und Durchparsen
 
-        //Löschen der Temp Tabelle, sonst werden beim offen lassen der Page Artikel doppelt angelegt
-        CLEAR(TempItem);
-        TempItem.DELETEALL(false);
+        // //Löschen der Temp Tabelle, sonst werden beim offen lassen der Page Artikel doppelt angelegt
+        // CLEAR(TempItem);
+        // TempItem.DELETEALL(false);
 
-        FinishedMessage := '';
-        iLine := 1;
-        iAuftraegeDatei := 0;
-        iAuftraegeAngelegt := 0;
+        // FinishedMessage := '';
+        // iLine := 1;
+        // iAuftraegeDatei := 0;
+        // iAuftraegeAngelegt := 0;
 
-        if UploadIntoStream('PS Auftraege', '', '', FileName, InS) then begin
-            CSVBuffer.DeleteAll(false);
-            CSVBuffer.LoadDataFromStream(InS, ';');
-            iLinesInRecord := CSVBuffer.GetNumberOfLines();
+        // if UploadIntoStream('PS Auftraege', '', '', FileName, InS) then begin
+        //     CSVBuffer.DeleteAll(false);
+        //     CSVBuffer.LoadDataFromStream(InS, ';');
+        //     iLinesInRecord := CSVBuffer.GetNumberOfLines();
 
-            if iLinesInRecord > 1 then
-                repeat
+        //     if iLinesInRecord > 1 then
+        //         repeat
 
-                    //BC23 InputFile.READ(tLine);
-                    //tLine += ';';
+        //             //BC23 InputFile.READ(tLine);
+        //             //tLine += ';';
 
-                    if iLine > 1 then begin
+        //             if iLine > 1 then begin
 
-                        //Spalten in Variablen schreiben (von Record, nicht rausschneiden wie im NAV2013)
-                        cAuftragNr := GetValueAtCell(iLine, 26);
-                        cKunde := GetValueAtCell(iLine, 16);
-                        tRef := GetValueAtCell(iLine, 1);
-                        Evaluate(iPos, GetValueAtCell(iLine, 18));
-                        tMatNr := GetValueAtCell(iLine, 19);
-                        Evaluate(dMenge, GetValueAtCell(iLine, 21));
-                        tCharge := GetValueAtCell(iLine, 22);
-
-
-                        if dMenge > 0 then begin
-
-                            //Wenn die Sendungsverfolgung leer ist
-                            if cAuftragNr = '' then begin
-                                //Bei einem Chargenwechsel die vorherige Auftragsnummer nehmen (ist dann leer) -> Die Referenz muss aber zur vorherigen Zeile passen
-                                if tRefVorher = tRef then begin
-                                    cAuftragNr := cAuftragNrVorher;
-                                end else begin
-                                    cAuftragNr := tRef;    //Die Auftragsnummer ist leer alternativ als eindeutige Kennung die Referenz nehmen
-                                end;
-                            end;
-
-                            bAuftragsKopfErstelltVorhanden := false;
-
-                            //Temp Kopf anlegen, wenn neue Auftragsnummer
-                            if cAuftragNrVorher <> cAuftragNr then begin
-                                iAuftraegeDatei += 1;
-                                iZeilennrIntern := 10000;
-
-                                recTempSH.SetRange("No.", cAuftragNr);
-                                if recTempSH.FindFirst = false then begin
-                                    CLEAR(recTempSH);
-                                    recTempSH.INIT;
-                                    recTempSH."No." := cAuftragNr;
-                                    recTempSH."Your Reference" := tRef;
-                                    recTempSH.Ladehilfsmittel := cAuftragNr;  //Feld im Kopf für die PS Auftragsnr verwenden
-                                    recCust.SetRange("No.", cKunde);
-                                    if recCust.FindFirst then begin
-                                        recTempSH."Sell-to Customer No." := recCust."No.";
-                                        recTempSH.INSERT(false);
-
-                                        bAuftragsKopfErstelltVorhanden := true;
-                                    end else begin
-                                        Message('Auftrag %1 konnte nicht erstellt werden. Kunde %2 nicht gefunden!', tRef, cKunde);
-                                    end;
-                                end;
-
-                            end else begin
-                                bAuftragsKopfErstelltVorhanden := true;
-                            end;
-                            cAuftragNrVorher := cAuftragNr;
-                            tRefVorher := tRef;
+        //                 //Spalten in Variablen schreiben (von Record, nicht rausschneiden wie im NAV2013)
+        //                 cAuftragNr := GetValueAtCell(iLine, 26);
+        //                 cKunde := GetValueAtCell(iLine, 16);
+        //                 tRef := GetValueAtCell(iLine, 1);
+        //                 Evaluate(iPos, GetValueAtCell(iLine, 18));
+        //                 tMatNr := GetValueAtCell(iLine, 19);
+        //                 Evaluate(dMenge, GetValueAtCell(iLine, 21));
+        //                 tCharge := GetValueAtCell(iLine, 22);
 
 
-                            //Temp Zeilen anlegen
-                            if bAuftragsKopfErstelltVorhanden = true then begin
-                                recItem.SetRange("Pharmazentralnr.", tMatNr);
-                                if recItem.FindFirst then begin
-                                    CLEAR(recTempSL);
-                                    recTempSL."Document Type" := recTempSL."Document Type"::Order;
-                                    recTempSL."Document No." := recTempSH."No.";
-                                    recTempSL."Line No." := iZeilennrIntern;
-                                    iZeilennrIntern += 10000;
-                                    recTempSL."No." := recItem."No.";
-                                    recTempSL.Quantity := dMenge;
-                                    recTempSL."Lot No." := tCharge;
-                                    //Charge noch dazu!
+        //                 if dMenge > 0 then begin
 
-                                    recTempSL.INSERT(false);
+        //                     //Wenn die Sendungsverfolgung leer ist
+        //                     if cAuftragNr = '' then begin
+        //                         //Bei einem Chargenwechsel die vorherige Auftragsnummer nehmen (ist dann leer) -> Die Referenz muss aber zur vorherigen Zeile passen
+        //                         if tRefVorher = tRef then begin
+        //                             cAuftragNr := cAuftragNrVorher;
+        //                         end else begin
+        //                             cAuftragNr := tRef;    //Die Auftragsnummer ist leer alternativ als eindeutige Kennung die Referenz nehmen
+        //                         end;
+        //                     end;
 
-                                end;
-                            end;
-                        end;
-                    end;
+        //                     bAuftragsKopfErstelltVorhanden := false;
 
-                    iLine += 1;
+        //                     //Temp Kopf anlegen, wenn neue Auftragsnummer
+        //                     if cAuftragNrVorher <> cAuftragNr then begin
+        //                         iAuftraegeDatei += 1;
+        //                         iZeilennrIntern := 10000;
 
-                until iLine > iLinesInRecord;
+        //                         recTempSH.SetRange("No.", cAuftragNr);
+        //                         if recTempSH.FindFirst = false then begin
+        //                             CLEAR(recTempSH);
+        //                             recTempSH.INIT;
+        //                             recTempSH."No." := cAuftragNr;
+        //                             recTempSH."Your Reference" := tRef;
+        //                             recTempSH.Ladehilfsmittel := cAuftragNr;  //Feld im Kopf für die PS Auftragsnr verwenden
+        //                             recCust.SetRange("No.", cKunde);
+        //                             if recCust.FindFirst then begin
+        //                                 recTempSH."Sell-to Customer No." := recCust."No.";
+        //                                 recTempSH.INSERT(false);
 
-            if 1 = 1 then begin   //deaktivieren zum testen
+        //                                 bAuftragsKopfErstelltVorhanden := true;
+        //                             end else begin
+        //                                 Message('Auftrag %1 konnte nicht erstellt werden. Kunde %2 nicht gefunden!', tRef, cKunde);
+        //                             end;
+        //                         end;
 
-                //Erstellen der Aufträge nach dem Import
-                CLEAR(recTempSH);
-                if recTempSH.FINDSET then
-                    repeat
+        //                     end else begin
+        //                         bAuftragsKopfErstelltVorhanden := true;
+        //                     end;
+        //                     cAuftragNrVorher := cAuftragNr;
+        //                     tRefVorher := tRef;
 
-                        //Gibt es den Auftrag schon (InAufträgen oder geb.Rechnung)? (Auf externe Belegnr prüfen)
-                        bAuftragsNrGefunden := false;
-                        CLEAR(recSH);
-                        recSH.SetRange("External Document No.", recTempSH.Ladehilfsmittel);
-                        if recSH.COUNT > 0 then begin
-                            bAuftragsNrGefunden := true;
-                            cAuftragNrVorhanden := recSH."No.";
-                        end;
-                        if bAuftragsNrGefunden = false then begin
-                            CLEAR(recGebVKRech);
-                            recGebVKRech.SetRange("External Document No.", recTempSH.Ladehilfsmittel);
-                            if recGebVKRech.COUNT > 0 then begin
-                                bAuftragsNrGefunden := true;
-                                cAuftragNrVorhanden := recGebVKRech."No.";
-                            end;
-                        end;
 
-                        if bAuftragsNrGefunden = true then
-                            if CONFIRM('Der Auftrag %1 ist mit %2 schon vorhanden! Neuen Auftrag erstellen?', false, recTempSH.Ladehilfsmittel, cAuftragNrVorhanden) = true then
-                                bAuftragsNrGefunden := false;
+        //                     //Temp Zeilen anlegen
+        //                     if bAuftragsKopfErstelltVorhanden = true then begin
+        //                         recItem.SetRange("Pharmazentralnr.", tMatNr);
+        //                         if recItem.FindFirst then begin
+        //                             CLEAR(recTempSL);
+        //                             recTempSL."Document Type" := recTempSL."Document Type"::Order;
+        //                             recTempSL."Document No." := recTempSH."No.";
+        //                             recTempSL."Line No." := iZeilennrIntern;
+        //                             iZeilennrIntern += 10000;
+        //                             recTempSL."No." := recItem."No.";
+        //                             recTempSL.Quantity := dMenge;
+        //                             recTempSL."Lot No." := tCharge;
+        //                             //Charge noch dazu!
 
-                        //Anlegen des Auftrag, wenn kein selber Auftrag gefunden wurde, oder es bestättigt wurde
-                        if bAuftragsNrGefunden = false then begin
-                            //Neuer Auftragskopf anlegen
-                            CLEAR(recSH);
-                            recSH.INIT;
-                            recSH."Document Type" := recSH."Document Type"::Order;
-                            recSH.INSERT(true);
-                            recSH.VALIDATE("Sell-to Customer No.", recTempSH."Sell-to Customer No.");
-                            recSH."Your Reference" := recTempSH."Your Reference";
-                            recSH.VALIDATE("Posting Date", OrderDate);     //Datum in Auftrag schreiben                    
-                            //BC23! recSH."Desired Delivery Date" := dtAuftragsdatum;     //Gewünschtes Lieferdatum
-                            if recSalesPerson.Get(USERID) then
-                                recSH."Salesperson Code" := recSalesPerson.Code;
-                            recSH."External Document No." := recTempSH.Ladehilfsmittel;  //PS-Pharma Auftragsnummer merken
+        //                             recTempSL.INSERT(false);
 
-                            recSH.MODIFY(true);
-                            //ShowAuftragHeaderInfo(recTempSH."Sell-to Customer No.");   //Kundeninfo Anzeigen
-                            iAuftraegeAngelegt += 1;
+        //                         end;
+        //                     end;
+        //                 end;
+        //             end;
 
-                            //Artikelzeilen anlegen
-                            CLEAR(recTempSL);
-                            recTempSL.SetRange("Document No.", recTempSH."No.");
-                            if recTempSL.FindFirst then begin
+        //             iLine += 1;
 
-                                //Textzeile mit PS-Pharma Auftragsnummer anlegen
-                                if (recTempSH.Ladehilfsmittel > '') then begin
-                                    CLEAR(recSL);
-                                    recSL.INIT;         //Document Type,Document No.,Line No.
-                                    recSL."Document Type" := recSL."Document Type"::Order;
-                                    recSL."Document No." := recSH."No.";
-                                    recSL."Line No." := 500;
-                                    recSL.INSERT(true);
-                                    recSL.Type := recSL.Type::" ";
-                                    recSL.Description := recTempSH.Ladehilfsmittel;
-                                    recSL.MODIFY(true);
-                                end;
+        //         until iLine > iLinesInRecord;
 
-                                repeat
+        //     if 1 = 1 then begin   //deaktivieren zum testen
 
-                                    CLEAR(recSL);
-                                    recSL.INIT;
-                                    recSL."Document Type" := recSL."Document Type"::Order;
-                                    recSL."Document No." := recSH."No.";
-                                    recSL."Line No." := recTempSL."Line No.";
-                                    recSL.INSERT(true);
+        //         //Erstellen der Aufträge nach dem Import
+        //         CLEAR(recTempSH);
+        //         if recTempSH.FINDSET then
+        //             repeat
 
-                                    recSL.Type := recSL.Type::Item;
-                                    recSL.VALIDATE("No.", recTempSL."No.");
-                                    recSL.VALIDATE(Quantity, recTempSL.Quantity);
-                                    //recSL.VALIDATE("Lot No.", recTempSL."Lot No.");
-                                    recSL.VALIDATE(Quantity);  //Teilmenge Validate wegen Preise Update
-                                    recSL."Location Code" := recSH."Location Code";
+        //                 //Gibt es den Auftrag schon (InAufträgen oder geb.Rechnung)? (Auf externe Belegnr prüfen)
+        //                 bAuftragsNrGefunden := false;
+        //                 CLEAR(recSH);
+        //                 recSH.SetRange("External Document No.", recTempSH.Ladehilfsmittel);
+        //                 if recSH.COUNT > 0 then begin
+        //                     bAuftragsNrGefunden := true;
+        //                     cAuftragNrVorhanden := recSH."No.";
+        //                 end;
+        //                 if bAuftragsNrGefunden = false then begin
+        //                     CLEAR(recGebVKRech);
+        //                     recGebVKRech.SetRange("External Document No.", recTempSH.Ladehilfsmittel);
+        //                     if recGebVKRech.COUNT > 0 then begin
+        //                         bAuftragsNrGefunden := true;
+        //                         cAuftragNrVorhanden := recGebVKRech."No.";
+        //                     end;
+        //                 end;
 
-                                    InsertExtendedText(recSL, false);    //Artikelinfo in Zeilenspalte anzeigen
+        //                 if bAuftragsNrGefunden = true then
+        //                     if CONFIRM('Der Auftrag %1 ist mit %2 schon vorhanden! Neuen Auftrag erstellen?', false, recTempSH.Ladehilfsmittel, cAuftragNrVorhanden) = true then
+        //                         bAuftragsNrGefunden := false;
 
-                                    recSL.MODIFY;
+        //                 //Anlegen des Auftrag, wenn kein selber Auftrag gefunden wurde, oder es bestättigt wurde
+        //                 if bAuftragsNrGefunden = false then begin
+        //                     //Neuer Auftragskopf anlegen
+        //                     CLEAR(recSH);
+        //                     recSH.INIT;
+        //                     recSH."Document Type" := recSH."Document Type"::Order;
+        //                     recSH.INSERT(true);
+        //                     recSH.VALIDATE("Sell-to Customer No.", recTempSH."Sell-to Customer No.");
+        //                     recSH."Your Reference" := recTempSH."Your Reference";
+        //                     recSH.VALIDATE("Posting Date", OrderDate);     //Datum in Auftrag schreiben                    
+        //                     //BC23! recSH."Desired Delivery Date" := dtAuftragsdatum;     //Gewünschtes Lieferdatum
+        //                     if recSalesPerson.Get(USERID) then
+        //                         recSH."Salesperson Code" := recSalesPerson.Code;
+        //                     recSH."External Document No." := recTempSH.Ladehilfsmittel;  //PS-Pharma Auftragsnummer merken
 
-                                    if CheckCharge(recTempSL."No.", recTempSL."Lot No.") then begin
-                                        //Chargennr aus VK-Charge holen
-                                        CLEAR(recLot);
-                                        recLot.SetRange("Item No.", recTempSL."No.");
-                                        recLot.SetRange("Verkaufschargennr.", recTempSL."Lot No.");
-                                        //Weitermachen!
+        //                     recSH.MODIFY(true);
+        //                     //ShowAuftragHeaderInfo(recTempSH."Sell-to Customer No.");   //Kundeninfo Anzeigen
+        //                     iAuftraegeAngelegt += 1;
 
-                                        if recLot.FindFirst then begin
-                                            // ResPosten zu VK Zeile erstellen
-                                            recSL."Lot No." := recLot."Lot No.";
-                                            cuChargenverwaltung.EingabeChargeForSalesLine(recSL);
-                                            /*
-                                            LotMgt.EingabeCharge(
-                                            DATABASE::"Sales Line", recVKLine."Document Type", recVKLine."Document No.", '', 0, recVKLine."Line No.",
-                                            recVKLine."Qty. per Unit of Measure", recVKLine.Quantity, recVKLine."Qty. to Invoice (Base)",
-                                            recLot."Lot No.", recLot."External Lot No.", '', '', recLot."Expiration Date",
-                                            recVKLine."No.", recVKLine."Variant Code", recVKLine."Location Code", recVKLine."Shipment Date");
-                                            */
-                                        end;
+        //                     //Artikelzeilen anlegen
+        //                     CLEAR(recTempSL);
+        //                     recTempSL.SetRange("Document No.", recTempSH."No.");
+        //                     if recTempSL.FindFirst then begin
 
-                                    end;
+        //                         //Textzeile mit PS-Pharma Auftragsnummer anlegen
+        //                         if (recTempSH.Ladehilfsmittel > '') then begin
+        //                             CLEAR(recSL);
+        //                             recSL.INIT;         //Document Type,Document No.,Line No.
+        //                             recSL."Document Type" := recSL."Document Type"::Order;
+        //                             recSL."Document No." := recSH."No.";
+        //                             recSL."Line No." := 500;
+        //                             recSL.INSERT(true);
+        //                             recSL.Type := recSL.Type::" ";
+        //                             recSL.Description := recTempSH.Ladehilfsmittel;
+        //                             recSL.MODIFY(true);
+        //                         end;
 
-                                until recTempSL.NEXT = 0;
+        //                         repeat
 
-                            end;
-                        end;
-                    until recTempSH.NEXT = 0;
+        //                             CLEAR(recSL);
+        //                             recSL.INIT;
+        //                             recSL."Document Type" := recSL."Document Type"::Order;
+        //                             recSL."Document No." := recSH."No.";
+        //                             recSL."Line No." := recTempSL."Line No.";
+        //                             recSL.INSERT(true);
 
-            end;
+        //                             recSL.Type := recSL.Type::Item;
+        //                             recSL.VALIDATE("No.", recTempSL."No.");
+        //                             recSL.VALIDATE(Quantity, recTempSL.Quantity);
+        //                             //recSL.VALIDATE("Lot No.", recTempSL."Lot No.");
+        //                             recSL.VALIDATE(Quantity);  //Teilmenge Validate wegen Preise Update
+        //                             recSL."Location Code" := recSH."Location Code";
 
-            //-GL001
-            //Verschieben der importierten Datei in einen Unterordner
-            //VerschiebeImportierteDatei(tDateiPfad);
-            //+GL001
-        end;
+        //                             InsertExtendedText(recSL, false);    //Artikelinfo in Zeilenspalte anzeigen
 
-        Message('%1 Aufträge in Datei, %2 Aufträge angelegt', iAuftraegeDatei, iAuftraegeAngelegt);   //Endmeldung
+        //                             recSL.MODIFY;
+
+        //                             if CheckCharge(recTempSL."No.", recTempSL."Lot No.") then begin
+        //                                 //Chargennr aus VK-Charge holen
+        //                                 CLEAR(recLot);
+        //                                 recLot.SetRange("Item No.", recTempSL."No.");
+        //                                 recLot.SetRange("Verkaufschargennr.", recTempSL."Lot No.");
+        //                                 //Weitermachen!
+
+        //                                 if recLot.FindFirst then begin
+        //                                     // ResPosten zu VK Zeile erstellen
+        //                                     recSL."Lot No." := recLot."Lot No.";
+        //                                     cuChargenverwaltung.EingabeChargeForSalesLine(recSL);
+        //                                     /*
+        //                                     LotMgt.EingabeCharge(
+        //                                     DATABASE::"Sales Line", recVKLine."Document Type", recVKLine."Document No.", '', 0, recVKLine."Line No.",
+        //                                     recVKLine."Qty. per Unit of Measure", recVKLine.Quantity, recVKLine."Qty. to Invoice (Base)",
+        //                                     recLot."Lot No.", recLot."External Lot No.", '', '', recLot."Expiration Date",
+        //                                     recVKLine."No.", recVKLine."Variant Code", recVKLine."Location Code", recVKLine."Shipment Date");
+        //                                     */
+        //                                 end;
+
+        //                             end;
+
+        //                         until recTempSL.NEXT = 0;
+
+        //                     end;
+        //                 end;
+        //             until recTempSH.NEXT = 0;
+
+        //     end;
+
+        //     //-GL001
+        //     //Verschieben der importierten Datei in einen Unterordner
+        //     //VerschiebeImportierteDatei(tDateiPfad);
+        //     //+GL001
+        // end;
+
+        // Message('%1 Aufträge in Datei, %2 Aufträge angelegt', iAuftraegeDatei, iAuftraegeAngelegt);   //Endmeldung
     end;
 
     procedure CopyRole(SourceId: Guid; TargetId: Guid; SourceUser: Code[132]; TargetUser: Code[132])
@@ -401,14 +394,14 @@ codeunit 50000 BASCodeCollectionPHA
 
     procedure CopyPermission(SourceId: Guid; TargetId: Guid; SourceUser: Code[132]; TargetUser: Code[132])
     var
-        UserSetupTarget: Record "User Setup";
-        UserSetupSource: Record "User Setup";
-        UserGroupTarget: Record "User Group";
-        UserGroupSource: Record "User Group";
-        AccessControlTarget: Record "Access Control";
         AccessControlSource: Record "Access Control";
-        UserTarget: Record User;
+        AccessControlTarget: Record "Access Control";
         UserSource: Record User;
+        UserTarget: Record User;
+        UserGroupSource: Record "User Group";
+        UserGroupTarget: Record "User Group";
+        UserSetupSource: Record "User Setup";
+        UserSetupTarget: Record "User Setup";
         PermissionCounter: Integer;
     begin
         PermissionCounter := 0;
@@ -444,7 +437,7 @@ codeunit 50000 BASCodeCollectionPHA
             UserSetupTarget.Reset();
             UserSetupTarget.Init();
             UserSetupTarget.Copy(UserSetupSource);
-            UserSetupTarget."User ID" := TargetUser;
+            UserSetupTarget.Validate("User ID", TargetUser);
             UserSetupTarget."Salespers./Purch. Code" := '';
             UserSetupTarget."E-Mail" := '';
             if not UserSetupTarget.Insert() then
@@ -956,8 +949,8 @@ codeunit 50000 BASCodeCollectionPHA
         InventorySetup: Record "Inventory Setup";
     begin
         InventorySetup.Get();
-        Result := InventorySetup.BASBereitstellungslagerortcodePHA <> '';
-        LocationName := InventorySetup.BASBereitstellungslagerortcodePHA;
+        Result := InventorySetup.BASAllocationCodePHA <> '';
+        LocationName := InventorySetup.BASAllocationCodePHA;
     end;
 
     procedure FAPDatum(ItemNo: Code[20]; tDatum: Text[30]): Decimal
@@ -1047,11 +1040,11 @@ codeunit 50000 BASCodeCollectionPHA
         //     until CommentLine.Next() = 0;
     end;
 
-    procedure GetTextTeil(tText: Text[1000]; tSeparator: Text[10]; iSektion: Integer) tReturn: Text[1000]
+    procedure GetTextTeil(tText: Text[1000]; tSeparator: Text[10]; iSektion: Integer) tReturn: Text
     var
         iSek_lokal: Integer;
         pos: Integer;
-        tRet_lokal: Text[250];
+        tRet_lokal: Text;
     begin
         //-GL010
         //Liefert aus einem Text mit Trennzeichen einen Teilbereich
@@ -1060,8 +1053,7 @@ codeunit 50000 BASCodeCollectionPHA
         tReturn := '';
         iSek_lokal := 1;
         pos := STRPOS(tText, tSeparator);
-        if pos > 0 then begin
-            //Bis zur geforderten Sektion weitergehen (wenn vorhanden)
+        if pos > 0 then
             repeat
                 //Text der derzzeitigen Sektion holen
                 tRet_lokal := CopyStr(tText, 1, pos - 1);
@@ -1071,14 +1063,10 @@ codeunit 50000 BASCodeCollectionPHA
                     tReturn := tRet_lokal;
                     pos := 0;
                 end else begin
-                    //Zur nächsten Sektion wechseln
-                    pos := STRPOS(tText, tSeparator);
+                    pos := StrPos(tText, tSeparator);
                     iSek_lokal += 1;
                 end;
-
             until pos = 0;
-        end;
-        //+GL010
     end;
 
     procedure BemerkungsmeldungEKRechnung(KreditorenNr: Code[20])
@@ -1108,23 +1096,18 @@ codeunit 50000 BASCodeCollectionPHA
             Message(CopyStr(BemerkungsText, 1, StrLen(BemerkungsText) - 1));
     end;
 
-    procedure GetLagerplatzinhaltStichtag(cLagerort: Code[10]; cLagerplatz: Code[20]; cItemNo: Code[20]; dtStichtag_: Date) nReturn: Decimal
+    procedure GetLagerplatzinhaltStichtag(cLagerort: Code[10]; cLagerplatz: Code[20]; cItemNo: Code[20]; dtStichtag_: Date): Decimal
     var
-        recWarehouseEntry: Record "7312";
+        WarehouseEntry: Record "Warehouse Entry";
     begin
-        //-GL015
-        nReturn := 0;
-
-        recWarehouseEntry.Reset();
-        recWarehouseEntry.SetCurrentKey("Location Code", "Bin Code", "Item No.", "Variant Code", "Registering Date", "Lot No.");
-
-        recWarehouseEntry.SetFilter("Location Code", cLagerort);
-        recWarehouseEntry.SetFilter("Bin Code", cLagerplatz);
-        recWarehouseEntry.SetRange("Item No.", cItemNo);
-        recWarehouseEntry.SetFilter("Registering Date", '..' + Format(dtStichtag_));
-
-        recWarehouseEntry.CALCSUMS("Qty. (Base)");
-        nReturn := recWarehouseEntry."Qty. (Base)";
+        WarehouseEntry.Reset();
+        WarehouseEntry.SetCurrentKey("Location Code", "Bin Code", "Item No.", "Variant Code", "Registering Date", "Lot No.");
+        WarehouseEntry.SetFilter("Location Code", cLagerort);
+        WarehouseEntry.SetFilter("Bin Code", cLagerplatz);
+        WarehouseEntry.SetRange("Item No.", cItemNo);
+        WarehouseEntry.SetFilter("Registering Date", '..' + Format(dtStichtag_));
+        WarehouseEntry.CalcSums("Qty. (Base)");
+        exit(WarehouseEntry."Qty. (Base)");
     end;
 
     procedure CopyPurchaseLine(PurchaseLine3: Record "Purchase Line")
@@ -1168,45 +1151,31 @@ codeunit 50000 BASCodeCollectionPHA
         PurchaseLine.Modify();
     end;
 
-    procedure IsTextInTextTeil(tText: Text[1000]; tSeparator: Text[10]; tSearchText: Text[20]) bReturn: Boolean
+    procedure IsTextInTextTeil(tText: Text[1000]; tSeparator: Text[10]; tSearchText: Text[20]): Boolean
     var
-        iSek_lokal: Integer;
         pos: Integer;
-        tRet_lokal: Text[250];
+        tRet_lokal: Text;
     begin
-
         //-GL017
         //Liefert aus einem Text mit Trennzeichen, ob ein Text in einem Teil ist
         //z.B.: IsTextInTextTeil('aa;bbbb;cccc;d;eee;',';','cccc')   ->  TRUE
 
-        bReturn := false;
-        iSek_lokal := 1;
-        pos := STRPOS(tText, tSeparator);
-        if pos > 0 then begin
-            //Bis zur Sektion mit dem Suchtext weitergehen
+        pos := StrPos(tText, tSeparator);
+        if pos > 0 then
             repeat
-                //Text der derzzeitigen Sektion holen
                 tRet_lokal := CopyStr(tText, 1, pos - 1);
                 tText := CopyStr(tText, pos + StrLen(tSeparator), StrLen(tText));
 
-                if tRet_lokal = tSearchText then begin
-                    bReturn := true;
-                    pos := 0;
-                end else begin
-                    //Zur nächsten Sektion wechseln
+                if tRet_lokal = tSearchText then
+                    pos := 0
+                else
                     pos := STRPOS(tText, tSeparator);
-                    iSek_lokal += 1;
-                end;
-
             until pos = 0;
-        end;
-        if tText = tSearchText then //Gleich ohne Trennzeichen
-            bReturn := true;
-        //+GL017
+
+        exit(tText = tSearchText);
     end;
 
-
-    procedure TextAuffuellen(tText: Text[50]; iLaenge: Integer; tFuellzeichen: Text[1]) tReturn: Text[50]
+    procedure TextAuffuellen(tText: Text[50]; iLaenge: Integer; tFuellzeichen: Text[1]) tReturn: Text
     var
         iCounter: Integer;
     begin
@@ -1216,27 +1185,23 @@ codeunit 50000 BASCodeCollectionPHA
 
         tReturn := tText;
         iCounter := StrLen(tText);
-        if (iCounter < iLaenge) then begin
+        if iCounter < iLaenge then
             repeat
                 tReturn := tFuellzeichen + tReturn;
                 iCounter += 1;
-            until iCounter >= iLaenge   //GL030 vorher:   iCounter>iLaenge
-        end;
-        //+GL023
+            until iCounter >= iLaenge
     end;
 
     procedure RemoveChars(BCText: Text[250]; iCharAsciiCode: Integer) tBCReturn: Text[250]
     var
         iCounter: Integer;
     begin
-        //-GL024
         iCounter := 1;
         while iCounter <= StrLen(BCText) do begin
             if not (BCText[iCounter] = iCharAsciiCode) then
                 tBCReturn += CopyStr(BCText, iCounter, 1);
             iCounter += 1;
         end;
-        //+GL024
     end;
 
     procedure KWInDatum(iKW: Integer; iJahr: Integer) dtReturn: Date
@@ -1244,23 +1209,14 @@ codeunit 50000 BASCodeCollectionPHA
         dtHelp: Date;
         iKWHelp: Integer;
     begin
-        //-GL025
-
-        //Jahresanfang ermitteln
-        //dtHelp := CALCDATE('-LJ',TODAY);
-        EVALUATE(dtHelp, '01.01.' + Format(iJahr));
-
-        //Zur Ermittlung, ob 01.01 diesen Jahres KW1 oder KW53 ist
-        EVALUATE(iKWHelp, Format(dtHelp, 0, '<Week,2><Filler Character,0>'));
+        Evaluate(dtHelp, '01.01.' + Format(iJahr));
+        Evaluate(iKWHelp, Format(dtHelp, 0, '<Week,2><Filler Character,0>'));
 
         if iKWHelp = 1 then
-            dtReturn := CALCDATE('+' + Format(iKW - 1) + 'W', dtHelp)
+            dtReturn := CalcDate('+' + Format(iKW - 1) + 'W', dtHelp)
         else
-            dtReturn := CALCDATE('+' + Format(iKW) + 'W', dtHelp);
-
-        //Auf Wochenanfang konvertieren
-        dtReturn := CALCDATE('-LW', dtReturn);
-        //+GL025
+            dtReturn := CalcDate('+' + Format(iKW) + 'W', dtHelp);
+        dtReturn := CalcDate('<-LW>', dtReturn);
     end;
 
     procedure EKBemerkungsmeldung(VendorNo: Code[20])

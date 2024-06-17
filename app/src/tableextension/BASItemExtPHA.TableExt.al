@@ -124,9 +124,8 @@ tableextension 50009 BASItemExtPHA extends Item
         {
 
         }
-        field(50026; "BASEinstandspreis (neuester)PHA"; Decimal)
+        field(50026; BASUnitCostNewestPHA; Decimal) //Einstandspreis (neuester)
         {
-
         }
         field(50027; "BASKlischee Nr.PHA"; Text[30])
         {
@@ -197,13 +196,13 @@ tableextension 50009 BASItemExtPHA extends Item
         field(50042; "BASSimulation-Schwund %PHA"; Decimal)
         {
         }
-        field(50043; "BASVKChargennr nicht berechnenPHA"; Boolean)
+        field(50043; BASNotCalculateSalesLotNoPHA; Boolean) //VKChargennr nicht berechnen
         {
         }
         field(50044; BASWirkstoffPHA; Text[50])
         {
         }
-        field(50045; BASArtikel_Hersteller_AnlegenPHA; Boolean)
+        field(50045; BASInsertItemManufacturingPHA; Boolean) //Artikel_Hersteller_Anlegen
         {
 
         }
@@ -232,12 +231,13 @@ tableextension 50009 BASItemExtPHA extends Item
         field(50049; "BASMindestrestlaufzeit %PHA"; Integer)
         {
         }
-        field(50050; BASSerialisierungVorhandenPHA; Boolean)
-        {
-            FieldClass = FlowField;
 
+        // ToDo
+        // field(50050; BASSerialisierungVorhandenPHA; Boolean)
+        // {
+        //     FieldClass = FlowField;
+        // }
 
-        }
         field(50051; "BASAnzahl je TrommelPHA"; Decimal)
         {
             DecimalPlaces = 0 : 3;
@@ -349,13 +349,13 @@ tableextension 50009 BASItemExtPHA extends Item
 
             trigger OnValidate()
             var
-                Text50000: Label 'Achtung!\Die BASItemTypePHA hat Auswirkung auf Chargenerstellung und Kommissionierung!\Ist die Festlegung von BASItemTypePHA %1 korrekt?';
+                Text50000Txt: Label 'Achtung!\Die BASItemTypePHA hat Auswirkung auf Chargenerstellung und Kommissionierung!\Ist die Festlegung von BASItemTypePHA %1 korrekt?', locked = true;
             begin
                 //-LAN001
                 if xRec.BASItemTypePHA = BASItemTypePHA then
                     exit;
 
-                if not Confirm(Text50000, false, BASItemTypePHA) then
+                if not Confirm(Text50000Txt, false, BASItemTypePHA) then
                     BASItemTypePHA := xRec.BASItemTypePHA;
                 //+LAN001
             end;
@@ -473,7 +473,7 @@ tableextension 50009 BASItemExtPHA extends Item
 
 
         }
-        field(50547; BASKalkProzentZuFertigArtikelFAPPHA; Decimal)
+        field(50547; BASCalcProcFAFinishedItemPHA; Decimal) //KalkProzentZuFertigArtikelFAP
         {
 
         }
@@ -488,10 +488,9 @@ tableextension 50009 BASItemExtPHA extends Item
             DecimalPlaces = 5 : 5;
 
         }
-        field(50551; "BASGewicht VP Kunststoffhohlk.PHA"; Decimal)
+        field(50551; BASWeightVPPlasticPHA; Decimal) //Gewicht VP Kunststoffhohlk.
         {
             DecimalPlaces = 5 : 5;
-
         }
         field(50552; BASWeightVPPlasticSheetPHA; Decimal)
         {

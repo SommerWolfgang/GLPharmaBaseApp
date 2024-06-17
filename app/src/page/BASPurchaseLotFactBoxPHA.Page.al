@@ -1,12 +1,12 @@
 // ToDo -> All (ReDesign -> List or Array!! .........)
 // BASSalesLotFactBoxPHA, BASPurchaseLotFactBoxPHA, BASSalesInvLotFactBoxPHA
-page 50012 BASSalesInvLotFactBoxPHA
+page 50010 BASPurchaseLotFactBoxPHA
 {
     Editable = false;
     PageType = CardPart;
     PopulateAllFields = true;
     RefreshOnActivate = true;
-    SourceTable = "Sales Invoice Line";
+    SourceTable = "Purchase Line";
 
     layout
     {
@@ -27,6 +27,9 @@ page 50012 BASSalesInvLotFactBoxPHA
                 grid(grid1)
                 {
                     GridLayout = Rows;
+                    //group()
+                    //{                        
+
                     field(tChargenText1; tChargenText1)
                     {
                         ApplicationArea = Basic, Suite;
@@ -49,7 +52,6 @@ page 50012 BASSalesInvLotFactBoxPHA
                         Caption = 'Charge 2';
                         ToolTip = 'Specifies the value of the Charge 2 field.';
                     }
-
                 }
             }
 
@@ -195,11 +197,10 @@ page 50012 BASSalesInvLotFactBoxPHA
 
     trigger OnAfterGetRecord()
     // var
-    //     recSSL: Record "111";
+    //     recILE: Record "32";
     //     recTmpResEntry: Record "337" temporary;
     //     recLot: Record "6505";
-    //     recILE: Record "Item Ledger Entry";
-    //     recVE: Record "Value Entry";
+    //     recSRL: Record "Purch. Rcpt. Line";
     //     iEntryNr: Integer;
     begin
         // ShowExternalLot := true; // >> CCU146.05
@@ -258,42 +259,42 @@ page 50012 BASSalesInvLotFactBoxPHA
 
 
 
-        // if Rec.Type = Rec.Type::Item then begin
-        //     recTmpResEntry.DeleteAll(false);
+        // if Type = Type::Item then begin
 
-
+        //     //Summieren der Reservierungen in einer Tmp Tabelle um Chargenänderungen nicht extra in einem Bereich anzuzeigen
+        //     CLEAR(recResEntry);
+        //     recResEntry.SETCURRENTKEY("Item No.", "Variant Code", "Lot No.");
+        //     recResEntry.SetRange("Item No.", "No.");
+        //     recResEntry.SetRange("Source ID", "Document No.");
+        //     recResEntry.SetRange("Source Ref. No.", "Line No.");
+        //     recResEntry.SetRange("Item Tracking", recResEntry."Item Tracking"::"Lot No.");
+        //     recResEntry.SETFILTER("Lot No.", '<>%1', '');
         //     iEntryNr := 1;
-        //     recVE.SetRange("Document No.", Rec."Document No.");
-        //     recVE.SetRange("Item Ledger Entry Type", recVE."Item Ledger Entry Type"::Sale);
-        //     recVE.SetRange("Item No.", Rec."No.");
-        //     recVE.SetRange("Document Line No.", Rec."Line No.");
-        //     recVE.SetRange("Source Code", 'VERKAUF');
-        //     if recVE.FindSet() then begin
+        //     if recResEntry.FINDSET then begin
         //         repeat
-        //             recVE.CalcFields("Lot No.");
 
-        //             recTmpResEntry.SetRange("Item No.", recVE."Item No.");
-        //             recTmpResEntry.SetRange("Lot No.", recVE."Lot No.");
+        //             recTmpResEntry.SetRange("Item No.", recResEntry."Item No.");
+        //             recTmpResEntry.SetRange("Lot No.", recResEntry."Lot No.");
         //             if recTmpResEntry.FindFirst then begin
-        //                 recTmpResEntry.Quantity += recVE."Invoiced Quantity" * (-1);
+        //                 recTmpResEntry.Quantity += ABS(recResEntry.Quantity);
         //                 recTmpResEntry.MODIFY;
         //             end else begin
         //                 recTmpResEntry.INIT;
         //                 recTmpResEntry."Entry No." := iEntryNr;
         //                 iEntryNr += 1;
-        //                 recTmpResEntry."Item No." := recVE."Item No.";
-        //                 recTmpResEntry."Lot No." := recVE."Lot No.";
-        //                 //recTmpResEntry."Verkaufschargennr." := recVE.;
-        //                 recTmpResEntry.Quantity := recVE."Invoiced Quantity" * (-1);
+        //                 recTmpResEntry."Item No." := recResEntry."Item No.";
+        //                 recTmpResEntry."Lot No." := recResEntry."Lot No.";
+        //                 recTmpResEntry."Verkaufschargennr." := recResEntry."Verkaufschargennr.";
+        //                 recTmpResEntry.Quantity := ABS(recResEntry.Quantity);
         //                 recTmpResEntry.INSERT;
         //             end;
-        //         until recVE.NEXT = 0;
+        //         until recResEntry.NEXT = 0;
         //     end;
 
         //     CLEAR(recTmpResEntry);
         //     recTmpResEntry.SETCURRENTKEY("Item No.", "Variant Code", "Lot No.");
         //     recTmpResEntry.SetRange("Item No.", "No.");
-        //     if recTmpResEntry.FindFirst then begin
+        //     if recTmpResEntry.FindSet() then begin
         //         repeat
         //             if recLot.Get(recTmpResEntry."Item No.", '', recTmpResEntry."Lot No.") then begin     //MFU 20.08.2020 -> Ablaufdatum aus Chargenstamm holen, in Resposten nicht immer befüllt
         //                 ItemNo := recTmpResEntry."Item No.";
@@ -389,13 +390,171 @@ page 50012 BASSalesInvLotFactBoxPHA
         //                             tChargenText10 := cLot10 + ' ' + cEx10 + ' ' + cCr10 + ' ' + cMenge10;
         //                         end;
         //                 end;
-        //                 iCounter := iCounter + 1;
+        //             end else begin
+        //                 //Chargenstamm Eintrag ist noch nicht vorhanden
+        //                 case iCounter of
+        //                     0:
+        //                         begin
+        //                             cLot1 := recTmpResEntry."Lot No.";
+        //                             tChargenText1 := recTmpResEntry."Lot No." + ' ' + FORMAT(ABS(recTmpResEntry.Quantity));
+        //                         end;
+        //                     1:
+        //                         begin
+        //                             cLot2 := recTmpResEntry."Lot No.";
+        //                             tChargenText2 := recTmpResEntry."Lot No." + ' ' + FORMAT(ABS(recTmpResEntry.Quantity));
+        //                         end;
+        //                     2:
+        //                         begin
+        //                             cLot3 := recTmpResEntry."Lot No.";
+        //                             tChargenText3 := recTmpResEntry."Lot No." + ' ' + FORMAT(ABS(recTmpResEntry.Quantity));
+        //                         end;
+        //                     3:
+        //                         begin
+        //                             cLot4 := recTmpResEntry."Lot No.";
+        //                             tChargenText4 := recTmpResEntry."Lot No." + ' ' + FORMAT(ABS(recTmpResEntry.Quantity));
+        //                         end;
+        //                     4:
+        //                         begin
+        //                             cLot5 := recTmpResEntry."Lot No.";
+        //                             tChargenText5 := recTmpResEntry."Lot No." + ' ' + FORMAT(ABS(recTmpResEntry.Quantity));
+        //                         end;
+        //                     5:
+        //                         begin
+        //                             cLot6 := recTmpResEntry."Lot No.";
+        //                             tChargenText6 := recTmpResEntry."Lot No." + ' ' + FORMAT(ABS(recTmpResEntry.Quantity));
+        //                         end;
+        //                     6:
+        //                         begin
+        //                             cLot7 := recTmpResEntry."Lot No.";
+        //                             tChargenText7 := recTmpResEntry."Lot No." + ' ' + FORMAT(ABS(recTmpResEntry.Quantity));
+        //                         end;
+        //                     7:
+        //                         begin
+        //                             cLot8 := recTmpResEntry."Lot No.";
+        //                             tChargenText8 := recTmpResEntry."Lot No." + ' ' + FORMAT(ABS(recTmpResEntry.Quantity));
+        //                         end;
+        //                     8:
+        //                         begin
+        //                             cLot9 := recTmpResEntry."Lot No.";
+        //                             tChargenText9 := recTmpResEntry."Lot No." + ' ' + FORMAT(ABS(recTmpResEntry.Quantity));
+        //                         end;
+        //                     9:
+        //                         begin
+        //                             cLot10 := recTmpResEntry."Lot No.";
+        //                             tChargenText10 := recTmpResEntry."Lot No." + ' ' + FORMAT(ABS(recTmpResEntry.Quantity));
+        //                         end;
+        //                 end;
         //             end;
+
+        //             iCounter := iCounter + 1;
         //         until recTmpResEntry.NEXT = 0;
+
+        //     end else begin
+        //         // Chargeninfo aus den Artikelposten holen -> ResPosten nach dem verbuchen nicht mehr vorhanden
+
+
+        //         recSRL.SetRange("Order No.", "Document No.");
+        //         recSRL.SetRange("Order Line No.", "Line No.");
+        //         if recSRL.FindFirst then begin
+        //             recILE.SetRange("Item No.", recSRL."No.");
+        //             recILE.SetRange("Document No.", recSRL."Document No.");
+        //             if recILE.FindFirst then
+        //                 repeat
+
+        //                     ItemNo := recILE."Item No.";
+        //                     if recLot.Get(recILE."Item No.", '', recILE."Lot No.") then begin     //MFU 20.08.2020 -> Ablaufdatum aus Chargenstamm holen, in Resposten nicht immer befüllt
+
+        //                         case iCounter of
+        //                             0:
+        //                                 begin
+        //                                     cLot1 := recILE."Lot No.";
+        //                                     cEx1 := FORMAT(recLot."Expiration Date");
+        //                                     cCr1 := FORMAT(recLot.Status);
+        //                                     cMenge1 := FORMAT(ABS(recILE.Quantity));
+        //                                     tChargenText1 := cLot1 + ' ' + cEx1 + ' ' + cCr1 + ' ' + cMenge1;
+        //                                 end;
+        //                             1:
+        //                                 begin
+        //                                     cLot2 := recILE."Lot No.";
+        //                                     cEx2 := FORMAT(recLot."Expiration Date");
+        //                                     cCr2 := FORMAT(recLot.Status);
+        //                                     cMenge2 := FORMAT(ABS(recILE.Quantity));
+        //                                     tChargenText2 := cLot2 + ' ' + cEx2 + ' ' + cCr2 + ' ' + cMenge2;
+        //                                 end;
+        //                             2:
+        //                                 begin
+        //                                     cLot3 := recILE."Lot No.";
+        //                                     cEx3 := FORMAT(recLot."Expiration Date");
+        //                                     cCr3 := FORMAT(recLot.Produktionsdatum);
+        //                                     cMenge3 := FORMAT(ABS(recILE.Quantity));
+        //                                     tChargenText3 := cLot3 + ' ' + cEx3 + ' ' + cCr3 + ' ' + cMenge3;
+        //                                 end;
+        //                             3:
+        //                                 begin
+        //                                     cLot4 := recILE."Lot No.";
+        //                                     cEx4 := FORMAT(recLot."Expiration Date");
+        //                                     cCr4 := FORMAT(recLot.Status);
+        //                                     cMenge4 := FORMAT(ABS(recILE.Quantity));
+        //                                     tChargenText4 := cLot4 + ' ' + cEx4 + ' ' + cCr4 + ' ' + cMenge4;
+        //                                 end;
+        //                             4:
+        //                                 begin
+        //                                     cLot5 := recILE."Lot No.";
+        //                                     cEx5 := FORMAT(recLot."Expiration Date");
+        //                                     cCr5 := FORMAT(recLot.Status);
+        //                                     cMenge5 := FORMAT(ABS(recILE.Quantity));
+        //                                     tChargenText5 := cLot5 + ' ' + cEx5 + ' ' + cCr5 + ' ' + cMenge5;
+        //                                 end;
+        //                             5:
+        //                                 begin
+        //                                     cLot6 := recILE."Lot No.";
+        //                                     cEx6 := FORMAT(recLot."Expiration Date");
+        //                                     cCr6 := FORMAT(recLot.Status);
+        //                                     cMenge6 := FORMAT(ABS(recILE.Quantity));
+        //                                     tChargenText6 := cLot6 + ' ' + cEx6 + ' ' + cCr6 + ' ' + cMenge6;
+        //                                 end;
+        //                             6:
+        //                                 begin
+        //                                     cLot7 := recILE."Lot No.";
+        //                                     cEx7 := FORMAT(recLot."Expiration Date");
+        //                                     cCr7 := FORMAT(recLot.Status);
+        //                                     cMenge7 := FORMAT(ABS(recILE.Quantity));
+        //                                     tChargenText7 := cLot7 + ' ' + cEx7 + ' ' + cCr7 + ' ' + cMenge7;
+        //                                 end;
+        //                             7:
+        //                                 begin
+        //                                     cLot8 := recILE."Lot No.";
+        //                                     cEx8 := FORMAT(recLot."Expiration Date");
+        //                                     cCr8 := FORMAT(recLot.Status);
+        //                                     cMenge8 := FORMAT(ABS(recILE.Quantity));
+        //                                     tChargenText8 := cLot8 + ' ' + cEx8 + ' ' + cCr8 + ' ' + cMenge8;
+        //                                 end;
+        //                             8:
+        //                                 begin
+        //                                     cLot9 := recILE."Lot No.";
+        //                                     cEx9 := FORMAT(recLot."Expiration Date");
+        //                                     cCr9 := FORMAT(recLot.Status);
+        //                                     cMenge9 := FORMAT(ABS(recILE.Quantity));
+        //                                     tChargenText9 := cLot9 + ' ' + cEx9 + ' ' + cCr9 + ' ' + cMenge9;
+        //                                 end;
+        //                             9:
+        //                                 begin
+        //                                     cLot10 := recILE."Lot No.";
+        //                                     cEx10 := FORMAT(recLot."Expiration Date");
+        //                                     cCr10 := FORMAT(recLot.Status);
+        //                                     cMenge10 := FORMAT(ABS(recILE.Quantity));
+        //                                     tChargenText10 := cLot10 + ' ' + cEx10 + ' ' + cCr10 + ' ' + cMenge10;
+        //                                 end;
+        //                         end;
+        //                         iCounter := iCounter + 1;
+        //                     end;
+
+
+        //                 until recILE.NEXT = 0;
+        //         end;
 
         //     end;
 
-        // end;
 
         if StrLen(cLot1) > 1 then bShow1 := true else bShow1 := false;
         if StrLen(cLot2) > 1 then bShow2 := true else bShow2 := false;
@@ -407,6 +566,7 @@ page 50012 BASSalesInvLotFactBoxPHA
         if StrLen(cLot8) > 1 then bShow8 := true else bShow8 := false;
         if StrLen(cLot9) > 1 then bShow9 := true else bShow9 := false;
         if StrLen(cLot10) > 1 then bShow10 := true else bShow10 := false;
+
     end;
 
     var
@@ -531,4 +691,10 @@ page 50012 BASSalesInvLotFactBoxPHA
 
         CurrPage.Update();
     end;
+
+    procedure ShowExternalLotNo(ShowLot: Boolean)
+    begin
+        ShowExternalLot := ShowLot; // >> CCU146.05
+    end;
 }
+

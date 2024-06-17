@@ -1,29 +1,9 @@
 tableextension 50031 BASInventorySetupExtPHA extends "Inventory Setup"
-{// LAN001 25.11.09 ACPSS LAN1.00
-    //   New Fields: ID 50500 - 50504
-    // 
-    // Felder: Etikettenanzahl, EK-kein Art.lief.preis-Warnung,
-    //         Konsignationslagerortcode, -fach, Etikettendrucker
-    //         "Kommschein": welcher Bericht soll gedruckt werden
-    //         "LS Kopie bei Kommiss."
-    //                   Falls eine zusätzliche Kopie des Lieferscheins aus Kommissionierung gewünscht ist, kann hier
-    //                   der Bericht angegeben werden.
-    //         "Bereitstellungslagerortcode":
-    //                    Wird hier ein Lager eingetragen, holt die Bereitstellung nur von dort Chargen
-    //         Lagerbestand vor Ort Filter
-    //         Etikettendrucker: Option Thermotransferdrucker eingefügt
-    // 
-    // 
-    // ------------------------------------------------------------------------------------------------------------------------------------
-    // Datum      | Autor   | Status     | Beschreibung
-    // ------------------------------------------------------------------------------------------------------------------------------------
-    // 2010-02-05 | Petsch  | ok         | Update von 3.60
-    // ------------------------------------------------------------------------------------------------------------------------------------
-    // 2020-01-14 | MFU     | ok         | Bereitstellungslagerort ohne Table Relation
-    // ------------------------------------------------------------------------------------------------------------------------------------
+{
     fields
     {
-        field(50000; "BASSortierung KommissionierungPHA"; Option)
+        // ToDo Enum SortingCommission
+        field(50000; BASSortingCommissionPHA; Option)
         {
             OptionCaption = 'Lagerzone-Artikelnr.,Artikelnr.,Lagerzone-Artikelname,Artikelname';
             OptionMembers = "Lagerzone-Artikelnr.","Artikelnr.","Lagerzone-Artikelname",Artikelname;
@@ -45,18 +25,17 @@ tableextension 50031 BASInventorySetupExtPHA extends "Inventory Setup"
         {
 
         }
-        field(50004; "BASEK-Warnung kein Art.lief.preisPHA"; Boolean)
+        field(50004; BASPuWarningtemShippricePHA; Boolean) //EK-Warnung kein Art.lief.preis
         {
-
+            Caption = 'Purch-Warning missing Item Ship price';
         }
+        // ToDo Enum
         field(50005; BASEtikettendruckerPHA; Option)
         {
-
             OptionMembers = Matrixdrucker,Laserdrucker,Thermotransferdrucker;
         }
         field(50006; "BASPacking List Nos.PHA"; Code[10])
         {
-
             TableRelation = "No. Series";
         }
         field(50500; BASSuchtgiftlagerortcodePHA; Code[10])
@@ -79,24 +58,20 @@ tableextension 50031 BASInventorySetupExtPHA extends "Inventory Setup"
             Caption = '', comment = 'DEA="YourLanguageText"';
             TableRelation = Location;
         }
-        field(50504; BASKonsignationslagerfachcodePHA; Code[10])
+        field(50504; BASConsLocationCodePHA; Code[10]) //Konsignationslagerfachcode
         {
-
             TableRelation = Bin.Code where("Location Code" = field(BASConslagerortcodePHA));
         }
-        field(50505; "BASLagerbestand vor Ort FilterPHA"; Code[20])
+        field(50505; BASSiteInventoryFilterPHA; Code[20]) //Lagerbestand vor Ort Filter
         {
-
         }
-        field(50506; "BASLS Kopie bei Kommiss.PHA"; Integer)
+        field(50506; BASCopyByCommissionPHA; Integer) //LS Kopie bei Kommiss.
         {
-
             InitValue = 0;
             TableRelation = AllObj."Object ID" where("Object Type" = const(Report));
         }
-        field(50507; BASBereitstellungslagerortcodePHA; Code[10])
+        field(50507; BASAllocationCodePHA; Code[10]) //Bereitstellungslagerortcode
         {
-
         }
         field(50508; BASKommscheinPHA; Integer)
         {
