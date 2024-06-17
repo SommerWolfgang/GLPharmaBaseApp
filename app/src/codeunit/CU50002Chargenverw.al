@@ -16,14 +16,12 @@ codeunit 50002 Chargenverwaltung
     end;
 
     var
-        TrackingSpecification: Record "336";
-        ReservEntry: Record "337";
-        ItemTrackMgt: Codeunit "6500";
+        ReservEntry: Record "Reservation Entry";
+        TrackingSpecification: Record "Tracking Specification";
         CreateReservEntry: Codeunit "Create Reserv. Entry";
-        Text000: Label 'Verarbeitung unterbrochen!';
-        Text001: Label '%1 in den Posten wird mitverändert!\ Wollen Sie Fortfahren?';
-        Text002: Label 'Von Artikel %1, Charge %2 sind im Lager %3 nur mehr %4 vorhanden!';
-        CurrentEntryStatus: Option Reservation,Tracking,Surplus,Prospect;
+        Text000Txt: Label 'Verarbeitung unterbrochen!';
+        Text001Txt: Label '%1 in den Posten wird mitverändert!\ Wollen Sie Fortfahren?', comment = 'DEA="%1 in den Posten wird mitverändert!\ Wollen Sie Fortfahren?"', Locked = true;
+        Text002Txt: Label 'Von Artikel %1, Charge %2 sind im Lager %3 nur mehr %4 vorhanden!', comment = 'DEA="Von Artikel %1, Charge %2 sind im Lager %3 nur mehr %4 vorhanden!"', Locked = true;
 
     procedure FaktMengeCharge(ForType: Option; ForSubtype: Integer; ForID: Code[20]; ForBatchName: Code[10]; ForProdOrderLine: Integer; ForRefNo: Integer; ForLotNo: Code[20]; InvQuantity: Decimal)
     var
@@ -120,47 +118,37 @@ codeunit 50002 Chargenverwaltung
                 TotalQtyToHandle -= QtyToHandleThisLine;
 
             until (ReservEntry.Next() = 0) or (TotalQtyToHandle = 0);
-        //+LAN001
     end;
 
-    procedure "Chargenpostenwählen"(var recCharge: Record "6505"): Boolean
+    procedure SelectLotNoEntry(var LotNoInformation2: Record "Lot No. Information"): Boolean
     var
-        Chargenstamm: Record "6505";
         Item: Record Item;
+        LotNoInformation: Record "Lot No. Information";
     begin
-
-        //Message('Funktion Chargenpostenwählen nicht aktiv');
-
-        //-LAN001
-        Item.GET(recCharge."Item No.");
+        Item.Get(LotNoInformation2."Item No.");
         Item.TestField("Item Tracking Code");
 
-        Chargenstamm.SetRange("Item No.", recCharge."Item No.");
-        Chargenstamm.SetFilter(Inventory, '>0');
-        if recCharge."Location Filter" <> '' then
-            Chargenstamm.SetFilter("Location Filter", recCharge."Location Filter");
+        LotNoInformation.SetRange("Item No.", LotNoInformation2."Item No.");
+        LotNoInformation.SetFilter(Inventory, '>0');
+        if LotNoInformation2."Location Filter" <> '' then
+            LotNoInformation.SetFilter("Location Filter", LotNoInformation2."Location Filter");
 
-        if recCharge."Bin Filter" <> '' then
-            Chargenstamm.SetFilter(Chargenstamm."Bin Filter", recCharge."Bin Filter");
+        if LotNoInformation2."Bin Filter" <> '' then
+            LotNoInformation.SetFilter(LotNoInformation."Bin Filter", LotNoInformation2."Bin Filter");
 
-        if recCharge.GETFILTER(Inventory) <> '' then
-            Chargenstamm.SetFilter(Chargenstamm.Inventory, recCharge.GETFILTER(Inventory));
+        if LotNoInformation2.GetFilter(Inventory) <> '' then
+            LotNoInformation.SetFilter(LotNoInformation.Inventory, LotNoInformation2.GetFilter(Inventory));
 
-        Chargenstamm."Item No." := recCharge."Item No.";
-        Chargenstamm."Lot No." := recCharge."Lot No.";
+        LotNoInformation."Item No." := LotNoInformation2."Item No.";
+        LotNoInformation."Lot No." := LotNoInformation2."Lot No.";
 
-
-        //TODOPBA - 
-        if PAGE.RUNMODAL(PAGE::"Lot No. Information List", Chargenstamm) = ACTION::LookupOK then begin
-            recCharge := Chargenstamm;
+        if Page.RunModal(Page::"Lot No. Information List", LotNoInformation) = Action::LookupOK then begin
+            LotNoInformation2 := LotNoInformation;
             exit(true);
-            //END;
-
-            //+LAN001
         end;
     end;
 
-    procedure ChargenstammAnlegen(ItemJnlLine: Record "Item Journal Line")
+    procedure InsertLot(ItemJnlLine: Record "Item Journal Line")
     var
         Item: Record Item;
         LotNoInformation: Record "Lot No. Information";
@@ -246,12 +234,12 @@ codeunit 50002 Chargenverwaltung
         ItemLedgEntry: Record "Item Ledger Entry";
     begin
         if Option = Option::BASSalesLotNoPHA then
-            if not Confirm(Text001, false, ItemLedgEntry.FIELDCAPTION(BASSalesLotNoPHA)) then
-                Error(Text000);
+            if not Confirm(Text001Txt, false, ItemLedgEntry.FIELDCAPTION(BASSalesLotNoPHA)) then
+                Error(Text000Txt);
 
         if Option = Option::Haltbarkeitsdatum then
-            if not Confirm(Text001, false, ItemLedgEntry.FIELDCAPTION("Expiration Date")) then
-                Error(Text000);
+            if not Confirm(Text001Txt, false, ItemLedgEntry.FIELDCAPTION("Expiration Date")) then
+                Error(Text000Txt);
 
         ItemLedgEntry.SetCurrentKey("Item No.");
         ItemLedgEntry.SetRange("Item No.", "Artikelnr.");
@@ -269,7 +257,7 @@ codeunit 50002 Chargenverwaltung
         Item: Record Item;
     begin
         //-LAN001
-        Item.GET(ItemNo);
+        Item.Get(ItemNo);
         if Item."Item Tracking Code" <> '' then begin
             Item.SetFilter("Lot No. Filter", LotNo);
             //-GL013
@@ -282,7 +270,7 @@ codeunit 50002 Chargenverwaltung
             Item.CALCFIELDS(Inventory);
 
             if ABS(Qty) > Item.Inventory then
-                Error(Text002,
+                Error(Text002Txt,
                   ItemNo, LotNo, LocationCode, Item.Inventory);
         end;
         //+LAN001
@@ -306,7 +294,7 @@ codeunit 50002 Chargenverwaltung
           "Reservation Status", '%1|%2', ReservEntry."Reservation Status"::Surplus, ReservEntry."Reservation Status"::Prospect);
         ReservEntry.SetRange("Lot No.", ForLotNo);
 
-        if ReservEntry.FINDFIRST() then begin
+        if ReservEntry.FindFirst() then begin
             CLEAR(ReservEntry_Insert);
             ReservEntry_Insert.COPY(ReservEntry);
             ReservEntry_Insert."Entry No." += 1;
@@ -416,7 +404,7 @@ codeunit 50002 Chargenverwaltung
         repeat
 
             //Prüfen, ob die Chargennr schon im Chargenstamm existiert
-            LotNoInformationNoInformation.RESET();
+            LotNoInformationNoInformation.Reset();
             LotNoInformationNoInformation.SetCurrentKey("Lot No.", "Item No.");
             LotNoInformationNoInformation.SetRange("Lot No.", cChargennr);
             LotNoInformationNoInformation.SetRange("Item No.", cItemNo);
@@ -450,14 +438,14 @@ codeunit 50002 Chargenverwaltung
         Item: Record Item;
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        Item.GET(ItemNo);
+        Item.Get(ItemNo);
 
         if Item.BASSiteManufacturingPHA = '' then begin
             InventorySetup.Get();
             InventorySetup.TestField(BASRohstoffchargennummernPHA);
             exit(InventorySetup.BASRohstoffchargennummernPHA);
         end else begin
-            ManufacturingSetup.GET(Item.BASSiteManufacturingPHA);
+            ManufacturingSetup.Get(Item.BASSiteManufacturingPHA);
             ManufacturingSetup.TestField(BasRohstoffchargennummernPHA);
             exit(ManufacturingSetup.BASRohstoffchargennummernPHA);
         end;

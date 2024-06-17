@@ -1,57 +1,35 @@
 codeunit 50006 BASLotMgtPHA
 {
-    [EventSubscriber(ObjectType::Codeunit, 99000830, 'OnCreateReservEntryExtraFields', '', false, false)]
-    local procedure CU99000830OnCreateReservEntryExtraFields(var InsertReservEntry: Record "Reservation Entry"; OldTrackingSpecification: Record "Tracking Specification"; NewTrackingSpecification: Record "Tracking Specification")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Create Reserv. Entry", 'OnCreateReservEntryExtraFields', '', false, false)]
+    local procedure OnCreateReservEntryExtraFields(var InsertReservEntry: Record "Reservation Entry"; OldTrackingSpecification: Record "Tracking Specification"; NewTrackingSpecification: Record "Tracking Specification")
     begin
-        // >> TASK53.01
         InsertReservEntry.BASSalesLotNoPHA := NewTrackingSpecification.BASSalesLotNoPHA;
-        // << TASK53.01
     end;
 
-    [EventSubscriber(ObjectType::Page, 6510, 'OnAfterCreateReservEntryFor', '', false, false)]
-    local procedure P6510OnAfterCreateReservEntryFor(var OldTrackingSpecification: Record "Tracking Specification"; var NewTrackingSpecification: Record "Tracking Specification"; var CreateReservEntry: Codeunit "Create Reserv. Entry")
+    [EventSubscriber(ObjectType::Page, Page::"Item Tracking Lines", 'OnAfterCreateReservEntryFor', '', false, false)]
+    local procedure OnAfterCreateReservEntryFor(var OldTrackingSpecification: Record "Tracking Specification"; var NewTrackingSpecification: Record "Tracking Specification"; var CreateReservEntry: Codeunit "Create Reserv. Entry")
     begin
-        // >> TASK53.01
-        //NewTrackingSpecification.BASSalesLotNoPHA := OldTrackingSpecification.BASSalesLotNoPHA;
-        // << TASK53.01
     end;
 
-
-    [EventSubscriber(ObjectType::Page, 6510, 'OnAfterCollectPostedOutputEntries', '', false, false)]
-    local procedure P6510OnAfterCollectPostedOutputEntries(ItemLedgerEntry: Record "Item Ledger Entry"; var TempTrackingSpecification: Record "Tracking Specification")
-    var
-        LotNoInformation: Record "Lot No. Information";
+    [EventSubscriber(ObjectType::Page, Page::"Item Tracking Lines", 'OnAfterCollectPostedOutputEntries', '', false, false)]
+    local procedure OnAfterCollectPostedOutputEntries(ItemLedgerEntry: Record "Item Ledger Entry"; var TempTrackingSpecification: Record "Tracking Specification")
     begin
-        // >> TASK53.01
-        //IF LotNoInformation.Get(TempTrackingSpecification."Item No.", TempTrackingSpecification."Variant Code", TempTrackingSpecification."Lot No.") then begin
-        //    TempTrackingSpecification.BASSalesLotNoPHA := LotNoInformation.BASSalesLotNoPHA;
-        //end;
-        // << TASK53.01
     end;
 
-
-    [EventSubscriber(ObjectType::Page, 6510, 'OnAfterCopyTrackingSpec', '', false, false)]
-    local procedure P6510OnAfterCopyTrackingSpec(var SourceTrackingSpec: Record "Tracking Specification"; var DestTrkgSpec: Record "Tracking Specification")
+    [EventSubscriber(ObjectType::Page, Page::"Item Tracking Lines", 'OnAfterCopyTrackingSpec', '', false, false)]
+    local procedure OnAfterCopyTrackingSpec(var SourceTrackingSpec: Record "Tracking Specification"; var DestTrkgSpec: Record "Tracking Specification")
     begin
-        // >> TASK53.01
-        //Beim schließen der Artikelverfolgung in den Ziel Record kopieren
         DestTrkgSpec.BASSalesLotNoPHA := SourceTrackingSpec.BASSalesLotNoPHA;
-        // << TASK53.01 
     end;
 
-
-    [EventSubscriber(ObjectType::Page, 6510, 'OnAfterMoveFields', '', false, false)]
-    local procedure P6510OnAfterMoveFields(var TrkgSpec: Record "Tracking Specification"; var ReservEntry: Record "Reservation Entry")
+    [EventSubscriber(ObjectType::Page, Page::"Item Tracking Lines", 'OnAfterMoveFields', '', false, false)]
+    local procedure OnAfterMoveFields(var TrkgSpec: Record "Tracking Specification"; var ReservEntry: Record "Reservation Entry")
     begin
-        // >> TASK53.01
-        //Eigene Felder in der Artikelverfolgung mitspeichern
         ReservEntry.BASSalesLotNoPHA := TrkgSpec.BASSalesLotNoPHA;
-        // << TASK53.01
     end;
 
-
-    [EventSubscriber(ObjectType::Page, 6510, 'OnAfterAssignNewTrackingNo', '', false, false)]
-    local procedure P6510OnAfterAssignNewTrackingNo(var TrkgSpec: Record "Tracking Specification"; xTrkgSpec: Record "Tracking Specification"; FieldID: Integer)
+    [EventSubscriber(ObjectType::Page, Page::"Item Tracking Lines", 'OnAfterAssignNewTrackingNo', '', false, false)]
+    local procedure OnAfterAssignNewTrackingNo(var TrkgSpec: Record "Tracking Specification"; xTrkgSpec: Record "Tracking Specification"; FieldID: Integer)
     var
         Item: Record Item;
         LotNoInformation: Record "Lot No. Information";
@@ -63,8 +41,8 @@ codeunit 50006 BASLotMgtPHA
                     TrkgSpec.BASSalesLotNoPHA := LotNoInformation.BASSalesLotNoPHA;
     end;
 
-    [EventSubscriber(ObjectType::Page, 6510, 'OnBeforeLotNoOnAfterValidate', '', false, false)]
-    local procedure P6510OnBeforeLotNoOnAfterValidate(var TempTrackingSpecification: Record "Tracking Specification" temporary; SecondSourceQuantityArray: array[3] of Decimal)
+    [EventSubscriber(ObjectType::Page, Page::"Item Tracking Lines", 'OnBeforeLotNoOnAfterValidate', '', false, false)]
+    local procedure OnBeforeLotNoOnAfterValidate(var TempTrackingSpecification: Record "Tracking Specification" temporary; SecondSourceQuantityArray: array[3] of Decimal)
     var
         LotNoInformation: Record "Lot No. Information";
     begin
@@ -72,141 +50,103 @@ codeunit 50006 BASLotMgtPHA
             TempTrackingSpecification.BASSalesLotNoPHA := LotNoInformation.BASSalesLotNoPHA;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6500, 'OnAfterCreateLotInformation', '', false, false)]
-    local procedure CU6500OnAfterCreateLotInformation(var LotNoInfo: Record "Lot No. Information"; var TrackingSpecification: Record "Tracking Specification")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Tracking Management", 'OnAfterCreateLotInformation', '', false, false)]
+    local procedure OnAfterCreateLotInformation(var LotNoInfo: Record "Lot No. Information"; var TrackingSpecification: Record "Tracking Specification")
     begin
         LotNoInfo.BASSalesLotNoPHA := TrackingSpecification.BASSalesLotNoPHA;
         LotNoInfo.BASExpirationDatePHA := TrackingSpecification."Expiration Date";
         LotNoInfo.Modify(false);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 22, 'OnAfterCheckItemTrackingInformation', '', false, false)]
-    local procedure CU22OnAfterCheckItemTrackingInformation(var ItemJnlLine2: Record "Item Journal Line"; var TrackingSpecification: Record "Tracking Specification"; ItemTrackingSetup: Record "Item Tracking Setup"; Item: Record Item)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnAfterCheckItemTrackingInformation', '', false, false)]
+    local procedure OnAfterCheckItemTrackingInformation(var ItemJnlLine2: Record "Item Journal Line"; var TrackingSpecification: Record "Tracking Specification"; ItemTrackingSetup: Record "Item Tracking Setup"; Item: Record Item)
     var
         LotNoInformation: Record "Lot No. Information";
     begin
-        if LotNoInformation.GET(TrackingSpecification."Item No.", TrackingSpecification."Variant Code", TrackingSpecification."Lot No.") then
+        if LotNoInformation.Get(TrackingSpecification."Item No.", TrackingSpecification."Variant Code", TrackingSpecification."Lot No.") then
             if LotNoInformation.Description = '' then begin
                 LotNoInformation.Description := Format(ItemJnlLine2."Document Type") + ', ' + ItemJnlLine2."Document No." + ', ' + Format(ItemJnlLine2."Document Date");
                 LotNoInformation.Modify(false);
             end;
     end;
 
-    [EventSubscriber(ObjectType::CodeUnit, 99000831, 'OnBeforeUpdateItemTracking', '', false, false)]
+    [EventSubscriber(ObjectType::CodeUnit, Codeunit::"Reservation Engine Mgt.", 'OnBeforeUpdateItemTracking', '', false, false)]
     local procedure CU9000831OnBeforeUpdateItemTracking(var ReservEntry: Record "Reservation Entry"; var TrackingSpecification: Record "Tracking Specification")
     begin
         ReservEntry.BASSalesLotNoPHA := TrackingSpecification.BASSalesLotNoPHA;
     end;
 
-
-    [EventSubscriber(ObjectType::Page, 6510, 'OnAfterUpdateExpDateEditable', '', false, false)]
-    local procedure P6510OnAfterUpdateExpDateEditable(var TrackingSpecification: Record "Tracking Specification"; var ExpirationDateEditable: Boolean; var ItemTrackingCode: Record "Item Tracking Code"; var NewExpirationDateEditable: Boolean; CurrentSignFactor: Integer)
+    [EventSubscriber(ObjectType::Page, Page::"Item Tracking Lines", 'OnAfterUpdateExpDateEditable', '', false, false)]
+    local procedure OnAfterUpdateExpDateEditable(var TrackingSpecification: Record "Tracking Specification"; var ExpirationDateEditable: Boolean; var ItemTrackingCode: Record "Item Tracking Code"; var NewExpirationDateEditable: Boolean; CurrentSignFactor: Integer)
     begin
         if not ExpirationDateEditable then
             if (TrackingSpecification."Source Type" = 39) and (TrackingSpecification."Source Subtype" = 1) then
                 ExpirationDateEditable := true;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6500, 'OnBeforeTempHandlingSpecificationInsert', '', false, false)]
-    local procedure CU6500OnBeforeTempHandlingSpecificationInsert(var TempTrackingSpecification: Record "Tracking Specification" temporary; ReservationEntry: Record "Reservation Entry"; var ItemTrackingCode: Record "Item Tracking Code"; var EntriesExist: Boolean)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Tracking Management", 'OnBeforeTempHandlingSpecificationInsert', '', false, false)]
+    local procedure OnBeforeTempHandlingSpecificationInsert(var TempTrackingSpecification: Record "Tracking Specification" temporary; ReservationEntry: Record "Reservation Entry"; var ItemTrackingCode: Record "Item Tracking Code"; var EntriesExist: Boolean)
     begin
-        // >> TASK53.01
-        //Ablaufdatum bei buchen der Bestellung von den Reservierungsposten in die Ablaufverfolgung kopieren
         if (TempTrackingSpecification."Expiration Date" = 0D) and (ReservationEntry."Expiration Date" > 0D) then
             TempTrackingSpecification."Expiration Date" := ReservationEntry."Expiration Date";
-        // << TASK53.01 
     end;
 
-
-    [EventSubscriber(ObjectType::Codeunit, 22, 'OnCheckExpirationDateOnBeforeTestFieldExpirationDate', '', false, false)]
-    local procedure Cu22OnCheckExpirationDateOnBeforeTestFieldExpirationDate(var TempTrackingSpecification: Record "Tracking Specification" temporary; var EntriesExist: Boolean; var ExistingExpirationDate: Date)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnCheckExpirationDateOnBeforeTestFieldExpirationDate', '', false, false)]
+    local procedure OnCheckExpirationDateOnBeforeTestFieldExpirationDate(var TempTrackingSpecification: Record "Tracking Specification" temporary; var EntriesExist: Boolean; var ExistingExpirationDate: Date)
     begin
-        // >> TASK53.01
-        //Beim buchen der Bestellungeinen fehler umgehen
         if TempTrackingSpecification."Expiration Date" > 0D then
             ExistingExpirationDate := TempTrackingSpecification."Expiration Date";
-        // << TASK53.01 
     end;
 
-    [EventSubscriber(ObjectType::Table, 6505, 'OnAfterInsertEvent', '', false, false)]
-    local procedure T6505OnAfterInsertEvent(var Rec: Record "Lot No. Information"; RunTrigger: Boolean)
+    [EventSubscriber(ObjectType::Table, Database::"Lot No. Information", 'OnAfterInsertEvent', '', false, false)]
+    local procedure OnAfterInsertEvent(var Rec: Record "Lot No. Information"; RunTrigger: Boolean)
     begin
-        //TestEvent
-        //Message('Lot Insert');
-
     end;
 
-    // TASK58.01  Löschen der Chargennr bei manueller Auswahl einer Charge im Artikelbuchblatt verhindern
-    [EventSubscriber(ObjectType::Table, 83, 'OnBeforeCheckItemTracking', '', false, false)]
-    local procedure T83OnBeforeCheckItemTracking(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    [EventSubscriber(ObjectType::Table, Database::"Item Journal Line", 'OnBeforeCheckItemTracking', '', false, false)]
+    local procedure OnBeforeCheckItemTracking(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
         IsHandled := true;
     end;
 
-
-    // TASK58.01  Bei Mengenänderung in ArtikelBuchblatt, das löschen von schon richtig erstellter Artikelverfolgung verhindern 
-    [EventSubscriber(ObjectType::Codeunit, 99000835, 'OnBeforeVerifyQuantity', '', false, false)]
-    local procedure CU99000835OnBeforeVerifyQuantity(var NewItemJournalLine: Record "Item Journal Line"; OldItemJournalLine: Record "Item Journal Line"; var ReservMgt: Codeunit "Reservation Management"; var Blocked: Boolean; var IsHandled: Boolean)
-    var
-        recRes: Record "Reservation Entry";
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl. Line-Reserve", 'OnBeforeVerifyQuantity', '', false, false)]
+    local procedure OnBeforeVerifyQuantity(var NewItemJournalLine: Record "Item Journal Line"; OldItemJournalLine: Record "Item Journal Line"; var ReservMgt: Codeunit "Reservation Management"; var Blocked: Boolean; var IsHandled: Boolean)
     begin
-
-        //Gibt es eine passende Reservierung zu dem Artikel?
-        //recRes.SetRange("Source Type", NewItemJournalLine."Source Type");
-        recRes.SetRange("Source ID", NewItemJournalLine."Journal Template Name");
-        recRes.SetRange("Item No.", NewItemJournalLine."Item No.");
-        recRes.SetRange("Lot No.", NewItemJournalLine."Lot No.");
-        recRes.SetRange("Location Code", NewItemJournalLine."Location Code");
-
-        recRes.SetRange("Quantity (Base)", NewItemJournalLine."Quantity (Base)");
-        if NewItemJournalLine."Entry Type" = NewItemJournalLine."Entry Type"::"Negative Adjmt." then
-            recRes.SetRange("Quantity (Base)", NewItemJournalLine."Quantity (Base)" * (-1));
-        //recRes.SetRange("Reservation Status",recRes."Reservation Status"::Prospect);
-        if recRes.FindFirst() then
-            IsHandled := true;  //MFU true !!
-
+        PreventDeleteItemTracking(NewItemJournalLine, OldItemJournalLine, Blocked, IsHandled);
     end;
 
-    // TASK58.01  Bei Mengenänderung in ArtikelBuchblatt, das löschen von schon richtig erstellter Artikelverfolgung verhindern 
-    [EventSubscriber(ObjectType::Codeunit, 99000835, 'OnBeforeVerifyChange', '', false, false)]
-    local procedure CU99000835OnBeforeVerifyChange(var NewItemJournalLine: Record "Item Journal Line"; OldItemJournalLine: Record "Item Journal Line"; var Blocked: Boolean; var IsHandled: Boolean)
-    var
-        recRes: Record "Reservation Entry";
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl. Line-Reserve", 'OnBeforeVerifyChange', '', false, false)]
+    local procedure OnBeforeVerifyChange(var NewItemJournalLine: Record "Item Journal Line"; OldItemJournalLine: Record "Item Journal Line"; var Blocked: Boolean; var IsHandled: Boolean)
     begin
-
-        //Gibt es eine passende Reservierung zu dem Artikel?
-        //recRes.SetRange("Source Type", NewItemJournalLine."Source Type");
-        recRes.SetRange("Source ID", NewItemJournalLine."Journal Template Name");
-        recRes.SetRange("Item No.", NewItemJournalLine."Item No.");
-        recRes.SetRange("Lot No.", NewItemJournalLine."Lot No.");
-        recRes.SetRange("Location Code", NewItemJournalLine."Location Code");
-
-        recRes.SetRange("Quantity (Base)", NewItemJournalLine."Quantity (Base)");
-        if NewItemJournalLine."Entry Type" = NewItemJournalLine."Entry Type"::"Negative Adjmt." then
-            recRes.SetRange("Quantity (Base)", NewItemJournalLine."Quantity (Base)" * (-1));
-        //recRes.SetRange("Reservation Status",recRes."Reservation Status"::Prospect);
-        if recRes.FindFirst() then
-            IsHandled := true;  //MFU true !!
-
+        PreventDeleteItemTracking(NewItemJournalLine, OldItemJournalLine, Blocked, IsHandled);
     end;
 
-    // >> TASK58.01
-    [EventSubscriber(ObjectType::Table, 337, 'OnAfterCopyTrackingFromTrackingSpec', '', false, false)]
-    local procedure T337OnAfterCopyTrackingFromTrackingSpec(var ReservationEntry: Record "Reservation Entry"; TrackingSpecification: Record "Tracking Specification")
+    [EventSubscriber(ObjectType::Table, Database::"Reservation Entry", 'OnAfterCopyTrackingFromTrackingSpec', '', false, false)]
+    local procedure OnAfterCopyTrackingFromTrackingSpec(var ReservationEntry: Record "Reservation Entry"; TrackingSpecification: Record "Tracking Specification")
     begin
-        //Nach dem Kopieren der Werte in Artikelvervolgung  Aus Funktion EingabeChargeForItemJnlLine() -> ReservEntry.CopyTrackingFromSpec()
-        //Verkaufscharge mitkopieren
         ReservationEntry.BASSalesLotNoPHA := TrackingSpecification.BASSalesLotNoPHA;
         ReservationEntry."Expiration Date" := TrackingSpecification."Expiration Date";
     end;
-    // << TASK58.01
-    // >> TASK58.01
-    [EventSubscriber(ObjectType::Table, 337, 'OnAfterCopyTrackingFromReservEntry', '', false, false)]
-    local procedure T337OnAfterCopyTrackingFromReservEntry(var ReservationEntry: Record "Reservation Entry"; FromReservationEntry: Record "Reservation Entry")
+
+    [EventSubscriber(ObjectType::Table, Database::"Reservation Entry", 'OnAfterCopyTrackingFromReservEntry', '', false, false)]
+    local procedure OnAfterCopyTrackingFromReservEntry(var ReservationEntry: Record "Reservation Entry"; FromReservationEntry: Record "Reservation Entry")
     begin
-        //Verkaufscharge bei Eingabe in Artikelbuchblatt in Artikelverfolgung mitkopieren
         ReservationEntry.BASSalesLotNoPHA := FromReservationEntry.BASSalesLotNoPHA;
         ReservationEntry."Expiration Date" := FromReservationEntry."Expiration Date";
+    end;
+
+    procedure PreventDeleteItemTracking(var NewItemJournalLine: Record "Item Journal Line"; OldItemJournalLine: Record "Item Journal Line"; Blocked: Boolean; var IsHandled: Boolean)
+    var
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        ReservationEntry.SetRange("Source ID", NewItemJournalLine."Journal Template Name");
+        ReservationEntry.SetRange("Item No.", NewItemJournalLine."Item No.");
+        ReservationEntry.SetRange("Lot No.", NewItemJournalLine."Lot No.");
+        ReservationEntry.SetRange("Location Code", NewItemJournalLine."Location Code");
+        ReservationEntry.SetRange("Quantity (Base)", NewItemJournalLine."Quantity (Base)");
+        if NewItemJournalLine."Entry Type" = NewItemJournalLine."Entry Type"::"Negative Adjmt." then
+            ReservationEntry.SetRange("Quantity (Base)", NewItemJournalLine."Quantity (Base)" * (-1));
+        IsHandled := not ReservationEntry.IsEmpty;
     end;
 
     procedure InputLotNoForItemJnlLine(var ItemJnlLine: Record "Item Journal Line")
@@ -260,7 +200,7 @@ codeunit 50006 BASLotMgtPHA
         // ReservEntry.SetFilter(
         // "Reservation Status", '%1|%2', ReservEntry."Reservation Status"::Surplus, ReservEntry."Reservation Status"::Prospect);
         // ReservEntry.SetRange("Lot No.", ForLotNo);
-        // if ReservEntry.FINDFIRST() then begin
+        // if ReservEntry.FindFirst() then begin
         //     if CompareChargeToItemJnlLine(ReservEntry, ItemJnlLine) then
         //         exit;
         //     LöscheCharge(ForType, ForSubtype, ForID, ForBatchName, ForProdOrderLine, ForRefNo, ForLotNo);
@@ -292,7 +232,7 @@ codeunit 50006 BASLotMgtPHA
     end;
 
     // ToDo -> all
-    procedure EingabeChargeForSalesLine(var SalesLine: Record "Sales Line")
+    procedure InputLotNoForSalesLine(var SalesLine: Record "Sales Line")
     var
         TrackingSpecification: Record "Tracking Specification";
         ForID: Code[20];
@@ -321,7 +261,8 @@ codeunit 50006 BASLotMgtPHA
         TrackingSpecification."Qty. per Unit of Measure" := SalesLine."Qty. per Unit of Measure";
         TrackingSpecification."Quantity (Base)" := SalesLine.Quantity;
         TrackingSpecification."Item No." := SalesLine."No.";
-        TrackingSpecification."Lot No." := ForLotNo;
+        // ToDo
+        // TrackingSpecification."Lot No." := ForLotNo;
         TrackingSpecification.BASSalesLotNoPHA := SalesLine.BASSalesLotNoPHA;
         TrackingSpecification."Expiration Date" := SalesLine.BASExpirationDatePHA;
         TrackingSpecification."Location Code" := SalesLine."Location Code";
@@ -341,7 +282,7 @@ codeunit 50006 BASLotMgtPHA
         // ReservEntry.SetFilter(
         // "Reservation Status", '%1|%2', ReservEntry."Reservation Status"::Surplus, ReservEntry."Reservation Status"::Prospect);
         // ReservEntry.SetRange("Lot No.", ForLotNo);
-        // if ReservEntry.FINDFIRST() then begin
+        // if ReservEntry.FindFirst() then begin
         //     //IF CompareChargeToItemJnlLine(ReservEntry, ItemJnlLine) THEN
         //     //    EXIT;
         //     LöscheCharge(ForType, ForSubtype, ForID, ForBatchName, ForProdOrderLine, ForRefNo, ForLotNo);
@@ -374,18 +315,18 @@ codeunit 50006 BASLotMgtPHA
 
     end;
 
-    procedure "LöscheCharge"(ForType: Option; ForSubtype: Integer; ForID: Code[20]; ForBatchName: Code[10]; ForProdOrderLine: Integer; ForRefNo: Integer; ForLotNo: Code[50])
+    procedure DeleteReservationEntry(ForType: Option; ForSubtype: Integer; ForID: Code[20]; ForBatchName: Code[10]; ForProdOrderLine: Integer; ForRefNo: Integer; ForLotNo: Code[50])
     var
-        ReservEntry: Record "Reservation Entry";
+        ReservationEntry: Record "Reservation Entry";
     begin
-        ReservEntry.SetRange("Source Type", ForType);
-        ReservEntry.SetRange("Source Subtype", ForSubtype);
-        ReservEntry.SetRange("Source ID", ForID);
-        ReservEntry.SetRange("Source Batch Name", ForBatchName);
-        ReservEntry.SetRange("Source Prod. Order Line", ForProdOrderLine);
-        ReservEntry.SetRange("Source Ref. No.", ForRefNo);
-        ReservEntry.SetFilter("Reservation Status", '%1|%2', ReservEntry."Reservation Status"::Surplus, ReservEntry."Reservation Status"::Prospect);
-        ReservEntry.Delete();
+        ReservationEntry.SetRange("Source Type", ForType);
+        ReservationEntry.SetRange("Source Subtype", ForSubtype);
+        ReservationEntry.SetRange("Source ID", ForID);
+        ReservationEntry.SetRange("Source Batch Name", ForBatchName);
+        ReservationEntry.SetRange("Source Prod. Order Line", ForProdOrderLine);
+        ReservationEntry.SetRange("Source Ref. No.", ForRefNo);
+        ReservationEntry.SetFilter("Reservation Status", '%1|%2', ReservationEntry."Reservation Status"::Surplus, ReservationEntry."Reservation Status"::Prospect);
+        ReservationEntry.Delete();
     end;
 
     // ToDo -> all
@@ -435,18 +376,18 @@ codeunit 50006 BASLotMgtPHA
     begin
         tChargenStatus := '';
         if (StrLen(cItemNo) > 0) and (StrLen(cLotNo) > 0) then
-            if LotNoInformation.GET(cItemNo, '', cLotNo) then
+            if LotNoInformation.Get(cItemNo, '', cLotNo) then
                 tChargenStatus := Format(LotNoInformation.BASStatusPHA);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Tracking Data Collection", 'OnAssistEditTrackingNoOnBeforeSetSources', '', false, false)]
-    local procedure CU6501OnAssistEditTrackingNoOnBeforeSetSources(var TempTrackingSpecification: Record "Tracking Specification" temporary; var TempGlobalEntrySummary: Record "Entry Summary" temporary; var MaxQuantity: Decimal)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Tracking Data Collection", 'OnAssistEditTrackingNoOnBefoResetSources', '', false, false)]
+    local procedure OnAssistEditTrackingNoOnBefoResetSources(var TempTrackingSpecification: Record "Tracking Specification" temporary; var TempGlobalEntrySummary: Record "Entry Summary" temporary; var MaxQuantity: Decimal)
     var
         LotNoInformation: Record "Lot No. Information";
     begin
         if TempGlobalEntrySummary.FindSet() then
             repeat
-                if LotNoInformation.GET(TempTrackingSpecification."Item No.", TempTrackingSpecification."Variant Code", TempGlobalEntrySummary."Lot No.") then begin
+                if LotNoInformation.Get(TempTrackingSpecification."Item No.", TempTrackingSpecification."Variant Code", TempGlobalEntrySummary."Lot No.") then begin
                     TempGlobalEntrySummary.BASChargenstatusPHA := Format(LotNoInformation.BASStatusPHA);
                     TempGlobalEntrySummary.Modify(false);
                 end;

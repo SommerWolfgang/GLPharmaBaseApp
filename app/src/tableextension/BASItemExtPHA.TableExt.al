@@ -817,7 +817,7 @@ tableextension 50009 BASItemExtPHA extends Item
                 DefaultDimension."No." := ItemNo;
                 DefaultDimension."Dimension Code" := 'TYP';
                 DefaultDimension."Dimension Value Code" := 'ARTIKEL';
-                if DefaultDimension.Insert(true) = false then
+                if not DefaultDimension.Insert(true) then
                     Message('Dimension Zuweisung %1 konnte nicht angelegt werden!', ItemNo);
             end;
         end;

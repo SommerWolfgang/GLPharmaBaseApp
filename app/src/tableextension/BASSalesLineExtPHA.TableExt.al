@@ -161,7 +161,7 @@ tableextension 50013 BASSalesLineExtPHA extends "Sales Line"
                             TempItemLedgerEntry.SetRange("Location Code", "Location Code");
                         end;
 
-                        if (ActionReturn = ACTION::lookupOK) or (ActionReturn = ACTION::OK) then begin
+                        if (ActionReturn = Action::lookupOK) or (ActionReturn = Action::OK) then begin
                             Validate(BASLotNoPHA, TempItemLedgerEntry.BASSalesLotNoPHA);
                             BASSalesLotNoPHA := TempItemLedgerEntry.BASSalesLotNoPHA;
                             Validate(BASSubsetPHA, TempItemLedgerEntry."Remaining Quantity");

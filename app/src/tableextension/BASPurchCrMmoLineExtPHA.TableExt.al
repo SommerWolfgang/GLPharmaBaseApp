@@ -23,7 +23,7 @@ tableextension 50056 BASPurchCrMmoLineExtPHA extends "Purch. Cr. Memo Line"
             Caption = 'Lot No.';
             DataClassification = CustomerContent;
 
-            TableRelation = IF (Type = const(Item)) "Lot No. Information"."Lot No." where("Item No." = field("No."), "Variant Code" = field("Variant Code"));
+            TableRelation = if (Type = const(Item)) "Lot No. Information"."Lot No." where("Item No." = field("No."), "Variant Code" = field("Variant Code"));
         }
         field(50506; BASArtikelgruppePHA; Code[10])
         {

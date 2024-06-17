@@ -47,7 +47,7 @@ codeunit 50001 BASNaviPharmaPHA
 
         //Umlagerung in PL bei BASItemTypePHA=Halbfabrikat+Fertigware von Quarantäneware erlaubt
         if ItemJnlLine."New Location Code" in ['PL'] then
-            if LotNoInFormation.Get(ItemJnlLine."Item No.", '', ItemJnlLine."Lot No.") = false then
+            if not LotNoInFormation.Get(ItemJnlLine."Item No.", '', ItemJnlLine."Lot No.") then
                 Error('Artikel ' + ItemJnlLine."Item No." + ', Ch.Nr.' + ItemJnlLine."Lot No." + ': kein Eintrag in Chargenstammm, Umlagerung in '
                        + 'PL unzulässig!')
             else
@@ -74,8 +74,8 @@ codeunit 50001 BASNaviPharmaPHA
                     Error('Artikel ' + ItemJnlLine."Item No." + ', Ch.Nr.' + ItemJnlLine."Lot No." + ' ist noch nicht freigegeben, kein Verkauf möglich');
                 if ItemJnlLine."Location Code" = 'KONL' then begin
                     if ExpirationDateDMP <= WorkDate() then
-                        if Confirm('Artikel ' + ItemJnlLine."Item No." + ', Ch.Nr.' + ItemJnlLine."Lot No." + ' ist am ' + Format(LotNoInFormation.BASExpirationDatePHA)
-                                 + ' abgelaufen!, Rechnungsposition trotzdem fakturieren?') = false then
+                        if not Confirm('Artikel ' + ItemJnlLine."Item No." + ', Ch.Nr.' + ItemJnlLine."Lot No." + ' ist am ' + Format(LotNoInFormation.BASExpirationDatePHA)
+                                 + ' abgelaufen!, Rechnungsposition trotzdem fakturieren?') then
                             Error('Auftrag abgebrochen');
                 end else begin //alle anderen Lagerorte
                     if ExpirationDateDMP <= (WorkDate() - 14) then
@@ -384,38 +384,6 @@ codeunit 50001 BASNaviPharmaPHA
         Item.SetFilter("Date Filter", DateString);
         exit(Format(CalcDate('<-1Y>', Item.GetRangeMin("Date Filter"))) + '..' +
                 Format(CalcDate('<-1Y>', Item.GetRangeMax("Date Filter"))));
-    end;
-
-    procedure Permission(Action: Code[20]) ok: Boolean
-    var
-        AccessControl: Record "Access Control";
-        User: Record User;
-        UserSecurityID: Guid;
-    begin
-        User.SetCurrentKey("User Name");
-        User.SetRange("User Name", UserID);
-        User.FindFirst();
-        UserSecurityID := User."User Security ID";
-
-        AccessControl.SetRange("User Security ID", UserSecurityID);
-        AccessControl.SetRange("Role ID", Action);
-        ok := AccessControl.FindFirst();
-
-        if Action = '$MANDANTENCHECK' then begin
-            ok := Permission('$' + UpperCase(CompanyName));
-            exit(ok);
-        end;
-
-        if not ok then begin
-            AccessControl.SetRange("Role ID", 'SUPER');
-            exit(not AccessControl.IsEmpty);
-        end;
-    end;
-
-    procedure Division(Numerator: Decimal; Denominator: Decimal): Decimal
-    begin
-        if Denominator <> 0 then
-            exit(Numerator / Denominator);
     end;
 
     procedure "DatumÜbersetzen"(dtDate: Date; sLanguage: Text[3]) sResult: Text[30]

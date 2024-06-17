@@ -2,7 +2,7 @@ tableextension 50049 BASFixedAssetExtPHA extends "Fixed Asset"
 {
     fields
     {
-        Modify("No.")
+        modify("No.")
         {
             trigger OnAfterValidate()
             var
