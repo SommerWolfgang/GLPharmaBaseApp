@@ -38,18 +38,19 @@ tableextension 50017 BASItemJournalLinePHA extends "Item Journal Line"
 
                     if "Lot No." <> '' then
                         if not LotNoInformation.Get("Item No.", "Variant Code", "Lot No.") then begin
-                            if "Entry Type" in [1, 3, 4, 5] then
+                            // ToDo ???
+                            // if "Entry Type" in [1, 3, 4, 5] then
+                            // ToDo
+                            //     Error('')
+                            // // Error(Text50002, "Lot No.")
+                            // else
+                            if ("Order Type" <> "Order Type"::Production) and ("Order No." = '') then begin
+                                CheckLotNo();
                                 // ToDo
-                                Error('')
-                            // Error(Text50002, "Lot No.")
-                            else
-                                if ("Order Type" <> "Order Type"::Production) and ("Order No." = '') then begin
-                                    CheckLotNo();
-                                    // ToDo
-                                    // Message(Text50003, "Lot No.");
-                                    BASSalesLotNoPHA := "Lot No.";
-                                    "Expiration Date" := 0D;
-                                end;
+                                // Message(Text50003, "Lot No.");
+                                BASSalesLotNoPHA := "Lot No.";
+                                "Expiration Date" := 0D;
+                            end;
                         end else begin
                             "Lot No." := LotNoInformation."Lot No.";
                             ;
@@ -296,8 +297,6 @@ tableextension 50017 BASItemJournalLinePHA extends "Item Journal Line"
         }
         field(50555; BASPackmittelversionPHA; Code[20])
         {
-
-
             trigger OnValidate()
             begin
                 if ("Entry Type" <> "Entry Type"::Purchase) and ("Entry Type" <> "Entry Type"::"Positive Adjmt.") then
@@ -305,7 +304,7 @@ tableextension 50017 BASItemJournalLinePHA extends "Item Journal Line"
                 if "Lot No." <> '' then
                     if not NewCharge() then
                         if LotNoInformation.BASPackmittelversionPHA <> BASPackmittelversionPHA then //GL023
-                            Error('FEHLENDE VARIABLE T83', FieldCaption(BASPackmittelversionPHA), "Lot No.");
+                            Error('FEHLENDE VARIABLE T83');
             end;
         }
     }

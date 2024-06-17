@@ -4,6 +4,11 @@
     "rules":
     [
         {
+            "id": "AL0432",
+            "action": "None",
+            "justification": "AppSourceCop Rule - Ignore Old Tables,"
+        },
+        {
             "id": "PTE0001",
             "action": "None",
             "justification": "AppSourceCop Rule - TThe compilation target is set to 'Internal', but it must be set to 'Cloud' or 'Extension. - action:Error -> action:None"
