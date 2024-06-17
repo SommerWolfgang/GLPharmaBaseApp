@@ -123,17 +123,17 @@ pageextension 50008 "ItemJournalExt" extends "Item Journal"
     begin
 
         //Chargen Info von Artikelverfolung holen, wenn leer
-        IF Rec."Lot No." = '' then begin
+        if Rec."Lot No." = '' then begin
             recRes.SetRange("Item No.", Rec."Item No.");
             recRes.SetRange("Location Code", Rec."Location Code");
             recRes.SetRange("Source ID", 'ARTIKEL');
             recRes.SetRange("Source Batch Name", "Journal Batch Name");
             recRes.SetRange("Source Ref. No.", "Line No.");
-            IF recRes.FindFirst THEN BEGIN
+            if recRes.FindFirst then begin
                 Rec."Lot No." := recRes."Lot No.";
                 Rec."Verkaufschargennr." := recRes."Verkaufschargennr.";
                 Rec."Expiration Date" := recRes."Expiration Date";
-            END;
+            end;
         end;
     end;
 
@@ -144,8 +144,8 @@ pageextension 50008 "ItemJournalExt" extends "Item Journal"
         recLot: Record "Lot No. Information";
     begin
         tChargenStatus := '';
-        IF (STRLEN(cItemNo) > 0) AND (STRLEN(cLotNo) > 0) THEN
-            IF recLot.GET(cItemNo, '', cLotNo) THEN
+        if (StrLen(cItemNo) > 0) and (StrLen(cLotNo) > 0) then
+            if recLot.Get(cItemNo, '', cLotNo) then
                 tChargenStatus := FORMAT(recLot.Status);
     end;
 

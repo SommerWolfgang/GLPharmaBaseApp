@@ -43,6 +43,452 @@ codeunit 50000 BASCodeCollectionPHA
         ANSI: Text[94];
         ASCII: Text[94];
 
+    procedure ChargeExits(ItemNo: Code[20]; LotNo: Code[50]): Boolean
+    var
+        LotNoInformation: Record "Lot No. Information";
+    begin
+        LotNoInformation.SetRange("Item No.", ItemNo);
+        LotNoInformation.SetRange(BASSalesLotNoPHA, LotNo);
+        exit(LotNoInformation.FindFirst() and (StrLen(LotNoInformation."Lot No.") > 0));
+    end;
+
+    procedure ImportPSPharmaCSVOrder(Path: Text)
+    var
+        recSalesPerson: Record "13";
+        recCust: Record "18";
+        recItem: Record "27";
+        recSH: Record "36";
+        recTempSH: Record "36" temporary;
+        recSL: Record "37";
+        recTempSL: Record "37" temporary;
+        recGebVKRech: Record "112";
+        recLot: Record "Lot No. Information";
+        cuSalesPriceCalcMgt: Codeunit "7000";
+        cuChargenverwaltung: Codeunit ChargenverwaltungPageApp;
+        cuCodesammlung: Codeunit Codesammlung;
+        InputFileManagement: Codeunit "File Management";
+        pTest: Page 348;
+        bAuftragsKopfErstelltVorhanden: Boolean;
+        bAuftragsNrGefunden: Boolean;
+        cAuftragNr: Code[20];
+        cAuftragNrVorher: Code[20];
+        cKunde: Code[20];
+        cKundenNr: Code[20];
+        tCharge: Code[20];
+        cAuftragNrVorhanden: Code[50];
+        dtLieferdatum: Date;
+        dMenge: Decimal;
+        InputFile: File;
+
+        //recCSVBuffer: Record "CSV Buffer";
+        InS: InStream;
+        iAuftraegeAngelegt: Integer;
+        iAuftraegeDatei: Integer;
+        iLine: Integer;
+        iLinesInRecord: Integer;
+        iPos: Integer;
+        iZeilennrIntern: Integer;
+        tMatNr: Text[20];
+        tExtBelegNr: Text[50];
+        tReferenz: Text[50];
+        tRef: Text[100];
+        tRefVorher: Text[100];
+        FileName: Text[250];
+        tBemerkung: Text[250];
+        tLine: Text[1024];
+
+    begin
+
+        //Öffnen der XML Datei und Durchparsen
+
+        //Löschen der Temp Tabelle, sonst werden beim offen lassen der Page Artikel doppelt angelegt
+        CLEAR(TempItem);
+        TempItem.DELETEALL(false);
+
+        FinishedMessage := '';
+        iLine := 1;
+        iAuftraegeDatei := 0;
+        iAuftraegeAngelegt := 0;
+
+        if UploadIntoStream('PS Auftraege', '', '', FileName, InS) then begin
+            CSVBuffer.DeleteAll(false);
+            CSVBuffer.LoadDataFromStream(InS, ';');
+            iLinesInRecord := CSVBuffer.GetNumberOfLines();
+
+            if iLinesInRecord > 1 then
+                repeat
+
+                    //BC23 InputFile.READ(tLine);
+                    //tLine += ';';
+
+                    if iLine > 1 then begin
+
+                        //Spalten in Variablen schreiben (von Record, nicht rausschneiden wie im NAV2013)
+                        cAuftragNr := GetValueAtCell(iLine, 26);
+                        cKunde := GetValueAtCell(iLine, 16);
+                        tRef := GetValueAtCell(iLine, 1);
+                        Evaluate(iPos, GetValueAtCell(iLine, 18));
+                        tMatNr := GetValueAtCell(iLine, 19);
+                        Evaluate(dMenge, GetValueAtCell(iLine, 21));
+                        tCharge := GetValueAtCell(iLine, 22);
+
+
+                        if dMenge > 0 then begin
+
+                            //Wenn die Sendungsverfolgung leer ist
+                            if cAuftragNr = '' then begin
+                                //Bei einem Chargenwechsel die vorherige Auftragsnummer nehmen (ist dann leer) -> Die Referenz muss aber zur vorherigen Zeile passen
+                                if tRefVorher = tRef then begin
+                                    cAuftragNr := cAuftragNrVorher;
+                                end else begin
+                                    cAuftragNr := tRef;    //Die Auftragsnummer ist leer alternativ als eindeutige Kennung die Referenz nehmen
+                                end;
+                            end;
+
+                            bAuftragsKopfErstelltVorhanden := false;
+
+                            //Temp Kopf anlegen, wenn neue Auftragsnummer
+                            if cAuftragNrVorher <> cAuftragNr then begin
+                                iAuftraegeDatei += 1;
+                                iZeilennrIntern := 10000;
+
+                                recTempSH.SetRange("No.", cAuftragNr);
+                                if recTempSH.FindFirst = false then begin
+                                    CLEAR(recTempSH);
+                                    recTempSH.INIT;
+                                    recTempSH."No." := cAuftragNr;
+                                    recTempSH."Your Reference" := tRef;
+                                    recTempSH.Ladehilfsmittel := cAuftragNr;  //Feld im Kopf für die PS Auftragsnr verwenden
+                                    recCust.SetRange("No.", cKunde);
+                                    if recCust.FindFirst then begin
+                                        recTempSH."Sell-to Customer No." := recCust."No.";
+                                        recTempSH.INSERT(false);
+
+                                        bAuftragsKopfErstelltVorhanden := true;
+                                    end else begin
+                                        Message('Auftrag %1 konnte nicht erstellt werden. Kunde %2 nicht gefunden!', tRef, cKunde);
+                                    end;
+                                end;
+
+                            end else begin
+                                bAuftragsKopfErstelltVorhanden := true;
+                            end;
+                            cAuftragNrVorher := cAuftragNr;
+                            tRefVorher := tRef;
+
+
+                            //Temp Zeilen anlegen
+                            if bAuftragsKopfErstelltVorhanden = true then begin
+                                recItem.SetRange("Pharmazentralnr.", tMatNr);
+                                if recItem.FindFirst then begin
+                                    CLEAR(recTempSL);
+                                    recTempSL."Document Type" := recTempSL."Document Type"::Order;
+                                    recTempSL."Document No." := recTempSH."No.";
+                                    recTempSL."Line No." := iZeilennrIntern;
+                                    iZeilennrIntern += 10000;
+                                    recTempSL."No." := recItem."No.";
+                                    recTempSL.Quantity := dMenge;
+                                    recTempSL."Lot No." := tCharge;
+                                    //Charge noch dazu!
+
+                                    recTempSL.INSERT(false);
+
+                                end;
+                            end;
+                        end;
+                    end;
+
+                    iLine += 1;
+
+                until iLine > iLinesInRecord;
+
+            if 1 = 1 then begin   //deaktivieren zum testen
+
+                //Erstellen der Aufträge nach dem Import
+                CLEAR(recTempSH);
+                if recTempSH.FINDSET then
+                    repeat
+
+                        //Gibt es den Auftrag schon (InAufträgen oder geb.Rechnung)? (Auf externe Belegnr prüfen)
+                        bAuftragsNrGefunden := false;
+                        CLEAR(recSH);
+                        recSH.SetRange("External Document No.", recTempSH.Ladehilfsmittel);
+                        if recSH.COUNT > 0 then begin
+                            bAuftragsNrGefunden := true;
+                            cAuftragNrVorhanden := recSH."No.";
+                        end;
+                        if bAuftragsNrGefunden = false then begin
+                            CLEAR(recGebVKRech);
+                            recGebVKRech.SetRange("External Document No.", recTempSH.Ladehilfsmittel);
+                            if recGebVKRech.COUNT > 0 then begin
+                                bAuftragsNrGefunden := true;
+                                cAuftragNrVorhanden := recGebVKRech."No.";
+                            end;
+                        end;
+
+                        if bAuftragsNrGefunden = true then
+                            if CONFIRM('Der Auftrag %1 ist mit %2 schon vorhanden! Neuen Auftrag erstellen?', false, recTempSH.Ladehilfsmittel, cAuftragNrVorhanden) = true then
+                                bAuftragsNrGefunden := false;
+
+                        //Anlegen des Auftrag, wenn kein selber Auftrag gefunden wurde, oder es bestättigt wurde
+                        if bAuftragsNrGefunden = false then begin
+                            //Neuer Auftragskopf anlegen
+                            CLEAR(recSH);
+                            recSH.INIT;
+                            recSH."Document Type" := recSH."Document Type"::Order;
+                            recSH.INSERT(true);
+                            recSH.VALIDATE("Sell-to Customer No.", recTempSH."Sell-to Customer No.");
+                            recSH."Your Reference" := recTempSH."Your Reference";
+                            recSH.VALIDATE("Posting Date", OrderDate);     //Datum in Auftrag schreiben                    
+                            //BC23! recSH."Desired Delivery Date" := dtAuftragsdatum;     //Gewünschtes Lieferdatum
+                            if recSalesPerson.Get(USERID) then
+                                recSH."Salesperson Code" := recSalesPerson.Code;
+                            recSH."External Document No." := recTempSH.Ladehilfsmittel;  //PS-Pharma Auftragsnummer merken
+
+                            recSH.MODIFY(true);
+                            //ShowAuftragHeaderInfo(recTempSH."Sell-to Customer No.");   //Kundeninfo Anzeigen
+                            iAuftraegeAngelegt += 1;
+
+                            //Artikelzeilen anlegen
+                            CLEAR(recTempSL);
+                            recTempSL.SetRange("Document No.", recTempSH."No.");
+                            if recTempSL.FindFirst then begin
+
+                                //Textzeile mit PS-Pharma Auftragsnummer anlegen
+                                if (recTempSH.Ladehilfsmittel > '') then begin
+                                    CLEAR(recSL);
+                                    recSL.INIT;         //Document Type,Document No.,Line No.
+                                    recSL."Document Type" := recSL."Document Type"::Order;
+                                    recSL."Document No." := recSH."No.";
+                                    recSL."Line No." := 500;
+                                    recSL.INSERT(true);
+                                    recSL.Type := recSL.Type::" ";
+                                    recSL.Description := recTempSH.Ladehilfsmittel;
+                                    recSL.MODIFY(true);
+                                end;
+
+                                repeat
+
+                                    CLEAR(recSL);
+                                    recSL.INIT;
+                                    recSL."Document Type" := recSL."Document Type"::Order;
+                                    recSL."Document No." := recSH."No.";
+                                    recSL."Line No." := recTempSL."Line No.";
+                                    recSL.INSERT(true);
+
+                                    recSL.Type := recSL.Type::Item;
+                                    recSL.VALIDATE("No.", recTempSL."No.");
+                                    recSL.VALIDATE(Quantity, recTempSL.Quantity);
+                                    //recSL.VALIDATE("Lot No.", recTempSL."Lot No.");
+                                    recSL.VALIDATE(Quantity);  //Teilmenge Validate wegen Preise Update
+                                    recSL."Location Code" := recSH."Location Code";
+
+                                    InsertExtendedText(recSL, false);    //Artikelinfo in Zeilenspalte anzeigen
+
+                                    recSL.MODIFY;
+
+                                    if CheckCharge(recTempSL."No.", recTempSL."Lot No.") then begin
+                                        //Chargennr aus VK-Charge holen
+                                        CLEAR(recLot);
+                                        recLot.SetRange("Item No.", recTempSL."No.");
+                                        recLot.SetRange("Verkaufschargennr.", recTempSL."Lot No.");
+                                        //Weitermachen!
+
+                                        if recLot.FindFirst then begin
+                                            // ResPosten zu VK Zeile erstellen
+                                            recSL."Lot No." := recLot."Lot No.";
+                                            cuChargenverwaltung.EingabeChargeForSalesLine(recSL);
+                                            /*
+                                            LotMgt.EingabeCharge(
+                                            DATABASE::"Sales Line", recVKLine."Document Type", recVKLine."Document No.", '', 0, recVKLine."Line No.",
+                                            recVKLine."Qty. per Unit of Measure", recVKLine.Quantity, recVKLine."Qty. to Invoice (Base)",
+                                            recLot."Lot No.", recLot."External Lot No.", '', '', recLot."Expiration Date",
+                                            recVKLine."No.", recVKLine."Variant Code", recVKLine."Location Code", recVKLine."Shipment Date");
+                                            */
+                                        end;
+
+                                    end;
+
+                                until recTempSL.NEXT = 0;
+
+                            end;
+                        end;
+                    until recTempSH.NEXT = 0;
+
+            end;
+
+            //-GL001
+            //Verschieben der importierten Datei in einen Unterordner
+            //VerschiebeImportierteDatei(tDateiPfad);
+            //+GL001
+        end;
+
+        Message('%1 Aufträge in Datei, %2 Aufträge angelegt', iAuftraegeDatei, iAuftraegeAngelegt);   //Endmeldung
+    end;
+
+    procedure CopyRole(SourceId: Guid; TargetId: Guid; SourceUser: Code[132]; TargetUser: Code[132])
+    var
+        SourcePageDataPersonalization: Record "Page Data Personalization";
+        TargetPageDataPersonalization: Record "Page Data Personalization";
+        UserMetadata: Record "User Metadata";
+        UserMetaDataSource: Record "User Metadata";
+        UserPersonalization: Record "User Personalization";
+        UserPersonalizationSource: Record "User Personalization";
+        iAnpassungenCounter: Integer;
+    begin
+        UserPersonalization.Reset();
+        UserPersonalization.SetRange("User SID", TargetId);
+        if UserPersonalization.FindFirst() then
+            UserPersonalization.Delete();
+
+        UserPersonalizationSource.Reset();
+        if UserPersonalizationSource.Get(SourceId) then begin
+            UserPersonalization.Reset();
+            UserPersonalization.Init();
+            UserPersonalization.Copy(UserPersonalizationSource);
+            UserPersonalization."User SID" := TargetId;
+            if not UserPersonalization.Insert() then
+                Error('Rolle %1 konnte nicht auf Benutzer %2 kopiert werden', UserPersonalizationSource."Profile ID", TargetUser);
+        end else
+            Message('Keine Rollen zum kopieren von Benutzer %1 gefunden!', SourceUser);
+
+        UserMetadata.Reset();
+        UserMetadata.SetRange("User SID", TargetId);
+        if UserMetadata.FindFirst() then
+            UserMetadata.DeleteALL();
+
+        UserMetaDataSource.Reset();
+        UserMetaDataSource.SetRange("User SID", SourceId);
+        if UserMetaDataSource.FindFirst() then
+            repeat
+                UserMetaDataSource.CalcFields("Page Metadata Delta");
+                UserMetadata.Reset();
+                UserMetadata.Init();
+                UserMetadata.Copy(UserMetaDataSource);
+                UserMetadata."User SID" := TargetId;
+                UserMetadata."Page Metadata Delta" := UserMetaDataSource."Page Metadata Delta";
+                if not UserMetadata.Insert() then
+                    Error('Metadaten von %1 konnte nicht auf %2 kopiert werden', SourceUser, TargetUser);
+            until UserMetaDataSource.Next() = 0
+        else
+            Message('Keine User-Metadaten zum kopieren von Benutzer %1 gefunden!', SourceUser);
+
+        SourcePageDataPersonalization.SetAutoCalcFields(Value);
+
+        TargetPageDataPersonalization.Reset();
+        TargetPageDataPersonalization.SetRange("User SID", TargetId);
+        if TargetPageDataPersonalization.FindFirst() then
+            TargetPageDataPersonalization.DeleteALL();
+
+        SourcePageDataPersonalization.Reset();
+        SourcePageDataPersonalization.SetRange("User SID", SourceId);
+        if SourcePageDataPersonalization.FindSet() then
+            repeat
+                iAnpassungenCounter += 1;
+                TargetPageDataPersonalization.Reset();
+                TargetPageDataPersonalization.Init();
+                TargetPageDataPersonalization.Copy(SourcePageDataPersonalization);
+                TargetPageDataPersonalization."User SID" := TargetId;
+                TargetPageDataPersonalization.Value := SourcePageDataPersonalization.Value;
+                if not TargetPageDataPersonalization.Insert() then
+                    Error('Metadaten von %1 konnte nicht auf %2 kopiert werden', SourceId, TargetId);
+            until SourcePageDataPersonalization.Next() = 0
+        else
+            Message('Keine Seitenanpassungen zum kopieren von Benutzer %1 gefunden!', SourceId);
+
+        Message('%1 Anzeige-Anpassungen auf %2 kopiert', iAnpassungenCounter, TargetId);
+    end;
+
+    procedure CopyPermission(SourceId: Guid; TargetId: Guid; SourceUser: Code[132]; TargetUser: Code[132])
+    var
+        UserSetupTarget: Record "User Setup";
+        UserSetupSource: Record "User Setup";
+        UserGroupTarget: Record "User Group";
+        UserGroupSource: Record "User Group";
+        AccessControlTarget: Record "Access Control";
+        AccessControlSource: Record "Access Control";
+        UserTarget: Record User;
+        UserSource: Record User;
+        PermissionCounter: Integer;
+    begin
+        PermissionCounter := 0;
+
+        UserTarget.Reset();
+        UserTarget.SetRange("User Security ID", TargetId);
+        if UserTarget.IsEmpty then
+            Error('Ziel-User %1 wurde nicht gefunden', TargetUser);
+
+        UserSource.Reset();
+        UserSource.SetRange("User Security ID", SourceId);
+        if UserSource.IsEmpty then
+            Error('Ausgangs-User %1 wurde nicht gefunden', SourceUser);
+
+        UserSetupTarget.Reset();
+        UserSetupTarget.SetRange("User ID", TargetUser);
+        if UserSetupTarget.FindFirst() then
+            UserSetupTarget.Delete();
+
+        AccessControlTarget.Reset();
+        AccessControlTarget.SetRange("User Security ID", TargetId);
+        if AccessControlTarget.FindFirst() then
+            AccessControlTarget.DeleteALL(true);
+
+        UserGroupTarget.Reset();
+        // ToDo
+        // UserGroupTarget.SetRange("User Security ID", TargetId);
+        UserGroupTarget.DeleteALL(true);
+
+        UserSetupTarget.Reset();
+        UserSetupSource.SetRange("User ID", SourceUser);
+        if UserSetupSource.FindFirst() then begin
+            UserSetupTarget.Reset();
+            UserSetupTarget.Init();
+            UserSetupTarget.Copy(UserSetupSource);
+            UserSetupTarget."User ID" := TargetUser;
+            UserSetupTarget."Salespers./Purch. Code" := '';
+            UserSetupTarget."E-Mail" := '';
+            if not UserSetupTarget.Insert() then
+                Error('Benutzereinrichtung konnte nicht auf Benutzer %1 kopiert werden', TargetUser);
+        end else
+            Message('Keine Benutzereinrichtung zu Benutzer %1 gefunden!', SourceUser);
+
+        UserGroupTarget.Reset();
+        // ToDo
+        // UserGroupSource.SetRange("User Security ID", SourceId);
+        if UserGroupSource.FindSet() then
+            repeat
+                UserGroupTarget.Reset();
+                UserGroupTarget.Reset();
+                UserGroupTarget.Copy(UserGroupSource);
+                // ToDo
+                // UserGroupTarget."User Security ID" := TargetId;
+                if not UserGroupTarget.Insert(true) then
+                    Error('Zugriffsrechtegruppe konnte nicht auf Benutzer %1 kopiert werden', TargetUser);
+            until UserGroupSource.Next() = 0;
+
+        AccessControlTarget.Reset();
+        AccessControlSource.SetRange("User Security ID", SourceId);
+        if AccessControlSource.FindFirst() then
+            repeat
+                AccessControlTarget.SetRange("User Security ID", TargetId);
+                AccessControlTarget.SetRange("Role ID", AccessControlSource."Role ID");
+                if not AccessControlTarget.FindFirst() then begin
+                    AccessControlTarget.Reset();
+                    AccessControlTarget.Init();
+                    AccessControlTarget.Copy(AccessControlSource);
+                    AccessControlTarget."User Security ID" := TargetId;
+                    PermissionCounter += 1;
+                    if not AccessControlTarget.Insert() then
+                        Error('Zugriffsrechte konnte nicht auf Benutzer %1 kopiert werden', TargetUser);
+
+                end;
+            until AccessControlSource.Next() = 0
+        else
+            Message('Keine Zugriffsrechte zu Benutzer %1 gefunden!', SourceUser);
+
+        Message('%1 DB-Rechte auf %2 kopiert', PermissionCounter, TargetUser);
+    end;
+
     procedure Bemerkungsmeldung(ItemNo: Code[20])
     var
         Bemerkzeile: Record "Comment Line";
@@ -163,7 +609,7 @@ codeunit 50000 BASCodeCollectionPHA
                 TempValueEntry."Valued Quantity" := PurchInvLine."Quantity (Base)";
                 TempValueEntry."Invoiced Quantity" := PurchInvLine."Quantity (Base)";
                 //Rechnungskopf holen
-                PurchInvHeader.GET(PurchInvLine."Document No.");
+                PurchInvHeader.Get(PurchInvLine."Document No.");
                 TempValueEntry."Document Date" := PurchInvHeader."Document Date";
                 TempValueEntry."Posting Date" := PurchInvHeader."Posting Date";
                 TempValueEntry."External Document No." := PurchInvHeader."Vendor Invoice No.";
@@ -201,7 +647,7 @@ codeunit 50000 BASCodeCollectionPHA
                 TempValueEntry."Valued Quantity" := PurchCrMemoLine."Quantity (Base)";
                 TempValueEntry."Invoiced Quantity" := PurchCrMemoLine."Quantity (Base)";
                 //Gutschriftskopf holen
-                PurchCrMemoHeader.GET(PurchCrMemoLine."Document No.");
+                PurchCrMemoHeader.Get(PurchCrMemoLine."Document No.");
                 TempValueEntry."Document Date" := PurchCrMemoHeader."Document Date";
                 TempValueEntry."Posting Date" := PurchCrMemoHeader."Posting Date";
                 TempValueEntry."External Document No." := PurchCrMemoHeader."Vendor Cr. Memo No.";

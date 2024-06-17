@@ -15,8 +15,8 @@ pageextension 50004 TrackingSpecificationLines extends "Item Tracking Lines"
             field("Verkaufschargennr"; Rec."Verkaufschargennr.")
             {
                 ApplicationArea = Basic, Suite;
-                Visible = true;
                 ToolTip = 'Artikelstamm Statistikcode zum Buchungszeitpunkt';
+                Visible = true;
             }
             // << TASK53.01
 
@@ -35,7 +35,7 @@ pageextension 50004 TrackingSpecificationLines extends "Item Tracking Lines"
     var
         recLot: Record "Lot No. Information";
     begin
-        IF recLot.GET(Rec."Item No.", '', Rec."Lot No.") then begin
+        if recLot.Get(Rec."Item No.", '', Rec."Lot No.") then begin
             Rec."Verkaufschargennr." := recLot."Verkaufschargennr.";
         end;
 

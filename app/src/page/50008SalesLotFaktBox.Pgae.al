@@ -238,7 +238,7 @@ page 50008 "Sales Lot FactBox"
         recLot: Record "6505";
         iEntryNr: Integer;
     begin
-        ShowExternalLot := TRUE; // >> CCU146.05
+        ShowExternalLot := true; // >> CCU146.05
 
         iCounter := 0;
         cLot1 := '';
@@ -294,7 +294,7 @@ page 50008 "Sales Lot FactBox"
 
 
 
-        IF Type = Type::Item THEN BEGIN
+        if Type = Type::Item then begin
 
             //Summieren der Reservierungen in einer Tmp Tabelle um Chargenänderungen nicht extra in einem Bereich anzuzeigen
             CLEAR(recResEntry);
@@ -305,15 +305,15 @@ page 50008 "Sales Lot FactBox"
             recResEntry.SetRange("Item Tracking", recResEntry."Item Tracking"::"Lot No.");
             recResEntry.SETFILTER("Lot No.", '<>%1', '');
             iEntryNr := 1;
-            IF recResEntry.FINDSET THEN BEGIN
-                REPEAT
+            if recResEntry.FINDSET then begin
+                repeat
 
                     recTmpResEntry.SetRange("Item No.", recResEntry."Item No.");
                     recTmpResEntry.SetRange("Lot No.", recResEntry."Lot No.");
-                    IF recTmpResEntry.FindFirst THEN BEGIN
+                    if recTmpResEntry.FindFirst then begin
                         recTmpResEntry.Quantity += ABS(recResEntry.Quantity);
                         recTmpResEntry.MODIFY;
-                    END ELSE BEGIN
+                    end else begin
                         recTmpResEntry.INIT;
                         recTmpResEntry."Entry No." := iEntryNr;
                         iEntryNr += 1;
@@ -322,230 +322,230 @@ page 50008 "Sales Lot FactBox"
                         recTmpResEntry."Verkaufschargennr." := recResEntry."Verkaufschargennr.";
                         recTmpResEntry.Quantity := ABS(recResEntry.Quantity);
                         recTmpResEntry.INSERT;
-                    END;
-                UNTIL recResEntry.NEXT = 0;
-            END;
+                    end;
+                until recResEntry.NEXT = 0;
+            end;
 
             CLEAR(recTmpResEntry);
             recTmpResEntry.SETCURRENTKEY("Item No.", "Variant Code", "Lot No.");
             recTmpResEntry.SetRange("Item No.", "No.");
-            IF recTmpResEntry.FindFirst THEN BEGIN
-                REPEAT
-                    IF recLot.GET(recTmpResEntry."Item No.", '', recTmpResEntry."Lot No.") THEN BEGIN     //MFU 20.08.2020 -> Ablaufdatum aus Chargenstamm holen, in Resposten nicht immer befüllt
+            if recTmpResEntry.FindFirst then begin
+                repeat
+                    if recLot.Get(recTmpResEntry."Item No.", '', recTmpResEntry."Lot No.") then begin     //MFU 20.08.2020 -> Ablaufdatum aus Chargenstamm holen, in Resposten nicht immer befüllt
                         ItemNo := recTmpResEntry."Item No.";
-                        CASE iCounter OF
+                        case iCounter of
                             0:
-                                BEGIN
+                                begin
                                     cLot1 := recTmpResEntry."Lot No.";
                                     ExtLot1 := recTmpResEntry."Verkaufschargennr."; // >> CCU146.05
                                     cEx1 := FORMAT(recLot."Expiration Date");
                                     cCr1 := FORMAT(recLot.Status);
                                     cMenge1 := FORMAT(recTmpResEntry.Quantity);
                                     tChargenText1 := cLot1 + ' ' + cEx1 + ' ' + cCr1 + ' ' + cMenge1;
-                                END;
+                                end;
                             1:
-                                BEGIN
+                                begin
                                     cLot2 := recTmpResEntry."Lot No.";
                                     ExtLot2 := recTmpResEntry."Verkaufschargennr."; // >> CCU146.05
                                     cEx2 := FORMAT(recLot."Expiration Date");
                                     cCr2 := FORMAT(recLot.Status);
                                     cMenge2 := FORMAT(recTmpResEntry.Quantity);
                                     tChargenText2 := cLot2 + ' ' + cEx2 + ' ' + cCr2 + ' ' + cMenge2;
-                                END;
+                                end;
                             2:
-                                BEGIN
+                                begin
                                     cLot3 := recTmpResEntry."Lot No.";
                                     ExtLot3 := recTmpResEntry."Verkaufschargennr."; // >> CCU146.05
                                     cEx3 := FORMAT(recLot."Expiration Date");
                                     cCr3 := FORMAT(recLot.Status);
                                     cMenge3 := FORMAT(recTmpResEntry.Quantity);
                                     tChargenText3 := cLot3 + ' ' + cEx3 + ' ' + cCr3 + ' ' + cMenge3;
-                                END;
+                                end;
                             3:
-                                BEGIN
+                                begin
                                     cLot4 := recTmpResEntry."Lot No.";
                                     ExtLot4 := recTmpResEntry."Verkaufschargennr."; // >> CCU146.05
                                     cEx4 := FORMAT(recLot."Expiration Date");
                                     cCr4 := FORMAT(recLot.Status);
                                     cMenge4 := FORMAT(recTmpResEntry.Quantity);
                                     tChargenText4 := cLot4 + ' ' + cEx4 + ' ' + cCr4 + ' ' + cMenge4;
-                                END;
+                                end;
                             4:
-                                BEGIN
+                                begin
                                     cLot5 := recTmpResEntry."Lot No.";
                                     ExtLot5 := recTmpResEntry."Verkaufschargennr."; // >> CCU146.05
                                     cEx5 := FORMAT(recLot."Expiration Date");
                                     cCr5 := FORMAT(recLot.Status);
                                     cMenge5 := FORMAT(recTmpResEntry.Quantity);
                                     tChargenText5 := cLot5 + ' ' + cEx5 + ' ' + cCr5 + ' ' + cMenge5;
-                                END;
+                                end;
                             5:
-                                BEGIN
+                                begin
                                     cLot6 := recTmpResEntry."Lot No.";
                                     ExtLot6 := recTmpResEntry."Verkaufschargennr."; // >> CCU146.05
                                     cEx6 := FORMAT(recLot."Expiration Date");
                                     cCr6 := FORMAT(recLot.Status);
                                     cMenge6 := FORMAT(recTmpResEntry.Quantity);
                                     tChargenText6 := cLot6 + ' ' + cEx6 + ' ' + cCr6 + ' ' + cMenge6;
-                                END;
+                                end;
                             6:
-                                BEGIN
+                                begin
                                     cLot7 := recTmpResEntry."Lot No.";
                                     ExtLot7 := recTmpResEntry."Verkaufschargennr."; // >> CCU146.05
                                     cEx7 := FORMAT(recLot."Expiration Date");
                                     cCr7 := FORMAT(recLot.Status);
                                     cMenge7 := FORMAT(recTmpResEntry.Quantity);
                                     tChargenText7 := cLot7 + ' ' + cEx7 + ' ' + cCr7 + ' ' + cMenge7;
-                                END;
+                                end;
                             7:
-                                BEGIN
+                                begin
                                     cLot8 := recTmpResEntry."Lot No.";
                                     ExtLot8 := recTmpResEntry."Verkaufschargennr."; // >> CCU146.05
                                     cEx8 := FORMAT(recLot."Expiration Date");
                                     cCr8 := FORMAT(recLot.Status);
                                     cMenge8 := FORMAT(recTmpResEntry.Quantity);
                                     tChargenText8 := cLot8 + ' ' + cEx8 + ' ' + cCr8 + ' ' + cMenge8;
-                                END;
+                                end;
                             8:
-                                BEGIN
+                                begin
                                     cLot9 := recTmpResEntry."Lot No.";
                                     ExtLot9 := recTmpResEntry."Verkaufschargennr."; // >> CCU146.05
                                     cEx9 := FORMAT(recLot."Expiration Date");
                                     cCr9 := FORMAT(recLot.Status);
                                     cMenge9 := FORMAT(recTmpResEntry.Quantity);
                                     tChargenText9 := cLot9 + ' ' + cEx9 + ' ' + cCr9 + ' ' + cMenge9;
-                                END;
+                                end;
                             9:
-                                BEGIN
+                                begin
                                     cLot10 := recTmpResEntry."Lot No.";
                                     ExtLot10 := recTmpResEntry."Verkaufschargennr."; // >> CCU146.05
                                     cEx10 := FORMAT(recLot."Expiration Date");
                                     cCr10 := FORMAT(recLot.Status);
                                     cMenge10 := FORMAT(recTmpResEntry.Quantity);
                                     tChargenText10 := cLot10 + ' ' + cEx10 + ' ' + cCr10 + ' ' + cMenge10;
-                                END;
-                        END;
+                                end;
+                        end;
                         iCounter := iCounter + 1;
-                    END;
-                UNTIL recTmpResEntry.NEXT = 0;
+                    end;
+                until recTmpResEntry.NEXT = 0;
 
-            END ELSE BEGIN
+            end else begin
                 // Chargeninfo aus den Artikelposten holen -> ResPosten nach dem verbuchen nicht mehr vorhanden
 
 
                 recSSL.SetRange("Order No.", "Document No.");
                 recSSL.SetRange("Order Line No.", "Line No.");
-                IF recSSL.FindFirst THEN BEGIN
+                if recSSL.FindFirst then begin
                     recILE.SetRange("Item No.", recSSL."No.");
                     recILE.SetRange("Document No.", recSSL."Document No.");
-                    IF recILE.FindFirst THEN
-                        REPEAT
+                    if recILE.FindFirst then
+                        repeat
 
-                            IF recLot.GET(recILE."Item No.", '', recILE."Lot No.") THEN BEGIN     //MFU 20.08.2020 -> Ablaufdatum aus Chargenstamm holen, in Resposten nicht immer befüllt
+                            if recLot.Get(recILE."Item No.", '', recILE."Lot No.") then begin     //MFU 20.08.2020 -> Ablaufdatum aus Chargenstamm holen, in Resposten nicht immer befüllt
                                 ItemNo := recILE."Item No.";
-                                CASE iCounter OF
+                                case iCounter of
                                     0:
-                                        BEGIN
+                                        begin
                                             cLot1 := recILE."Lot No.";
                                             cEx1 := FORMAT(recLot."Expiration Date");
                                             cCr1 := FORMAT(recLot.Status);
                                             cMenge1 := FORMAT(ABS(recILE.Quantity));
                                             tChargenText1 := cLot1 + ' ' + cEx1 + ' ' + cCr1 + ' ' + cMenge1;
-                                        END;
+                                        end;
                                     1:
-                                        BEGIN
+                                        begin
                                             cLot2 := recILE."Lot No.";
                                             cEx2 := FORMAT(recLot."Expiration Date");
                                             cCr2 := FORMAT(recLot.Status);
                                             cMenge2 := FORMAT(ABS(recILE.Quantity));
                                             tChargenText2 := cLot2 + ' ' + cEx2 + ' ' + cCr2 + ' ' + cMenge2;
-                                        END;
+                                        end;
                                     2:
-                                        BEGIN
+                                        begin
                                             cLot3 := recILE."Lot No.";
                                             cEx3 := FORMAT(recLot."Expiration Date");
                                             cCr3 := FORMAT(recLot.Produktionsdatum);
                                             cMenge3 := FORMAT(ABS(recILE.Quantity));
                                             tChargenText3 := cLot3 + ' ' + cEx3 + ' ' + cCr3 + ' ' + cMenge3;
-                                        END;
+                                        end;
                                     3:
-                                        BEGIN
+                                        begin
                                             cLot4 := recILE."Lot No.";
                                             cEx4 := FORMAT(recLot."Expiration Date");
                                             cCr4 := FORMAT(recLot.Status);
                                             cMenge4 := FORMAT(ABS(recILE.Quantity));
                                             tChargenText4 := cLot4 + ' ' + cEx4 + ' ' + cCr4 + ' ' + cMenge4;
-                                        END;
+                                        end;
                                     4:
-                                        BEGIN
+                                        begin
                                             cLot5 := recILE."Lot No.";
                                             cEx5 := FORMAT(recLot."Expiration Date");
                                             cCr5 := FORMAT(recLot.Status);
                                             cMenge5 := FORMAT(ABS(recILE.Quantity));
                                             tChargenText5 := cLot5 + ' ' + cEx5 + ' ' + cCr5 + ' ' + cMenge5;
-                                        END;
+                                        end;
                                     5:
-                                        BEGIN
+                                        begin
                                             cLot6 := recILE."Lot No.";
                                             cEx6 := FORMAT(recLot."Expiration Date");
                                             cCr6 := FORMAT(recLot.Status);
                                             cMenge6 := FORMAT(ABS(recILE.Quantity));
                                             tChargenText6 := cLot6 + ' ' + cEx6 + ' ' + cCr6 + ' ' + cMenge6;
-                                        END;
+                                        end;
                                     6:
-                                        BEGIN
+                                        begin
                                             cLot7 := recILE."Lot No.";
                                             cEx7 := FORMAT(recLot."Expiration Date");
                                             cCr7 := FORMAT(recLot.Status);
                                             cMenge7 := FORMAT(ABS(recILE.Quantity));
                                             tChargenText7 := cLot7 + ' ' + cEx7 + ' ' + cCr7 + ' ' + cMenge7;
-                                        END;
+                                        end;
                                     7:
-                                        BEGIN
+                                        begin
                                             cLot8 := recILE."Lot No.";
                                             cEx8 := FORMAT(recLot."Expiration Date");
                                             cCr8 := FORMAT(recLot.Status);
                                             cMenge8 := FORMAT(ABS(recILE.Quantity));
                                             tChargenText8 := cLot8 + ' ' + cEx8 + ' ' + cCr8 + ' ' + cMenge8;
-                                        END;
+                                        end;
                                     8:
-                                        BEGIN
+                                        begin
                                             cLot9 := recILE."Lot No.";
                                             cEx9 := FORMAT(recLot."Expiration Date");
                                             cCr9 := FORMAT(recLot.Status);
                                             cMenge9 := FORMAT(ABS(recILE.Quantity));
                                             tChargenText9 := cLot9 + ' ' + cEx9 + ' ' + cCr9 + ' ' + cMenge9;
-                                        END;
+                                        end;
                                     9:
-                                        BEGIN
+                                        begin
                                             cLot10 := recILE."Lot No.";
                                             cEx10 := FORMAT(recLot."Expiration Date");
                                             cCr10 := FORMAT(recLot.Status);
                                             cMenge10 := FORMAT(ABS(recILE.Quantity));
                                             tChargenText10 := cLot10 + ' ' + cEx10 + ' ' + cCr10 + ' ' + cMenge10;
-                                        END;
-                                END;
+                                        end;
+                                end;
                                 iCounter := iCounter + 1;
-                            END;
+                            end;
 
 
-                        UNTIL recILE.NEXT = 0;
-                END;
+                        until recILE.NEXT = 0;
+                end;
 
-            END;
+            end;
 
-        END;
+        end;
 
-        IF STRLEN(cLot1) > 1 THEN bShow1 := TRUE ELSE bShow1 := FALSE;
-        IF STRLEN(cLot2) > 1 THEN bShow2 := TRUE ELSE bShow2 := FALSE;
-        IF STRLEN(cLot3) > 1 THEN bShow3 := TRUE ELSE bShow3 := FALSE;
-        IF STRLEN(cLot4) > 1 THEN bShow4 := TRUE ELSE bShow4 := FALSE;
-        IF STRLEN(cLot5) > 1 THEN bShow5 := TRUE ELSE bShow5 := FALSE;
-        IF STRLEN(cLot6) > 1 THEN bShow6 := TRUE ELSE bShow6 := FALSE;
-        IF STRLEN(cLot7) > 1 THEN bShow7 := TRUE ELSE bShow7 := FALSE;
-        IF STRLEN(cLot8) > 1 THEN bShow8 := TRUE ELSE bShow8 := FALSE;
-        IF STRLEN(cLot9) > 1 THEN bShow9 := TRUE ELSE bShow9 := FALSE;
-        IF STRLEN(cLot10) > 1 THEN bShow10 := TRUE ELSE bShow10 := FALSE;
+        if StrLen(cLot1) > 1 then bShow1 := true else bShow1 := false;
+        if StrLen(cLot2) > 1 then bShow2 := true else bShow2 := false;
+        if StrLen(cLot3) > 1 then bShow3 := true else bShow3 := false;
+        if StrLen(cLot4) > 1 then bShow4 := true else bShow4 := false;
+        if StrLen(cLot5) > 1 then bShow5 := true else bShow5 := false;
+        if StrLen(cLot6) > 1 then bShow6 := true else bShow6 := false;
+        if StrLen(cLot7) > 1 then bShow7 := true else bShow7 := false;
+        if StrLen(cLot8) > 1 then bShow8 := true else bShow8 := false;
+        if StrLen(cLot9) > 1 then bShow9 := true else bShow9 := false;
+        if StrLen(cLot10) > 1 then bShow10 := true else bShow10 := false;
     end;
 
     var

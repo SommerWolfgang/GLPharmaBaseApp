@@ -4,7 +4,7 @@ tableextension 50027 BASLotNoInformatioNextPHA extends "Lot No. Information"
     {
         field(50000; BASExpirationDatePHA; Date)
         {
-            Caption = 'Expiration Date';
+            Caption = 'Expiration Date', comment = 'DEA="Ablaufdatum"';
             // ToDo
             trigger OnValidate()
             // var
@@ -66,7 +66,7 @@ tableextension 50027 BASLotNoInformatioNextPHA extends "Lot No. Information"
                 ItemLedgEntry.SetRange(BASSalesLotNoPHA, BASSalesLotNoPHA);
                 ItemLedgEntry.SetRange("Entry Type", ItemLedgEntry."Entry Type"::Consumption);
                 if not ItemLedgEntry.IsEmpty then
-                    if Confirm('Die Charge ist in Verbrauchsbuchungen vorhanden! Trotzdem ändern?', false) = false then
+                    if not Confirm('Die Charge ist in Verbrauchsbuchungen vorhanden! Trotzdem ändern?', false) then
                         Error('Änderung wurde nicht durchgeführt.');
 
                 ChangeStatus('G');
@@ -89,12 +89,14 @@ tableextension 50027 BASLotNoInformatioNextPHA extends "Lot No. Information"
             trigger OnValidate()
             var
                 Item: Record Item;
-                uNaviPharma: Codeunit BASNaviPharmaPHA;
+                CodeCollectionGLDE: Codeunit BASCodeCollectionGLDEPHA;
+                NaviPharma: Codeunit BASNaviPharmaPHA;
                 bLotStatusMismatch: Boolean;
-                cInfoText: Text;
                 cText: Text;
+                InfoText: Text;
             begin
                 bLotStatusMismatch := false;
+
 
                 case Rec.BASStatusPHA of
                     Rec.BASStatusPHA::Free:
@@ -116,10 +118,10 @@ tableextension 50027 BASLotNoInformatioNextPHA extends "Lot No. Information"
                     if (BASExpirationDatePHA < Today) then
                         Error('Bevor Sie den Freigabestatus auf "Frei" setzen können, muss die Charge mit einem gültigen Ablaufdatum versehen werden!');
 
-                    if not Item.GET("Item No.") then
+                    if not Item.Get("Item No.") then
                         Error('Artikel %1 ist nicht im Artikelstamm angelegt!', "Item No.");
 
-                    if not uNaviPharma.PrüfeUnterstufeFrei(Rec."Item No.", Rec.BASSalesLotNoPHA, false, true, true) then
+                    if not NaviPharma.PrüfeUnterstufeFrei(Rec."Item No.", Rec.BASSalesLotNoPHA, false, true, true) then
                         if not Confirm('Das System lässt die Freigabe dieser Charge zu. Bitte beachten Sie jedoch, dass ' +
                         ' zumindest eine unfreie Unterstufe erkannt wurde! \' +
                         'Bitte kontrollieren Sie die Stati mit "Gesamtübersicht beteiligte Artikel"\' +
@@ -144,18 +146,19 @@ tableextension 50027 BASLotNoInformatioNextPHA extends "Lot No. Information"
                     if Item.Get("Item No.") then
                         if Item.BASItemTypePHA = Item.BASItemTypePHA::"Finished Product" then
                             if Item."Vermarktungsexklusivität bis" >= Today then
-                                if Confirm('Vermarktungsexklusivität für Artikel %1 ist bis zum %2 eingetragen! Trotzdem Freigeben?', false, "Item No.", Item."Vermarktungsexklusivität bis") = false then
+                                if not Confirm('Vermarktungsexklusivität für Artikel %1 ist bis zum %2 eingetragen! Trotzdem Freigeben?', false, "Item No.", Item."Vermarktungsexklusivität bis") then
                                     Error('Chargenfreigabe wurde abgebrochen!');
 
                 if Rec.BASStatusPHA = Rec.BASStatusPHA::Free then begin
                     if Rec.BASExpirationDatePHA = 0D then
                         Error('Bitte vergeben Sie ein Ablaufdatum für die Charge!');
-                    if not uNaviPharma.AblaufDatumPlausibel("Item No.", BASExpirationDatePHA) then
+                    if not NaviPharma.AblaufDatumPlausibel("Item No.", BASExpirationDatePHA) then
                         Rec.BASStatusPHA := xRec.BASStatusPHA;
                 end;
 
-                cInfoText := '';
-                cText := CheckComponents(Rec."Item No.", Rec.BASSalesLotNoPHA, false, cInfoText);
+                InfoText := '';
+                cText := CheckComponents(Rec."Item No.", Rec.BASSalesLotNoPHA, false, InfoText);
+
                 if (cText <> '') and (BASStatusPHA = BASStatusPHA::Free) then
                     if not Confirm(cText + '- trotzdem freigeben?') then
                         Error('Freigabe wird abgebrochen');
@@ -164,7 +167,7 @@ tableextension 50027 BASLotNoInformatioNextPHA extends "Lot No. Information"
                     Error('Artikel %1 ist nicht im Artikelstamm angelegt!', "Item No.");
 
                 if Item.BASItemTypePHA = Item.BASItemTypePHA::"Finished Product" then
-                    if uNaviPharma.Permission('$MARKTFREIGABE') = false then
+                    if not CodeCollectionGLDE.Permission('$MARKTFREIGABE') then
                         Error('Berechtigung für Marktfreigabe nicht vorhanden!');
 
                 if Rec.BASStatusPHA <> xRec.BASStatusPHA then
@@ -201,7 +204,7 @@ tableextension 50027 BASLotNoInformatioNextPHA extends "Lot No. Information"
             CalcFormula = lookup(Item.Description where("No." = field("Item No.")));
             FieldClass = FlowField;
         }
-        field(50015; BASArtikelartPHA; enum BASItemTypePHA)
+        field(50015; BASItemTypePHA; enum BASItemTypePHA)
         {
             CalcFormula = lookup(Item.BASItemTypePHA where("No." = field("Item No.")));
             FieldClass = FlowField;
@@ -266,21 +269,21 @@ tableextension 50027 BASLotNoInformatioNextPHA extends "Lot No. Information"
             Caption = 'Artikel gesperrt';
             FieldClass = FlowField;
         }
-        field(50507; "BASStatistikcode IPHA"; Code[10])
+        field(50507; BASStatisticCodeIPHA; Code[10])
         {
             CalcFormula = lookup(Item.BASStatisticCodeIPHA where("No." = field("Item No.")));
             Editable = false;
             FieldClass = FlowField;
             TableRelation = BASStatisticCodePHA.Code where(Level = const(1));
         }
-        field(50508; "BASStatistikcode IIPHA"; Code[10])
+        field(50508; BASStatisticCodeIIPHA; Code[10])
         {
             CalcFormula = lookup(Item.BASStatisticCodeIIPHA where("No." = field("Item No.")));
             Editable = false;
             FieldClass = FlowField;
             TableRelation = BASStatisticCodePHA.Code where(Level = const(2));
         }
-        field(50509; "BASStatistikcode IIIPHA"; Code[10])
+        field(50509; BASStatisticCodeIIIPHA; Code[10])
         {
             CalcFormula = lookup(Item.BASStatisticCodeIIIPHA where("No." = field("Item No.")));
             Editable = false;
@@ -313,7 +316,7 @@ tableextension 50027 BASLotNoInformatioNextPHA extends "Lot No. Information"
         Item: Record Item;
         LotNoInformation: Record "Lot No. Information";
     begin
-        Item.GET("Item No.");
+        Item.Get("Item No.");
         if Item.BASItemTypePHA in [Item.BASItemTypePHA::"Row Material", Item.BASItemTypePHA::"Package Material"] then begin
             LotNoInformation.SetCurrentKey(BASSalesLotNoPHA);
             LotNoInformation.SetRange(BASSalesLotNoPHA, BASSalesLotNoPHA);
@@ -323,7 +326,7 @@ tableextension 50027 BASLotNoInformatioNextPHA extends "Lot No. Information"
         end;
     end;
 
-    procedure CheckComponents(ItemNo: Text[20]; LotNo: Text[20]; bMehrstufig: Boolean; var cInfoText: Text[1000]) cMeldung: Text
+    procedure CheckComponents(ItemNo: Text[20]; LotNo: Code[50]; bMehrstufig: Boolean; var cInfoText: Text) cMeldung: Text
     var
         Item: Record Item;
         ItemLedgerEntry: Record "Item Ledger Entry";
@@ -331,7 +334,7 @@ tableextension 50027 BASLotNoInformatioNextPHA extends "Lot No. Information"
         LotNoInformation: Record "Lot No. Information";
         CountChecked: Integer;
     begin
-        if Item.GET(ItemNo) then
+        if Item.Get(ItemNo) then
             if Item.BASItemTypePHA = Item.BASItemTypePHA::"Row Material" then begin
                 cInfoText := 'Rohstoffe werden nicht geprüft!';  //Update2013
                 exit;
@@ -367,7 +370,7 @@ tableextension 50027 BASLotNoInformatioNextPHA extends "Lot No. Information"
     var
         Item: Record Item;
     begin
-        if Item.GET(ItemNo) then
+        if Item.Get(ItemNo) then
             exit(Item.BASItemTypePHA = Item.BASItemTypePHA::"Semifinished Product");
     end;
 

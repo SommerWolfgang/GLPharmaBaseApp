@@ -2,14 +2,17 @@ tableextension 50018 BASGeneralLedgerSetupPHA extends "General Ledger Setup"
 {
     fields
     {
-        field(50000; "BASURL Latest RatesPHA"; Text[250])
+        field(50000; BASURLLatestRatesPHA; Text[250])
         {
             Caption = 'URL Latest Rates';
-
+        }
+        field(50001; BASProductionDatabasePHA; Text[30])
+        {
+            Caption = 'Production Database', comment = 'DEA="Produktionsdatenbank"';
+            TableRelation = Company;
         }
         field(50500; BASArtikelBuchDatGrenzePHA; Boolean)
         {
-
         }
         field(50501; BASIncJnlBatchNamePHA; Boolean)
         {

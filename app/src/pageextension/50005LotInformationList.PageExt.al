@@ -52,12 +52,12 @@ pageextension 50005 LotInformationList extends "Lot No. Information List"
                 //Aufrufen der Lagerstand Seite und nicht die Artikelposten
                 tempRecItemLedgerEntry."Item No." := "Item No.";
                 tempRecItemLedgerEntry.SetRange("Item No.", "Item No.");
-                tempRecItemLedgerEntry.SetRange(Open, TRUE);
+                tempRecItemLedgerEntry.SetRange(Open, true);
 
-                IF Rec.GETFILTER("Location Filter") > '' THEN
-                    tempRecItemLedgerEntry.SETFILTER("Location Code", Rec.GETFILTER("Location Filter"));
+                if Rec.GetFilter("Location Filter") > '' then
+                    tempRecItemLedgerEntry.SETFILTER("Location Code", Rec.GetFilter("Location Filter"));
 
-                IF PAGE.RUNMODAL(PAGE::UmlagerInfoNeu, tempRecItemLedgerEntry) = ACTION::LookupOK THEN;
+                if Page::RunModal(PAGE::TransferOrderInfo, tempRecItemLedgerEntry) = Action::LookupOK THEN;
                 // << CCU
             end;
 
@@ -83,7 +83,7 @@ pageextension 50005 LotInformationList extends "Lot No. Information List"
                     recLNI: Record "Lot No. Information";
                 begin
 
-                    IF recLNI.GET(Rec."Item No.", Rec."Variant Code", Rec."Lot No.") THEN
+                    if recLNI.Get(Rec."Item No.", Rec."Variant Code", Rec."Lot No.") then
                         OpenGLChargenfreigabe(recLNI);
 
                 end;
@@ -137,8 +137,8 @@ pageextension 50005 LotInformationList extends "Lot No. Information List"
         //Eigene Page mit TmpRecord öffnen
 
 
-        ActResult := PAGE.RUNMODAL(PAGE::GLChargenfreigabe, recLotTmp);
-        IF ActResult IN [ACTION::OK, ACTION::LookupOK] THEN BEGIN
+        ActResult := Page::RunModal(PAGE::ReleaseLotNo, recLotTmp);
+        if ActResult in [ACTION::OK, ACTION::LookupOK] then begin
 
             //Marktfreigabepin nur bei Statusänderung prüfen
             //IF recLotTmp.Status <> recLNI_.Status THEN BEGIN
@@ -149,9 +149,9 @@ pageextension 50005 LotInformationList extends "Lot No. Information List"
             GLChargenStammSpeichern(recLotTmp, recLNI_);  //recLotTmp->Neue Chargenwerte;  Rec->alte Chargenwerte
 
             //Seite neu laden
-            CurrPage.UPDATE(FALSE);
+            CurrPage.UPDATE(false);
 
-        END;
+        end;
 
     end;
 
@@ -173,9 +173,9 @@ pageextension 50005 LotInformationList extends "Lot No. Information List"
     begin
 
         //Chargenfreigabe nach Variante NAV2013 machen! -> Status in T6505 umsetzen
-        IF recLot.Get(recLotTmpNew."Item No.", recLotTmpNew."Variant Code", recLotTmpNew."Lot No.") then begin
+        if recLot.Get(recLotTmpNew."Item No.", recLotTmpNew."Variant Code", recLotTmpNew."Lot No.") then begin
 
-            IF recLotTmpNew.Status <> recLotOld.Status THEN begin
+            if recLotTmpNew.Status <> recLotOld.Status then begin
                 recLot.Status := recLotTmpNew.Status;
                 if recLot.Status = recLot.Status::Frei then begin
                     recLot.Freigabedatum := Today;

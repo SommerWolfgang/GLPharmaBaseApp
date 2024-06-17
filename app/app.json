@@ -18,6 +18,7 @@
   "idRanges": [ 
     { "from": 50000, "to": 51000 }
   ],
+  "target": "OnPrem",
   "runtime": "13.0",
   "features": [
     "TranslationFile",

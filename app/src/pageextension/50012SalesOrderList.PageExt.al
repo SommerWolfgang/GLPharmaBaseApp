@@ -18,7 +18,7 @@ pageextension 50012 "SalesOrderListPageExt" extends "Sales Order List"
 
                 trigger OnAction()
                 var
-                    pPSImport: Page PS_Auftrag_Import;
+                    pPSImport: Page PSOrderImport;
                 begin
                     pPSImport.Run();
                 end;

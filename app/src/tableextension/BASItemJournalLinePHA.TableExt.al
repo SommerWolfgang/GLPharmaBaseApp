@@ -3,7 +3,7 @@ tableextension 50017 BASItemJournalLinePHA extends "Item Journal Line"
 {
     fields
     {
-        Modify("Expiration Date")
+        modify("Expiration Date")
         {
             trigger OnAfterValidate()
             begin
@@ -14,7 +14,7 @@ tableextension 50017 BASItemJournalLinePHA extends "Item Journal Line"
                         DeleteCharge();
             end;
         }
-        Modify("Lot No.")
+        modify("Lot No.")
         {
             trigger OnAfterValidate()
             var
@@ -62,7 +62,7 @@ tableextension 50017 BASItemJournalLinePHA extends "Item Journal Line"
             end;
         }
 
-        Modify(Quantity)
+        modify(Quantity)
         {
             trigger OnBeforeValidate()
             var
@@ -254,8 +254,8 @@ tableextension 50017 BASItemJournalLinePHA extends "Item Journal Line"
                 end;
 
                 //ToDo
-                // ActionReturn := PAGE.RUNMODAL(PAGE::UmlagerInfoNeu, tempItemLedgerEntry);
-                if (ActionReturn = ACTION::lookupOK) or (ActionReturn = ACTION::OK) then begin
+                // ActionReturn := Page::RunModal(PAGE::UmlagerInfoNeu, tempItemLedgerEntry);
+                if (ActionReturn = Action::lookupOK) or (ActionReturn = Action::OK) then begin
                     "Location Code" := tempItemLedgerEntry."Location Code";
                     "Bin Code" := tempItemLedgerEntry.BASBinCodeHelpFieldPHA;
 

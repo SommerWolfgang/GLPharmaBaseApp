@@ -53,12 +53,12 @@ pageextension 50001 ItemPageExt extends "Item Card"
                     //Aufrufen der Lagerstand Seite und nicht die Artikelposten
                     tempRecItemLedgerEntry."Item No." := "No.";
                     tempRecItemLedgerEntry.SetRange("Item No.", "No.");
-                    tempRecItemLedgerEntry.SetRange(Open, TRUE);
+                    tempRecItemLedgerEntry.SetRange(Open, true);
 
-                    IF Rec.GETFILTER("Location Filter") > '' THEN
-                        tempRecItemLedgerEntry.SETFILTER("Location Code", Rec.GETFILTER("Location Filter"));
+                    if Rec.GetFilter("Location Filter") > '' then
+                        tempRecItemLedgerEntry.SETFILTER("Location Code", Rec.GetFilter("Location Filter"));
 
-                    IF PAGE.RUNMODAL(PAGE::UmlagerInfoNeu, tempRecItemLedgerEntry) = ACTION::LookupOK THEN;
+                    if Page::RunModal(PAGE::TransferOrderInfo, tempRecItemLedgerEntry) = Action::LookupOK THEN;
                     // << CCU
 
                 end;

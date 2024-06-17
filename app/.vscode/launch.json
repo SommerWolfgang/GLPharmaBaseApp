@@ -8,8 +8,6 @@
             "environmentType": "Sandbox",
             "environmentName": "Bauerspirits",
             "tenant": "67ac8b2d-9725-4ce5-9664-9432cb73782a",
-            "startupObjectId": 22,
-            "startupObjectType": "Page",
             "breakOnError": "All",
             "launchBrowser": false,
             "enableLongRunningSqlStatements": true,

@@ -1,13 +1,5 @@
-page 50012 "Sales Inv Lot FactBox"
+page 50012 BASSalesInvLotFactBoxPHA
 {
-    // version CCU146
-
-    // CCU146 CCU146.01            PBA: VK-Chargen Factbox
-    // CCU146 CCU146.02 12.10.2020 PBA: record Sales Line zu Reservation Entry
-    // CCU146 CCU146.03 12.10.2020 PBA: Werte zurücksetzten
-    // CCU146 CCU146.04 18.01.2021 MFU: Umstellung der Page auf die Tabelle SalesLine
-    // CCU416 CCU146.05 29.09.2021 PBA: Externe Chargennr. anzeigen
-
     Editable = false;
     PageType = CardPart;
     PopulateAllFields = true;
@@ -33,46 +25,12 @@ page 50012 "Sales Inv Lot FactBox"
                 grid(grid1)
                 {
                     GridLayout = Rows;
-                    //group()
-                    //{                        
-
                     field(tChargenText1; tChargenText1)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Charge 1';
+                        ToolTip = 'Specifies the value of the Charge 1 field.';
                     }
-                    /*
-                    field(ChrNR1; cLot1)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Ch Nr1';
-                    }
-                    
-                    field(ExtLot1; ExtLot1)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Visible = ShowExternalLot;
-                    }
-
-                    field(HerstDat1; cCr1)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Status';
-                    }
-                    field(Hdatum1; cEx1)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Ablauf';
-                    }
-                    field(Menge1; cMenge1)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Menge';
-                        Editable = false;
-                        MultiLine = true;
-                    }
-                    */
-                    //}
                 }
             }
             group(LotNr2)
@@ -87,6 +45,7 @@ page 50012 "Sales Inv Lot FactBox"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Charge 2';
+                        ToolTip = 'Specifies the value of the Charge 2 field.';
                     }
 
                 }
@@ -104,6 +63,7 @@ page 50012 "Sales Inv Lot FactBox"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Charge 3';
+                        ToolTip = 'Specifies the value of the Charge 3 field.';
                     }
 
                 }
@@ -120,6 +80,7 @@ page 50012 "Sales Inv Lot FactBox"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Charge 4';
+                        ToolTip = 'Specifies the value of the Charge 4 field.';
                     }
 
                 }
@@ -136,6 +97,7 @@ page 50012 "Sales Inv Lot FactBox"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Charge 5';
+                        ToolTip = 'Specifies the value of the Charge 5 field.';
                     }
 
                 }
@@ -152,6 +114,7 @@ page 50012 "Sales Inv Lot FactBox"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Charge 6';
+                        ToolTip = 'Specifies the value of the Charge 6 field.';
                     }
 
                 }
@@ -168,6 +131,7 @@ page 50012 "Sales Inv Lot FactBox"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Charge 7';
+                        ToolTip = 'Specifies the value of the Charge 7 field.';
                     }
 
                 }
@@ -184,6 +148,7 @@ page 50012 "Sales Inv Lot FactBox"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Charge 8';
+                        ToolTip = 'Specifies the value of the Charge 8 field.';
                     }
 
                 }
@@ -200,6 +165,7 @@ page 50012 "Sales Inv Lot FactBox"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Charge 9';
+                        ToolTip = 'Specifies the value of the Charge 9 field.';
                     }
 
                 }
@@ -216,6 +182,7 @@ page 50012 "Sales Inv Lot FactBox"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Charge 10';
+                        ToolTip = 'Specifies the value of the Charge 10 field.';
                     }
 
                 }
@@ -232,14 +199,14 @@ page 50012 "Sales Inv Lot FactBox"
 
     trigger OnAfterGetRecord()
     var
-        recILE: Record "32";
         recSSL: Record "111";
         recTmpResEntry: Record "337" temporary;
         recLot: Record "6505";
+        recILE: Record "Item Ledger Entry";
         recVE: Record "Value Entry";
         iEntryNr: Integer;
     begin
-        ShowExternalLot := TRUE; // >> CCU146.05
+        ShowExternalLot := true; // >> CCU146.05
 
         iCounter := 0;
         cLot1 := '';
@@ -295,17 +262,7 @@ page 50012 "Sales Inv Lot FactBox"
 
 
 
-        IF Type = Type::Item THEN BEGIN
-
-            //Summieren der Reservierungen in einer Tmp Tabelle um Chargenänderungen nicht extra in einem Bereich anzuzeigen
-            /*
-            CLEAR(recResEntry);
-            recResEntry.SETCURRENTKEY("Item No.", "Variant Code", "Lot No.");
-            recResEntry.SetRange("Item No.", "No.");
-            recResEntry.SetRange("Source ID", "Document No.");
-            recResEntry.SetRange("Source Ref. No.", "Line No.");
-            recResEntry.SetRange("Item Tracking", recResEntry."Item Tracking"::"Lot No.");
-            */
+        if Rec.Type = Rec.Type::Item then begin
             recTmpResEntry.DeleteAll(false);
 
 
@@ -315,16 +272,16 @@ page 50012 "Sales Inv Lot FactBox"
             recVE.SetRange("Item No.", Rec."No.");
             recVE.SetRange("Document Line No.", Rec."Line No.");
             recVE.SetRange("Source Code", 'VERKAUF');
-            IF recVE.FindSet() THEN BEGIN
-                REPEAT
+            if recVE.FindSet() then begin
+                repeat
                     recVE.CalcFields("Lot No.");
 
                     recTmpResEntry.SetRange("Item No.", recVE."Item No.");
                     recTmpResEntry.SetRange("Lot No.", recVE."Lot No.");
-                    IF recTmpResEntry.FindFirst THEN BEGIN
+                    if recTmpResEntry.FindFirst then begin
                         recTmpResEntry.Quantity += recVE."Invoiced Quantity" * (-1);
                         recTmpResEntry.MODIFY;
-                    END ELSE BEGIN
+                    end else begin
                         recTmpResEntry.INIT;
                         recTmpResEntry."Entry No." := iEntryNr;
                         iEntryNr += 1;
@@ -333,127 +290,127 @@ page 50012 "Sales Inv Lot FactBox"
                         //recTmpResEntry."Verkaufschargennr." := recVE.;
                         recTmpResEntry.Quantity := recVE."Invoiced Quantity" * (-1);
                         recTmpResEntry.INSERT;
-                    END;
-                UNTIL recVE.NEXT = 0;
-            END;
+                    end;
+                until recVE.NEXT = 0;
+            end;
 
             CLEAR(recTmpResEntry);
             recTmpResEntry.SETCURRENTKEY("Item No.", "Variant Code", "Lot No.");
             recTmpResEntry.SetRange("Item No.", "No.");
-            IF recTmpResEntry.FindFirst THEN BEGIN
-                REPEAT
-                    IF recLot.GET(recTmpResEntry."Item No.", '', recTmpResEntry."Lot No.") THEN BEGIN     //MFU 20.08.2020 -> Ablaufdatum aus Chargenstamm holen, in Resposten nicht immer befüllt
+            if recTmpResEntry.FindFirst then begin
+                repeat
+                    if recLot.Get(recTmpResEntry."Item No.", '', recTmpResEntry."Lot No.") then begin     //MFU 20.08.2020 -> Ablaufdatum aus Chargenstamm holen, in Resposten nicht immer befüllt
                         ItemNo := recTmpResEntry."Item No.";
-                        CASE iCounter OF
+                        case iCounter of
                             0:
-                                BEGIN
+                                begin
                                     cLot1 := recTmpResEntry."Lot No.";
                                     ExtLot1 := recTmpResEntry."Verkaufschargennr."; // >> CCU146.05
                                     cEx1 := FORMAT(recLot."Expiration Date");
                                     cCr1 := FORMAT(recLot.Status);
                                     cMenge1 := FORMAT(recTmpResEntry.Quantity);
                                     tChargenText1 := cLot1 + ' ' + cEx1 + ' ' + cCr1 + ' ' + cMenge1;
-                                END;
+                                end;
                             1:
-                                BEGIN
+                                begin
                                     cLot2 := recTmpResEntry."Lot No.";
                                     ExtLot2 := recTmpResEntry."Verkaufschargennr."; // >> CCU146.05
                                     cEx2 := FORMAT(recLot."Expiration Date");
                                     cCr2 := FORMAT(recLot.Status);
                                     cMenge2 := FORMAT(recTmpResEntry.Quantity);
                                     tChargenText2 := cLot2 + ' ' + cEx2 + ' ' + cCr2 + ' ' + cMenge2;
-                                END;
+                                end;
                             2:
-                                BEGIN
+                                begin
                                     cLot3 := recTmpResEntry."Lot No.";
                                     ExtLot3 := recTmpResEntry."Verkaufschargennr."; // >> CCU146.05
                                     cEx3 := FORMAT(recLot."Expiration Date");
                                     cCr3 := FORMAT(recLot.Status);
                                     cMenge3 := FORMAT(recTmpResEntry.Quantity);
                                     tChargenText3 := cLot3 + ' ' + cEx3 + ' ' + cCr3 + ' ' + cMenge3;
-                                END;
+                                end;
                             3:
-                                BEGIN
+                                begin
                                     cLot4 := recTmpResEntry."Lot No.";
                                     ExtLot4 := recTmpResEntry."Verkaufschargennr."; // >> CCU146.05
                                     cEx4 := FORMAT(recLot."Expiration Date");
                                     cCr4 := FORMAT(recLot.Status);
                                     cMenge4 := FORMAT(recTmpResEntry.Quantity);
                                     tChargenText4 := cLot4 + ' ' + cEx4 + ' ' + cCr4 + ' ' + cMenge4;
-                                END;
+                                end;
                             4:
-                                BEGIN
+                                begin
                                     cLot5 := recTmpResEntry."Lot No.";
                                     ExtLot5 := recTmpResEntry."Verkaufschargennr."; // >> CCU146.05
                                     cEx5 := FORMAT(recLot."Expiration Date");
                                     cCr5 := FORMAT(recLot.Status);
                                     cMenge5 := FORMAT(recTmpResEntry.Quantity);
                                     tChargenText5 := cLot5 + ' ' + cEx5 + ' ' + cCr5 + ' ' + cMenge5;
-                                END;
+                                end;
                             5:
-                                BEGIN
+                                begin
                                     cLot6 := recTmpResEntry."Lot No.";
                                     ExtLot6 := recTmpResEntry."Verkaufschargennr."; // >> CCU146.05
                                     cEx6 := FORMAT(recLot."Expiration Date");
                                     cCr6 := FORMAT(recLot.Status);
                                     cMenge6 := FORMAT(recTmpResEntry.Quantity);
                                     tChargenText6 := cLot6 + ' ' + cEx6 + ' ' + cCr6 + ' ' + cMenge6;
-                                END;
+                                end;
                             6:
-                                BEGIN
+                                begin
                                     cLot7 := recTmpResEntry."Lot No.";
                                     ExtLot7 := recTmpResEntry."Verkaufschargennr."; // >> CCU146.05
                                     cEx7 := FORMAT(recLot."Expiration Date");
                                     cCr7 := FORMAT(recLot.Status);
                                     cMenge7 := FORMAT(recTmpResEntry.Quantity);
                                     tChargenText7 := cLot7 + ' ' + cEx7 + ' ' + cCr7 + ' ' + cMenge7;
-                                END;
+                                end;
                             7:
-                                BEGIN
+                                begin
                                     cLot8 := recTmpResEntry."Lot No.";
                                     ExtLot8 := recTmpResEntry."Verkaufschargennr."; // >> CCU146.05
                                     cEx8 := FORMAT(recLot."Expiration Date");
                                     cCr8 := FORMAT(recLot.Status);
                                     cMenge8 := FORMAT(recTmpResEntry.Quantity);
                                     tChargenText8 := cLot8 + ' ' + cEx8 + ' ' + cCr8 + ' ' + cMenge8;
-                                END;
+                                end;
                             8:
-                                BEGIN
+                                begin
                                     cLot9 := recTmpResEntry."Lot No.";
                                     ExtLot9 := recTmpResEntry."Verkaufschargennr."; // >> CCU146.05
                                     cEx9 := FORMAT(recLot."Expiration Date");
                                     cCr9 := FORMAT(recLot.Status);
                                     cMenge9 := FORMAT(recTmpResEntry.Quantity);
                                     tChargenText9 := cLot9 + ' ' + cEx9 + ' ' + cCr9 + ' ' + cMenge9;
-                                END;
+                                end;
                             9:
-                                BEGIN
+                                begin
                                     cLot10 := recTmpResEntry."Lot No.";
                                     ExtLot10 := recTmpResEntry."Verkaufschargennr."; // >> CCU146.05
                                     cEx10 := FORMAT(recLot."Expiration Date");
                                     cCr10 := FORMAT(recLot.Status);
                                     cMenge10 := FORMAT(recTmpResEntry.Quantity);
                                     tChargenText10 := cLot10 + ' ' + cEx10 + ' ' + cCr10 + ' ' + cMenge10;
-                                END;
-                        END;
+                                end;
+                        end;
                         iCounter := iCounter + 1;
-                    END;
-                UNTIL recTmpResEntry.NEXT = 0;
+                    end;
+                until recTmpResEntry.NEXT = 0;
 
-            END;
+            end;
 
-        END;
+        end;
 
-        IF STRLEN(cLot1) > 1 THEN bShow1 := TRUE ELSE bShow1 := FALSE;
-        IF STRLEN(cLot2) > 1 THEN bShow2 := TRUE ELSE bShow2 := FALSE;
-        IF STRLEN(cLot3) > 1 THEN bShow3 := TRUE ELSE bShow3 := FALSE;
-        IF STRLEN(cLot4) > 1 THEN bShow4 := TRUE ELSE bShow4 := FALSE;
-        IF STRLEN(cLot5) > 1 THEN bShow5 := TRUE ELSE bShow5 := FALSE;
-        IF STRLEN(cLot6) > 1 THEN bShow6 := TRUE ELSE bShow6 := FALSE;
-        IF STRLEN(cLot7) > 1 THEN bShow7 := TRUE ELSE bShow7 := FALSE;
-        IF STRLEN(cLot8) > 1 THEN bShow8 := TRUE ELSE bShow8 := FALSE;
-        IF STRLEN(cLot9) > 1 THEN bShow9 := TRUE ELSE bShow9 := FALSE;
-        IF STRLEN(cLot10) > 1 THEN bShow10 := TRUE ELSE bShow10 := FALSE;
+        if StrLen(cLot1) > 1 then bShow1 := true else bShow1 := false;
+        if StrLen(cLot2) > 1 then bShow2 := true else bShow2 := false;
+        if StrLen(cLot3) > 1 then bShow3 := true else bShow3 := false;
+        if StrLen(cLot4) > 1 then bShow4 := true else bShow4 := false;
+        if StrLen(cLot5) > 1 then bShow5 := true else bShow5 := false;
+        if StrLen(cLot6) > 1 then bShow6 := true else bShow6 := false;
+        if StrLen(cLot7) > 1 then bShow7 := true else bShow7 := false;
+        if StrLen(cLot8) > 1 then bShow8 := true else bShow8 := false;
+        if StrLen(cLot9) > 1 then bShow9 := true else bShow9 := false;
+        if StrLen(cLot10) > 1 then bShow10 := true else bShow10 := false;
     end;
 
     var
