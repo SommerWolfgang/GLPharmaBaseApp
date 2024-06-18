@@ -7,6 +7,7 @@ codeunit 50001 BASNaviPharmaPHA
         ExpirationDateDMP: Date;
         EmptyErr: Label '', comment = 'DEA="Artikel %1 Chargennr. eingegeben, aber Artikel nicht chargenpflichtig!\n(Feld Artikelverfolgungscode in Artikelkarte leer)"';
         MissingCostCenterErr: Label '', comment = 'DEA="Kostenstelle fehlt bei Artikelnummer %1, Buchblattzeilennummer %2, Belegzeilennummer %3"';
+    // PlaceHolderLbl: Label '%1 %2', Locked = true;
     begin
         if ItemJnlLine."Entry Type" <> ItemJnlLine."Entry Type"::Transfer then
             if Item.Get(ItemJnlLine."Item No.") then
@@ -34,44 +35,49 @@ codeunit 50001 BASNaviPharmaPHA
 
         if ItemJnlLine."New Location Code" in ['VKL', 'KONL', 'LOHN', 'SVKL'] then
             if not LotNoInFormation.Get(ItemJnlLine."Item No.", '', ItemJnlLine."Lot No.") then
-                Error('Artikel ' + ItemJnlLine."Item No." + ', Ch.Nr.' + ItemJnlLine."Lot No." + ': kein Eintrag in Chargenstammm, Umlagerung in '
-                       + 'VKL/KONL/LOHN/SVKL unzulässig!')
+                Error('')
+            //Error('Artikel ' + ItemJnlLine."Item No." + ', Ch.Nr.' + ItemJnlLine."Lot No." + ': kein Eintrag in Chargenstammm, Umlagerung in '
+            //       + 'VKL/KONL/LOHN/SVKL unzulässig!')
             else
                 if LotNoInFormation.BASStatusPHA <> LotNoInFormation.BASStatusPHA::Free then
-                    Error('Artikel ' + ItemJnlLine."Item No." + ', Ch.Nr.' + ItemJnlLine."Lot No." + ' ist nicht freigegeben, Umlagerung in VKL/KONL/LOHN/SVKL unzulässig!');
+                    ;//Error('Artikel ' + ItemJnlLine."Item No." + ', Ch.Nr.' + ItemJnlLine."Lot No." + ' ist nicht freigegeben, Umlagerung in VKL/KONL/LOHN/SVKL unzulässig!');
         if ExpirationDateDMP = 0D then
-            Error('Artikel ' + ItemJnlLine."Item No." + ', Ch.Nr.' + ItemJnlLine."Lot No." +
-                  ' kein Ablaufdatum eingetragen, Umlagerung in VKL/KONL/LOHN unzulässig!');
+            Error('');
+        // Error('Artikel ' + ItemJnlLine."Item No." + ', Ch.Nr.' + ItemJnlLine."Lot No." +
+        //       ' kein Ablaufdatum eingetragen, Umlagerung in VKL/KONL/LOHN unzulässig!');
         if ExpirationDateDMP <= WorkDate() then
-            Error('Artikel ' + ItemJnlLine."Item No." + ', Ch.Nr.' + ItemJnlLine."Lot No." + ' ist abgelaufen, Umlagerung in VKL/KONL/LOHN/SVKL unzulässig!');
-
+            Error('');
+        // Error('Artikel ' + ItemJnlLine."Item No." + ', Ch.Nr.' + ItemJnlLine."Lot No." + ' ist abgelaufen, Umlagerung in VKL/KONL/LOHN/SVKL unzulässig!');
         //Umlagerung in PL bei BASItemTypePHA=Halbfabrikat+Fertigware von Quarantäneware erlaubt
         if ItemJnlLine."New Location Code" in ['PL'] then
             if not LotNoInFormation.Get(ItemJnlLine."Item No.", '', ItemJnlLine."Lot No.") then
-                Error('Artikel ' + ItemJnlLine."Item No." + ', Ch.Nr.' + ItemJnlLine."Lot No." + ': kein Eintrag in Chargenstammm, Umlagerung in '
-                       + 'PL unzulässig!')
+                Error('')
+            // Error('Artikel ' + ItemJnlLine."Item No." + ', Ch.Nr.' + ItemJnlLine."Lot No." + ': kein Eintrag in Chargenstammm, Umlagerung in '
+            //        + 'PL unzulässig!')
             else
                 if ((Item.BASItemTypePHA = Item.BASItemTypePHA::"Semifinished Product") or
                     (Item.BASItemTypePHA = Item.BASItemTypePHA::"Finished Product"))
                 then begin
                     if LotNoInFormation.BASStatusPHA = LotNoInFormation.BASStatusPHA::Blocked then
-                        Error('Artikel ' + ItemJnlLine."Item No." + ', Ch.Nr.' + ItemJnlLine."Lot No." + ' ist gesperrt, Umlagerung in PL unzulässig!');
+                        ;//Error('Artikel ' + ItemJnlLine."Item No." + ', Ch.Nr.' + ItemJnlLine."Lot No." + ' ist gesperrt, Umlagerung in PL unzulässig!');
                 end else begin  // Sperren für alles außer Bulk+FW
                     if LotNoInFormation.BASStatusPHA <> LotNoInFormation.BASStatusPHA::Free then
-                        Error('Artikel ' + ItemJnlLine."Item No." + ', Ch.Nr.' + ItemJnlLine."Lot No." + ' ist nicht freigegeben, Umlagerung in PL unzulässig!');
+                        ;//Error('Artikel ' + ItemJnlLine."Item No." + ', Ch.Nr.' + ItemJnlLine."Lot No." + ' ist nicht freigegeben, Umlagerung in PL unzulässig!');
                     if ExpirationDateDMP = 0D then
-                        Error('Artikel ' + ItemJnlLine."Item No." + ', Ch.Nr.' + ItemJnlLine."Lot No." +
-                           ' kein Ablaufdatum eingetragen, Umlagerung in PL unzulässig!');
+                        ;
+                    // Error('Artikel ' + ItemJnlLine."Item No." + ', Ch.Nr.' + ItemJnlLine."Lot No." +
+                    //    ' kein Ablaufdatum eingetragen, Umlagerung in PL unzulässig!');
                     if ExpirationDateDMP <= WorkDate() then
-                        Error('Artikel ' + ItemJnlLine."Item No." + ', Ch.Nr.' + ItemJnlLine."Lot No." + ' ist abgelaufen, Umlagerung in PL unzulässig!');
+                        ;//Error('Artikel ' + ItemJnlLine."Item No." + ', Ch.Nr.' + ItemJnlLine."Lot No." + ' ist abgelaufen, Umlagerung in PL unzulässig!');
                 end;
 
         if (ItemJnlLine."Entry Type" = ItemJnlLine."Entry Type"::Sale) and (ItemJnlLine.Quantity > 0) then
             if not LotNoInFormation.Get(ItemJnlLine."Item No.", '', ItemJnlLine."Lot No.") then
-                Error('Artikel ' + ItemJnlLine."Item No." + ', Ch.Nr.' + ItemJnlLine."Lot No." + ': kein Chargeneintrag vorhanden!')
+                Error('')
+            // Error('Artikel ' + ItemJnlLine."Item No." + ', Ch.Nr.' + ItemJnlLine."Lot No." + ': kein Chargeneintrag vorhanden!')
             else begin
                 if LotNoInFormation.BASStatusPHA <> LotNoInFormation.BASStatusPHA::Free then //Freigabedatum = 0D THEN
-                    Error('Artikel ' + ItemJnlLine."Item No." + ', Ch.Nr.' + ItemJnlLine."Lot No." + ' ist noch nicht freigegeben, kein Verkauf möglich');
+                    ;//Error('Artikel ' + ItemJnlLine."Item No." + ', Ch.Nr.' + ItemJnlLine."Lot No." + ' ist noch nicht freigegeben, kein Verkauf möglich');
                 if ItemJnlLine."Location Code" = 'KONL' then begin
                     if ExpirationDateDMP <= WorkDate() then
                         if not Confirm('Artikel ' + ItemJnlLine."Item No." + ', Ch.Nr.' + ItemJnlLine."Lot No." + ' ist am ' + Format(LotNoInFormation.BASExpirationDatePHA)
@@ -79,7 +85,7 @@ codeunit 50001 BASNaviPharmaPHA
                             Error('Auftrag abgebrochen');
                 end else begin //alle anderen Lagerorte
                     if ExpirationDateDMP <= (WorkDate() - 14) then
-                        Error('Artikel ' + ItemJnlLine."Item No." + ', Ch.Nr.' + ItemJnlLine."Lot No." + ' ist abgelaufen, kein Verkauf möglich');
+                        ;//Error('Artikel ' + ItemJnlLine."Item No." + ', Ch.Nr.' + ItemJnlLine."Lot No." + ' ist abgelaufen, kein Verkauf möglich');
                     if ExpirationDateDMP <= CalcDate('<CM-9M>', WorkDate()) then
                         if not Confirm('Artikel ' + ItemJnlLine."Item No." + ', Ch.Nr.' + ItemJnlLine."Lot No." + ' läuft in weniger als 9 '
                              + 'Monaten ab, trotzdem verkaufen ?')
