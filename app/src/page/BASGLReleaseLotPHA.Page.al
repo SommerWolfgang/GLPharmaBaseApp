@@ -1,4 +1,4 @@
-page 50003 BASReleaseLotNoPHA
+page 50003 BASGLReleaseLotPHA
 {
     Caption = 'GL Batch release', comment = 'DEA="GL Chargenfreigabe';
     DeleteAllowed = false;

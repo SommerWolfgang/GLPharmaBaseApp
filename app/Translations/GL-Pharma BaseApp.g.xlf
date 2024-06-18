@@ -1138,6 +1138,311 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page BASItemAdditiveSubpagePHA - Control Wirkstärke - Property ToolTip</note>
         </trans-unit>
+        <trans-unit id="Page 4240670546 - Control 411531942 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the base unit used to measure the item, such as piece, box, or pallet. The base unit of measure also serves as the conversion basis for alternate units of measure.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotCardPHA - Control Base Unit of Measure - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4240670546 - Control 1681538442 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the value of the Packing size field.</source>
+          <note from="Developer" annotates="general" priority="2">%</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotCardPHA - Control BASPackageSizePHA - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4240670546 - Control 1044233345 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the value of the Standort Freigabe field.</source>
+          <note from="Developer" annotates="general" priority="2">%</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotCardPHA - Control BASSiteBatchReleasePHA - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4240670546 - Control 3461834954 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies a description of the item.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotCardPHA - Control Description - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4240670546 - Control 1152683886 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the date formula for calculating the expiration date on the item tracking line. Note: This field will be ignored if the involved item has Require Expiration Date Entry set to Yes on the Item Tracking Code page.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotCardPHA - Control Expiration Calculation - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4240670546 - Control 65514489 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies how serial or lot numbers assigned to the item are tracked in the supply chain.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotCardPHA - Control Item Tracking Code - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4240670546 - Control 4200184881 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the number of the involved entry or record, according to the specified number series.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotCardPHA - Control No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4240670546 - Action 2653569858 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Executes the ChangeLogEntry action.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotCardPHA - Action ChangeLogEntry - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4240670546 - Action 1606682606 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Executes the Übersicht action.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotCardPHA - Action List - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Master Lot List</source>
+          <note from="Developer" annotates="general" priority="2">DEA="Chargenstamm Übersicht"</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Control 3654008189 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the value of the ArtikelPackungsgröße field.</source>
+          <note from="Developer" annotates="general" priority="2">%</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Control ArtikelPackungsgröße - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Control 1023020221 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the value of the BASCEP NrPHA field.</source>
+          <note from="Developer" annotates="general" priority="2">%</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Control BASCEP NrPHA - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Control 3648879965 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the value of the Change Status field.</source>
+          <note from="Developer" annotates="general" priority="2">%DEA="Änderungsstatus"</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Control BASChangeStatusPHA - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Control 4068769859 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the value of the Zugangsdatum field.</source>
+          <note from="Developer" annotates="general" priority="2">%</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Control BASEntryDatePHA - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Control 393677287 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the value of the BASErstablaufdatumPHA field.</source>
+          <note from="Developer" annotates="general" priority="2">%</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Control BASErstablaufdatumPHA - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Control 1440804489 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the value of the BASExpirationDateDMPHA field.</source>
+          <note from="Developer" annotates="general" priority="2">%</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Control BASExpirationDateDMPHA - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Control 3279935330 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the value of the Expiration Date field.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Control BASExpirationDatePHA - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Control 80653869 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the value of the BASFABeschreibung2PHA field.</source>
+          <note from="Developer" annotates="general" priority="2">%</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Control BASFABeschreibung2PHA - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Control 730475782 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the value of the BASGehaltPHA field.</source>
+          <note from="Developer" annotates="general" priority="2">%</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Control BASGehaltPHA - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Control 183255800 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the value of the BASHFCommentPHA field.</source>
+          <note from="Developer" annotates="general" priority="2">%</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Control BASHFCommentPHA - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Control 1088322352 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the value of the Artikel gesperrt field.</source>
+          <note from="Developer" annotates="general" priority="2">%</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Control BASItemBlockedPHA - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Control 3389132926 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the value of the BASItemDescriptionPHA field.</source>
+          <note from="Developer" annotates="general" priority="2">%</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Control BASItemDescriptionPHA - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Control 1710753184 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the value of the BASItemTypePHA field.</source>
+          <note from="Developer" annotates="general" priority="2">%</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Control BASItemTypePHA - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Control 2524400173 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the value of the BASLaborkommentarPHA field.</source>
+          <note from="Developer" annotates="general" priority="2">%</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Control BASLaborkommentarPHA - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Control 1313298770 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the value of the BASLaetusCodePHA field.</source>
+          <note from="Developer" annotates="general" priority="2">%</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Control BASLaetusCodePHA - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Control 3511904233 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the value of the BASLimsBacklogEntriesPHA field.</source>
+          <note from="Developer" annotates="general" priority="2">%</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Control BASLimsBacklogEntriesPHA - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Control 920535767 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the value of the BASLimsImportInProgressPHA field.</source>
+          <note from="Developer" annotates="general" priority="2">%</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Control BASLimsImportInProgressPHA - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Control 4290700706 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the value of the BASLimsStatusPHA field.</source>
+          <note from="Developer" annotates="general" priority="2">%</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Control BASLimsStatusPHA - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Control 1756368629 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the value of the Manufacturing No. field.</source>
+          <note from="Developer" annotates="general" priority="2">%DEA="Herstellernr."</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Control BASManufaturingNoPHA - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Control 1881597146 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the value of the BASMIBIPHA field.</source>
+          <note from="Developer" annotates="general" priority="2">%</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Control BASMIBIPHA - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Control 3772210487 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the value of the Open field.</source>
+          <note from="Developer" annotates="general" priority="2">%DEA="Offen"</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Control BASOpenPHA - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Control 189361001 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the value of the BASPackmittelversionPHA field.</source>
+          <note from="Developer" annotates="general" priority="2">%</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Control BASPackmittelversionPHA - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Control 1035973468 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the value of the BASProduktionsdatumPHA field.</source>
+          <note from="Developer" annotates="general" priority="2">%</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Control BASProduktionsdatumPHA - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Control 3337210880 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the value of the Freigabedatum field.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Control BASReleaseDatePHA - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Control 3787404233 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the value of the Freigabename field.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Control BASReleaseNamePHA - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Control 2166915225 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the value of the Verkaufschargennr. field.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Control BASSalesLotNoPHA - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Control 1749116289 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the value of the BASShipmentFinishedDatePHA field.</source>
+          <note from="Developer" annotates="general" priority="2">%</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Control BASShipmentFinishedDatePHA - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Control 4079357345 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the value of the BASShipmentLotNoPHA field.</source>
+          <note from="Developer" annotates="general" priority="2">%</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Control BASShipmentLotNoPHA - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Control 3893670997 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the value of the BASStatisticCodeIIIPHA field.</source>
+          <note from="Developer" annotates="general" priority="2">%</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Control BASStatisticCodeIIIPHA - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Control 3761292846 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the value of the BASStatisticCodeIIPHA field.</source>
+          <note from="Developer" annotates="general" priority="2">%</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Control BASStatisticCodeIIPHA - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Control 1031574781 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the value of the BASStatisticCodeIPHA field.</source>
+          <note from="Developer" annotates="general" priority="2">%</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Control BASStatisticCodeIPHA - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Control 3277430335 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Chargenstatus</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Control BASStatusPHA - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Control 3543129988 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies that the related record is blocked from being posted in transactions, for example a customer that is declared insolvent or an item that is placed in quarantine.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Control Blocked - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Control 1680605642 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the number provided by the supplier to indicate that the batch or lot meets the specified requirements.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Control Certificate Number - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Control 2790486453 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies that a comment has been recorded for the lot number.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Control Comment - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Control 3461834954 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the value of the Description field.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Control Description - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Control 1946831631 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the inventory of the lot number with an expiration date before the posting date on the associated document.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Control Expired Inventory - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Control 2105307182 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the value of the Lagerstand field.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Control Inventory - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Control 568743302 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies this number from the Tracking Specification table when a lot number information record is created.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Control Item No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Control 1482668068 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the value of the Lot No. field.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Control Lot No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Control 523045232 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the value of the Rückstellmuster field.</source>
+          <note from="Developer" annotates="general" priority="2">%</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Control Rückstellmuster - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Control 2879171397 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the quality of a given lot if you have inspected the items.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Control Test Quality - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Control 3450651614 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the variant of the item on the line.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Control Variant Code - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Action 1402615620 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>&amp;Line</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Action &amp;Line - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Action 4125097576 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Executes the Card action.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Action Card - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Action 4125097576 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Card</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Action Card - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Action 2719369311 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Executes the Chargenfreigabe action.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Action Chargenfreigabe - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Action 3505869542 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Executes the Artikelposten action.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Action ItemLedgerEntries - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Action 3566848898 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Executes the Artikelablaufverfolgung action.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Action Artikelablaufverfolgung - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Action 4144245847 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Executes the Chargen Prüfpunkte Annual Review action.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Action LotTestPointsAnnualReview - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4133856180 - Action 4144245847 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Chargen Prüfpunkte Annual Review</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page BASMasterLotListPHA - Action LotTestPointsAnnualReview - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 961804107 - Control 1817760606 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the value of the Datum field.</source>
           <note from="Developer" annotates="general" priority="2"></note>
