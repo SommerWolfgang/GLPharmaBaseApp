@@ -1,18 +1,6 @@
 page 50017 BASTransferInfoPHA
 {
     ApplicationArea = All;
-    // version GL
-
-    // 
-    // Datum      | Autor     | Status  | Beschreibung
-    // ----------------------------------------------------------------------------------------------------
-    // 2015-06-08 | MFU       | ok      | UPDATE2013
-    // ----------------------------------------------------------------------------------------------------
-    // 2015-09-08 | MFU       | ok      | GL001 - Meldung wie im alten NAV einbauen
-    // ----------------------------------------------------------------------------------------------------
-    // 2017-06-13 | MFU       | ok      | Variable "locationfilter" Textlänge erweitern
-    // ----------------------------------------------------------------------------------------------------
-
     DeleteAllowed = false;
     Editable = false;
     InsertAllowed = false;
@@ -21,78 +9,91 @@ page 50017 BASTransferInfoPHA
     SourceTable = "Item Ledger Entry";
     SourceTableTemporary = true;
     UsageCategory = Lists;
-
     layout
     {
         area(content)
         {
             group("Filter")
             {
-                field(FilterTextTop; locationfilter + ';' + itemfilter)
+                field(FilterTextTop; Locationfilter + ';' + Itemfilter)
                 {
                     ApplicationArea = All;
                     Caption = 'Filter';
+                    ToolTip = 'Specifies the value of the Filter field.';
 
                 }
             }
             repeater(Group)
             {
-                IndentationColumn = TreeViewStatus_Temp;
+                IndentationColumn = Rec.BASTreeViewStatus_TempPHA;
                 ShowAsTree = true;
-                field(TreeViewStatus_Temp; TreeViewStatus_Temp)
+                field(TreeViewStatus_Temp; Rec.BASTreeViewStatus_TempPHA)
                 {
                     ApplicationArea = All;
                     Caption = 'Klappen';
                     Editable = false;
                     Enabled = false;
+                    ToolTip = 'Specifies the value of the Klappen field.';
                     Visible = false;
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies the value of the Item No. field.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies the value of the Location Code field.';
                 }
-                field(Lagerplatzhilfsfeld; Lagerplatzhilfsfeld)
+                field(BASBinCodeHelpFieldPHA; Rec.BASBinCodeHelpFieldPHA)
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies the value of the BASBinCodeHelpFieldPHA field.';
                 }
-                field("Lot No."; "Lot No.")
+                field("Lot No."; Rec."Lot No.")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies the value of the Lot No. field.';
                 }
-                field("Remaining Quantity"; "Remaining Quantity")
+                field("Remaining Quantity"; Rec."Remaining Quantity")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies the value of the Remaining Quantity field.';
                 }
-                field(Quantity; Quantity)
+                field(Quantity; Rec.Quantity)
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies the value of the Quantity field.';
                     Visible = false;
                 }
-                field("Verkaufschargennr."; "Verkaufschargennr.")
+                field("Verkaufschargennr."; Rec.BASSalesLotNoPHA)
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies the value of the Verkaufschargennr. field.';
                 }
                 field(Status; FreigabeStatus)
                 {
                     ApplicationArea = All;
+                    Caption = 'Status', comment = 'DEA="Status"';
+                    ToolTip = 'Specifies the value of the FreigabeStatus field.';
                 }
                 field(Ablaufdatum; Ablaufdatum)
                 {
                     ApplicationArea = All;
                     Caption = 'Ablaufdatum';
+                    ToolTip = 'Specifies the value of the Ablaufdatum field.';
                 }
                 field(Lieferantenchargennr; Lieferantenchargennr)
                 {
                     ApplicationArea = All;
                     Caption = 'Lieferantenchargennr';
+                    ToolTip = 'Specifies the value of the Lieferantenchargennr field.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies the value of the Posting Date field.';
                     Visible = false;
                 }
             }
@@ -105,260 +106,204 @@ page 50017 BASTransferInfoPHA
 
     trigger OnAfterGetRecord()
     begin
-
-        SetExpansionStatus;
+        SetExpansionStatus();
 
         Ablaufdatum := 0D;
         FreigabeStatus := '';
-        IF Chargenstamm.GET("Item No.", "Variant Code", "Lot No.") THEN BEGIN
-            Ablaufdatum := Chargenstamm."Expiration Date";
-            FreigabeStatus := FORMAT(Chargenstamm.Status);
-            Lieferantenchargennr := Chargenstamm."Lief. Chargennr.";
-        END;
+
+        if LotNoInformation.GET(Rec."Item No.", Rec."Variant Code", Rec."Lot No.") then begin
+            Ablaufdatum := LotNoInformation.BASExpirationDatePHA;
+            FreigabeStatus := FORMAT(LotNoInformation.BASStatusPHA);
+            Lieferantenchargennr := LotNoInformation.BASShipmentLotNoPHA;
+        end;
     end;
 
     trigger OnInit()
     begin
-
-        //Absicherung falls mal irrtümlich irgendwann die temporär-Eigenschaft entfernt werden sollte...
-        //wegen dem deleteall unten...
-        IF Rec.COUNT <> 0 THEN ERROR('Itemledgerentry nicht sourcetabletemporary!!! ');
+        if Rec.Count <> 0 then
+            Error('Itemledgerentry nicht sourcetabletemporary!!! ');
     end;
 
     trigger OnOpenPage()
     begin
+        if Itemfilter = '' then
+            Itemfilter := Rec."Item No.";
 
-        itemfilter := Rec."Item No.";
-        IF STRLEN(itemFilterParameter) > 0 THEN
-            itemfilter := itemFilterParameter;
+        LotFilter := Rec."Lot No.";
 
-        lotFilter := Rec."Lot No.";
+        Locationfilter := Rec."Location Code";
+        if StrLen(Rec.GetFilter("Location Code")) > 0 then
+            Locationfilter := Rec.GetFilter("Location Code");
+        if (StrLen(Itemfilter) = 0) and (StrLen(Locationfilter) = 0) then
+            Error('Umlagerungs Info muss mit Filter gestartet werden!');
+        if Rec.GetFilter(Nonstock) > '' then
+            EVALUATE(FreeLotNoFilter, Rec.GetFilter(Nonstock));
 
-        locationfilter := Rec."Location Code";
-        IF STRLEN(Rec.GETFILTER("Location Code")) > 0 THEN     //Bei Aufruf aus Auftrag/Rechnung den Logerortfilter nehmen, können mehrere sein
-            locationfilter := Rec.GETFILTER("Location Code");
-
-        //tempRecItemLedgerEntry.SETFILTER("Location Code"
-
-        //UPDATE2013 -> Ohne Filter nicht aufmachen lassen
-        IF (STRLEN(itemfilter) = 0) AND (STRLEN(locationfilter) = 0) THEN
-            ERROR('Umlagerungs Info muss mit Filter gestartet werden!');
-
-        IF Rec.GETFILTER(Nonstock) > '' THEN
-            EVALUATE(bChargeFreiFilter, Rec.GETFILTER(Nonstock)); //UPDATE2013 Feld Katalogartikel benutzt
-
-        CurrPage.UPDATE(FALSE);
+        CurrPage.Update(false);
 
         InitTempTable();
-        Rec.SETCURRENTKEY("Item No.", "Lot No.", Open, Positive, "Location Code", Lagerplatzhilfsfeld);
+        Rec.SetCurrentKey("Item No.", "Lot No.", Open, Positive, "Location Code", BASBinCodeHelpFieldPHA);
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
-
-        //-GL001
-        IF (CloseAction = ACTION::LookupOK) THEN BEGIN
-            IF (ActualExpansionStatus <> 2) AND (STRLEN("Item No.") > 0) THEN BEGIN
-                ERROR('Bitte einen Datensatz mit Lagerplatz auswählen!');
-            END;
-        END;
-        //+GL001
+        if CloseAction = ACTION::LookupOK then
+            if (ActualExpansionStatus <> 2) and (StrLen(Rec."Item No.") > 0) then
+                Error('Bitte einen Datensatz mit Lagerplatz auswählen!');
     end;
 
     var
-        Item: Record "27";
-        recItemLedgerEntry: Record "32";
-        Chargenstamm: Record "6505";
-        recLot: Record "6505";
-        recWareHouseEntry: Record "7312";
-        bChargeFreiFilter: Boolean;
-        itemfilter: Code[20];
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        LotNoInformation: Record "Lot No. Information";
+        recLot: Record "Lot No. Information";
+        WareHouseEntry: Record "Warehouse Entry";
+        FreeLotNoFilter: Boolean;
         Lieferantenchargennr: Code[20];
-        lotFilter: Code[20];
-        locationfilter: Code[50];
-        itemFilterParameter: Code[100];
+        LotFilter: Code[50];
         Ablaufdatum: Date;
         ActualExpansionStatus: Integer;
         nCount: Integer;
+        Itemfilter: Text;
+        Locationfilter: Text;
         FreigabeStatus: Text[30];
-        tFilter: Text[100];
-        FilterTextTop: Text[250];
 
     procedure InitTempTable()
     var
-        recItem: Record "27";
-        recMyBincontent: Record "7302";
+        Bin: Record Bin;
+        Item: Record Item;
     begin
-        CLEAR(Rec);
-        RESET;
-        DELETEALL;
+        Rec.Reset();
+        rec.DeleteAll();
 
-
-        CLEAR(recItemLedgerEntry);
-        recItemLedgerEntry.SETCURRENTKEY("Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date");
-        recItemLedgerEntry.SETFILTER("Item No.", itemfilter);
-        recItemLedgerEntry.SETFILTER("Lot No.", lotFilter);
-        recItemLedgerEntry.SETRANGE(Open, TRUE);
-        IF locationfilter <> '' THEN
-            recItemLedgerEntry.SETFILTER("Location Code", locationfilter);
-        IF recItemLedgerEntry.FIND('-') THEN
-            REPEAT
-                //Zusammenfassen bei gesplitteten ItemLedgerentries aufgrund vergangener Lagerfachaufteilung
-                CLEAR(Rec);
-                Rec.SETFILTER("Item No.", recItemLedgerEntry."Item No.");
-                Rec.SETFILTER("Location Code", recItemLedgerEntry."Location Code");
-                Rec.SETFILTER("Lot No.", recItemLedgerEntry."Lot No.");
-                IF Rec.FIND('-') THEN BEGIN
-                    Rec."Remaining Quantity" += recItemLedgerEntry."Remaining Quantity";
-                    Rec.Quantity += recItemLedgerEntry.Quantity;
-                    Rec.MODIFY;
-                END ELSE BEGIN
-
-                    //UPDATE2013 -> Für Anzeige nur freie Artikel
-                    //Chargeninfo nur holen wenn notwendig
-                    IF CheckChargeFrei(bChargeFreiFilter, recItemLedgerEntry."Item No.", recItemLedgerEntry."Lot No.") = TRUE THEN BEGIN
-
-                        Rec."Item No." := recItemLedgerEntry."Item No.";
-                        Rec."Location Code" := recItemLedgerEntry."Location Code";
-                        Rec."Remaining Quantity" := recItemLedgerEntry."Remaining Quantity";
-                        Rec.Quantity += recItemLedgerEntry.Quantity;
-                        Rec."Lot No." := recItemLedgerEntry."Lot No.";
-                        Rec."Verkaufschargennr." := recItemLedgerEntry."Verkaufschargennr.";
-                        Rec."Posting Date" := recItemLedgerEntry."Posting Date";
+        ItemLedgerEntry.Reset();
+        ItemLedgerEntry.SETCURRENTKEY("Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date");
+        ItemLedgerEntry.SetFilter("Item No.", Itemfilter);
+        ItemLedgerEntry.SetFilter("Lot No.", LotFilter);
+        ItemLedgerEntry.SetRange(Open, true);
+        if Locationfilter <> '' then
+            ItemLedgerEntry.SetFilter("Location Code", Locationfilter);
+        if ItemLedgerEntry.FindSet() then
+            repeat
+                Rec.Reset();
+                Rec.SetFilter("Item No.", ItemLedgerEntry."Item No.");
+                Rec.SetFilter("Location Code", ItemLedgerEntry."Location Code");
+                Rec.SetFilter("Lot No.", ItemLedgerEntry."Lot No.");
+                if Rec.FindFirst() then begin
+                    Rec."Remaining Quantity" += ItemLedgerEntry."Remaining Quantity";
+                    Rec.Quantity += ItemLedgerEntry.Quantity;
+                    Rec.Modify();
+                end else
+                    if CheckChargeFrei(FreeLotNoFilter, ItemLedgerEntry."Item No.", ItemLedgerEntry."Lot No.") = true then begin
+                        Rec."Item No." := ItemLedgerEntry."Item No.";
+                        Rec."Location Code" := ItemLedgerEntry."Location Code";
+                        Rec."Remaining Quantity" := ItemLedgerEntry."Remaining Quantity";
+                        Rec.Quantity += ItemLedgerEntry.Quantity;
+                        Rec."Lot No." := ItemLedgerEntry."Lot No.";
+                        // Rec."Verkaufschargennr." := ItemLedgerEntry."Verkaufschargennr.";
+                        Rec."Posting Date" := ItemLedgerEntry."Posting Date";
                         nCount += 1;
                         Rec."Entry No." := nCount;
-                        IF recItem.GET(Rec."Item No.") THEN
-                            Rec."Unit of Measure Code" := recItem."Base Unit of Measure";
-                        Rec.TreeViewStatus_Temp := 0; //Oberste Ebene im Tree View
-                        Rec.INSERT;
+                        if Item.GET(Rec."Item No.") then
+                            Rec."Unit of Measure Code" := Item."Base Unit of Measure";
+                        // Rec.TreeViewStatus_Temp := 0; //Oberste Ebene im Tree View
+                        Rec.INSERT();
 
                         //Untereinträge im TreeView machen (wenn vorhanden)
 
-                        recMyBincontent.SETFILTER("Item No.", recItemLedgerEntry."Item No.");
-                        recMyBincontent.SETFILTER("Location Code", recItemLedgerEntry."Location Code");
-                        //TODOPBArecMyBincontent.SETFILTER(Rec."Lot No.", recItemLedgerEntry."Lot No.");
+                        // Bin.SetFilter("Item No.", ItemLedgerEntry."Item No.");
+                        Bin.SetFilter("Location Code", ItemLedgerEntry."Location Code");
+                        //TODOPBArecMyBincontent.SetFilter(Rec."Lot No.", recItemLedgerEntry."Lot No.");
 
-                        IF recMyBincontent.FIND('-') THEN
-                            REPEAT
-                                recMyBincontent.CALCFIELDS("Quantity (Base)");
-                                IF recMyBincontent."Quantity (Base)" > 0 THEN BEGIN
+                        // if Bin.FIND('-') then
+                        //     repeat
+                        //         Bin.CALCFIELDS("Quantity (Base)");
+                        //         if Bin."Quantity (Base)" > 0 then begin
 
-                                    Rec."Item No." := recMyBincontent."Item No.";
-                                    Rec."Location Code" := recMyBincontent."Location Code";
-                                    Rec.Lagerplatzhilfsfeld := recMyBincontent."Bin Code";
-                                    Rec."Remaining Quantity" := recMyBincontent."Quantity (Base)";
-                                    Rec.Quantity := 0;
-                                    Rec."Lot No." := recItemLedgerEntry."Lot No.";
-                                    Rec."Verkaufschargennr." := recItemLedgerEntry."Verkaufschargennr.";
-                                    nCount += 1;
-                                    Rec."Entry No." := nCount;
-                                    Rec."Unit of Measure Code" := recItem."Base Unit of Measure";
-                                    Rec.TreeViewStatus_Temp := 1; //Unter Ebene im Tree View
-                                                                  //Buchungsdatum aus den Lagerplatzposten holen
-                                    CLEAR(recWareHouseEntry);
-                                    recWareHouseEntry.SETRANGE("Item No.", recMyBincontent."Item No.");
-                                    recWareHouseEntry.SETRANGE("Location Code", recMyBincontent."Location Code");
-                                    recWareHouseEntry.SETRANGE("Bin Code", recMyBincontent."Bin Code");
-                                    IF recWareHouseEntry.FINDLAST() THEN
-                                        Rec."Posting Date" := recWareHouseEntry."Registering Date";
+                        //             Rec."Item No." := Bin."Item No.";
+                        //             Rec."Location Code" := Bin."Location Code";
+                        //             Rec.BASBinCodeHelpFieldPHA := Bin."Bin Code";
+                        //             Rec."Remaining Quantity" := Bin."Quantity (Base)";
+                        //             Rec.Quantity := 0;
+                        //             Rec."Lot No." := ItemLedgerEntry."Lot No.";
+                        //             Rec."Verkaufschargennr." := ItemLedgerEntry."Verkaufschargennr.";
+                        //             nCount += 1;
+                        //             Rec."Entry No." := nCount;
+                        //             Rec."Unit of Measure Code" := Item."Base Unit of Measure";
+                        //             Rec.TreeViewStatus_Temp := 1; //Unter Ebene im Tree View
+                        //                                           //Buchungsdatum aus den Lagerplatzposten holen
+                        //             CLEAR(WareHouseEntry);
+                        //             WareHouseEntry.SetRange("Item No.", Bin.."Item No.");
+                        //             WareHouseEntry.SetRange("Location Code", Bin."Location Code");
+                        //             WareHouseEntry.SetRange("Bin Code", Bin."Bin Code");
+                        //             if WareHouseEntry.FINDLAST() then
+                        //                 Rec."Posting Date" := WareHouseEntry."Registering Date";
 
-                                    Rec.INSERT;
-
-                                END;
-                            UNTIL recMyBincontent.NEXT = 0;
-
-                    END;
-                END;
-                Rec.RESET;
-            UNTIL recItemLedgerEntry.NEXT = 0;
+                        //             Rec.Insert();
+                        //         end;
+                        //     until Bin.Next() = 0;
+                    end;
+                Rec.Reset();
+            until ItemLedgerEntry.Next() = 0;
     end;
 
     procedure SetExpansionStatus()
     begin
-
-        CASE TRUE OF
+        case true of
             IsExpanded(Rec):
                 ActualExpansionStatus := 1;
             HasChildren(Rec):
                 ActualExpansionStatus := 0
-            ELSE
+            else
                 ActualExpansionStatus := 2;
-        END;
+        end;
     end;
 
-    local procedure IsExpanded(ItemLedgEntry: Record "32"): Boolean
+    local procedure IsExpanded(ItemLedgEntry: Record "Item Ledger Entry"): Boolean
     var
-        localRec: Record "32";
-        xItemLedgEntry: Record "32" temporary;
+        TempItemLedgEntry: Record "Item Ledger Entry" temporary;
         Found: Boolean;
-        Direction: Integer;
     begin
+        if ItemLedgEntry.BASBinCodeHelpFieldPHA <> '' then
+            exit(false);
 
-        IF ItemLedgEntry.Lagerplatzhilfsfeld <> '' THEN
-            EXIT(FALSE);
-
-        xItemLedgEntry.COPY(Rec);
-        //Rec.RESET;
+        TempItemLedgEntry.COPY(Rec);
         Rec := ItemLedgEntry;
-        Rec.SETFILTER("Item No.", Rec."Item No.");
-        Rec.SETFILTER("Location Code", Rec."Location Code");
-        Rec.SETFILTER("Lot No.", Rec."Lot No.");
-        Rec.SETFILTER(Lagerplatzhilfsfeld, '<>%1', '');
-        IF Rec.FINDFIRST THEN
-            Found := TRUE;
-        COPY(xItemLedgEntry);
-        //Rec.RESET;
-        EXIT(Found);
+        Rec.SetFilter("Item No.", Rec."Item No.");
+        Rec.SetFilter("Location Code", Rec."Location Code");
+        Rec.SetFilter("Lot No.", Rec."Lot No.");
+        Rec.SetFilter(BASBinCodeHelpFieldPHA, '<>%1', '');
+        if Rec.FindFirst() then
+            Found := true;
+        Rec.Copy(TempItemLedgEntry);
+        exit(Found);
     end;
 
-    local procedure HasChildren(var ItemLedgEntry: Record "32"): Boolean
+    local procedure HasChildren(var ItemLedgEntry: Record "Item Ledger Entry"): Boolean
     begin
+        if ItemLedgEntry.BASBinCodeHelpFieldPHA <> '' then
+            exit(false);
 
-        IF ItemLedgEntry.Lagerplatzhilfsfeld <> '' THEN
-            EXIT(FALSE);
-
-        recWareHouseEntry.RESET;
-        recWareHouseEntry.SETCURRENTKEY(
-            "Item No.", "Bin Code", "Location Code", "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.", "Entry Type");
-        recWareHouseEntry.SETRANGE("Item No.", Rec."Item No.");
-        recWareHouseEntry.SETRANGE("Location Code", Rec."Location Code");
-        recWareHouseEntry.SETRANGE("Lot No.", Rec."Lot No.");
-        recWareHouseEntry.CALCSUMS("Qty. (Base)");
-        IF recWareHouseEntry."Qty. (Base)" <> 0 THEN
-            EXIT(TRUE);
-        EXIT(FALSE);
+        WareHouseEntry.Reset();
+        WareHouseEntry.SetCurrentKey("Item No.", "Bin Code", "Location Code", "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.", "Entry Type");
+        WareHouseEntry.SetRange("Item No.", Rec."Item No.");
+        WareHouseEntry.SetRange("Location Code", Rec."Location Code");
+        WareHouseEntry.SetRange("Lot No.", Rec."Lot No.");
+        WareHouseEntry.CalcSums("Qty. (Base)");
+        exit(WareHouseEntry."Qty. (Base)" <> 0);
     end;
 
-    procedure CheckChargeFrei(bCheckCharge: Boolean; cItemNo: Code[20]; cLotNo: Code[20]) bReturn: Boolean
+    procedure CheckChargeFrei(CheckLotNo: Boolean; ItemNo: Code[20]; LotNo: Code[50]): Boolean
     begin
-        //-UPDATE2013
-        bReturn := TRUE;
-        IF bCheckCharge = TRUE THEN BEGIN
-
-            IF (cLotNo > '') THEN BEGIN
-
-                IF (cLotNo <> recLot."Lot No.") THEN BEGIN
-                    //Chargen Rec neu laden
-                    recLot.GET(cItemNo, '', cLotNo)
-                END;
-
-                IF recLot.Status <> recLot.Status::Frei THEN
-                    bReturn := FALSE;
-
-            END;
-
-        END;
-
-        //+UPDATE2013
+        if CheckLotNo then
+            if LotNo > '' then begin
+                if LotNo <> recLot."Lot No." then
+                    recLot.Get(ItemNo, '', LotNo);
+                exit(not (recLot.BASStatusPHA <> recLot.BASStatusPHA::Free));
+            end;
     end;
 
-    procedure SetFilter(tItemFilter: Text[100])
+    procedure SetFilter(ItemFilter2: Text[100])
     begin
-        //-UPDATE2013
-        itemFilterParameter := tItemFilter;
-
-
-        //+UPDATE2013
+        ItemFilter := ItemFilter2;
     end;
 }
-
