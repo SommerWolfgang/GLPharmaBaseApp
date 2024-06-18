@@ -56,7 +56,7 @@ tableextension 50013 BASSalesLineExtPHA extends "Sales Line"
         field(50008; BASCheckInventoryPHA; Boolean)
         {
         }
-        field(50010; BASLotNoPHA; Code[20])
+        field(50010; BASLotNoPHA; Code[50])
         {
             Caption = 'Lot No.';
             TableRelation = if (Type = const(Item)) "Lot No. Information".BASSalesLotNoPHA
@@ -255,7 +255,7 @@ tableextension 50013 BASSalesLineExtPHA extends "Sales Line"
         {
 
         }
-        field(50519; BASSalesLotNoPHA; Code[20])
+        field(50519; BASSalesLotNoPHA; Code[50])
         {
             trigger OnValidate()
             var

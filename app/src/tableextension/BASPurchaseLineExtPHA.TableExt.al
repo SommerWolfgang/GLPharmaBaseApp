@@ -16,7 +16,7 @@ tableextension 50015 BASPurchaseLineExtPHA extends "Purchase Line"
                 LotNoInformation.SetRange(BASSalesLotNoPHA, BASLotNoPHA);
                 if LotNoInformation.FindFirst() then begin
                     BASPackmittelversionPHA := LotNoInformation.BASPackmittelversionPHA;
-                    Message('Keine Textvariable T39', "No.", FieldCaption(BASPackmittelversionPHA), BASPackmittelversionPHA);
+                    Message('Keine Textvariable T39');
                 end;
 
                 Validate(BASLotNoPHA);
@@ -42,7 +42,7 @@ tableextension 50015 BASPurchaseLineExtPHA extends "Purchase Line"
         field(50006; BASCEPNoPHA; Code[50])
         {
         }
-        field(50010; BASLotNoPHA; Code[20])
+        field(50010; BASLotNoPHA; Code[50])
         {
             Caption = 'Lot No.';
 
@@ -216,23 +216,16 @@ tableextension 50015 BASPurchaseLineExtPHA extends "Purchase Line"
         PurchHeader: Record "Purchase Header";
         // Codesammlung: Codeunit "50000";
         // cuNaviPharma: Codeunit "50001";
-        // LotMgt: Codeunit "50002";
-        "BemerkungsmeldungUnterdrücken": Boolean;
-        SpeichernGefragt: Boolean;
+        LotMgt: Codeunit BASLotMgtPHA;
+        // "BemerkungsmeldungUnterdrücken": Boolean;
+        SaveQuestion: Boolean;
 
-    procedure FaktMengeCharge()
+    procedure QuantityInvoicedLot(): boolean
     begin
-        if "Line No." = 0 then
-            exit;
-        if BASLotNoPHA = '' then
-            exit;
-        if Type <> Type::Item then
-            exit;
-        if "No." = '' then
-            exit;
+        if ("Line No." = 0) or (BASLotNoPHA = '') or (Type <> Type::Item) or ("No." = '') then
+            exit(false);
 
-        // LotMgt.FaktMengeCharge(
-        //   DATABASE::"Purchase Line", "Document Type", "Document No.", '', 0, "Line No.", BASLotNoPHA, "Qty. to Invoice (Base)");
+        LotMgt.FaktMengeCharge(Database::"Purchase Line", "Document Type", "Document No.", '', 0, "Line No.", BASLotNoPHA, "Qty. to Invoice (Base)");
     end;
 
     procedure LiefMengeCharge()
@@ -266,29 +259,30 @@ tableextension 50015 BASPurchaseLineExtPHA extends "Purchase Line"
         //+LAN005
     end;
 
-    procedure "Änderungsabfrage"()
+    procedure ChangeQuery(): Boolean
     var
+        NotSavedErr: Label 'Changes not saved!', comment = 'DEA="Änderungen wurden nicht gespeichert!"';
+        OrderStatusSaveTxt: label 'Order status is %1!. Do you realy want to save the change?', comment = 'DEA="Bestellstatus ist %1!. Wollen Sie Ihre Änderung trotzdem speichern?"';
+        OrderStatusTxt: label 'Order status is %1!. Do you realy want to input lines?', comment = 'DEA="Bestellstatus ist %1!. Wollen Sie trotzdem neue Zeilen erfassen?"';
         MsgText: Text[250];
     begin
-
-
-        //-LAN007
-        if SpeichernGefragt then
+        if SaveQuestion then
             exit;
 
         Rec.GetPurchHeader();
+
         if PurchHeader.BASBestellstatusPHA = PurchHeader.BASBestellstatusPHA::Versendet then begin
-            if ("Line No." = 0) then
-                MsgText := STRSUBSTNO('Bestellstatus ist %1!. Wollen Sie trotzdem neue Zeilen erfassen?', PurchHeader.BASBestellstatusPHA)
+            if "Line No." = 0 then
+                MsgText := STRSUBSTNO(OrderStatusTxt, PurchHeader.BASBestellstatusPHA)
             else
-                MsgText := STRSUBSTNO('Bestellstatus ist %1!. Wollen Sie Ihre Änderung trotzdem speichern?', PurchHeader.BASBestellstatusPHA);
+                MsgText := STRSUBSTNO(OrderStatusSaveTxt, PurchHeader.BASBestellstatusPHA);
         end else
             exit;
 
-        SpeichernGefragt := true;
+        SaveQuestion := true;
 
         if not Confirm(MsgText, true) then
-            Error('Änderungen wurden nicht gespeichert');
+            Error(NotSavedErr);
     end;
 
     procedure Wertgutschrift()
@@ -297,14 +291,7 @@ tableextension 50015 BASPurchaseLineExtPHA extends "Purchase Line"
         // "Wertkorrektur zu Artikelposten" := 0;
     end;
 
-    procedure BlockeBemerkungsmeldung(newSetzeBemerkungsMeldung: Boolean)
-    begin
-        BemerkungsmeldungUnterdrücken := newSetzeBemerkungsMeldung;
-    end;
-
     procedure Packungsgroesse() cPackungsgroesse: Text[20]
-    var
-        Item: Record Item;
     begin
         if Type = Type::Item then
             if Item.Get("No.") then
@@ -326,19 +313,21 @@ tableextension 50015 BASPurchaseLineExtPHA extends "Purchase Line"
         end;
     end;
 
-    procedure UrspMenge(PreviousQuantity: Decimal)
+    procedure SetQuantityToOriginallyQuantity(PreviousQuantity: Decimal)
+    var
+        SetOriginallyQuantityTxt: Label '', comment = 'DEA="Ursprüngliche Menge auf %1 setzen?"';
     begin
-
         if ("Document Type" in ["Document Type"::Order, "Document Type"::Invoice, "Document Type"::"Blanket Order"]) and
-          (PreviousQuantity <> 0) and (Type = Type::Item) then
-            if StrMenu(StrSubstNo('Ursprüngliche Menge auf %1 setzen?', CONVERTSTR(Format(PreviousQuantity), ',', '.')), 1) = 1 then
+          (PreviousQuantity <> 0) and (Type = Type::Item)
+        then
+            if StrMenu(StrSubstNo(SetOriginallyQuantityTxt, CONVERTSTR(Format(PreviousQuantity), ',', '.')), 1) = 1 then
                 BASQuantityPHA := PreviousQuantity;
-
     end;
 
-    procedure CheckProjektArtikel(ItemNo: Code[20]; JobNo: Code[20])
+    procedure CheckProjectItem(ItemNo: Code[20]; JobNo: Code[20])
     begin
         GetItem();
+
         if (StrLen(ItemNo) > 1) and (StrLen(JobNo) > 1) then
             if Item.Get(ItemNo) then
                 if Item."Inventory Value Zero" = false then

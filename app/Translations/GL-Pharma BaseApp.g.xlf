@@ -3903,6 +3903,26 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASPurchaseHeaderExtPHA - Field Rücklieferung - Property Caption</note>
         </trans-unit>
+        <trans-unit id="TableExtension 3111154359 - Method 2738578688 - NamedType 202846559" size-unit="char" translate="yes" xml:space="preserve" al-object-target="TableExtension 3111154359">
+          <source>Changes not saved!</source>
+          <note from="Developer" annotates="general" priority="2">DEA="Änderungen wurden nicht gespeichert!"</note>
+          <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASPurchaseLineExtPHA - Method ChangeQuery - NamedType NotSavedErr</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 3111154359 - Method 2738578688 - NamedType 1607600109" size-unit="char" translate="yes" xml:space="preserve" al-object-target="TableExtension 3111154359">
+          <source>Order status is %1!. Do you realy want to save the change?</source>
+          <note from="Developer" annotates="general" priority="2">DEA="Bestellstatus ist %1!. Wollen Sie Ihre Änderung trotzdem speichern?"</note>
+          <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASPurchaseLineExtPHA - Method ChangeQuery - NamedType OrderStatusSaveTxt</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 3111154359 - Method 2738578688 - NamedType 3279000902" size-unit="char" translate="yes" xml:space="preserve" al-object-target="TableExtension 3111154359">
+          <source>Order status is %1!. Do you realy want to input lines?</source>
+          <note from="Developer" annotates="general" priority="2">DEA="Bestellstatus ist %1!. Wollen Sie trotzdem neue Zeilen erfassen?"</note>
+          <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASPurchaseLineExtPHA - Method ChangeQuery - NamedType OrderStatusTxt</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 3111154359 - Method 1127732919 - NamedType 1114023071" size-unit="char" translate="yes" xml:space="preserve" al-object-target="TableExtension 3111154359">
+          <source></source>
+          <note from="Developer" annotates="general" priority="2">DEA="Ursprüngliche Menge auf %1 setzen?"</note>
+          <note from="Xliff Generator" annotates="general" priority="3">TableExtension BASPurchaseLineExtPHA - Method SetQuantityToOriginallyQuantity - NamedType SetOriginallyQuantityTxt</note>
+        </trans-unit>
         <trans-unit id="TableExtension 3111154359 - Field 2345914342 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Table 1519909599">
           <source>BASAbruf BestellmengePHA</source>
           <note from="Developer" annotates="general" priority="2"></note>

@@ -356,11 +356,8 @@ tableextension 50017 BASItemJournalLinePHA extends "Item Journal Line"
 
     procedure CheckLotNo()
     var
-        Item2: Record Item;
-        RowMaterialChargeExistsErr: label 'Rohstoffcharge wurde schon zu anderer Artikelnummer vergeben!', comment = 'DEA="Rohstoffcharge wurde schon zu anderer Artikelnummer vergeben!"';
+        RowMaterialChargeExistsErr: Label 'Rohstoffcharge wurde schon zu anderer Artikelnummer vergeben!', comment = 'DEA="Rohstoffcharge wurde schon zu anderer Artikelnummer vergeben!"';
     begin
-        // ToDo
-        // Item2 := GetItem();
         Item.Get("Item No.");
         if Item.BASItemTypePHA in [BASItemTypePHA::"Row Material", BASItemTypePHA::"Package Material"] then begin
             LotNoInformation.SetCurrentKey("Lot No.");

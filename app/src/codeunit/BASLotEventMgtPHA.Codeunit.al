@@ -236,7 +236,7 @@ codeunit 50006 BASLotEventMgtPHA
     var
         TrackingSpecification: Record "Tracking Specification";
         ForID: Code[20];
-        ForLotNo: Code[50];
+        // ForLotNo: Code[50];
         ForRefNo: Integer;
         ForSubtype: Integer;
         ForType: Integer;

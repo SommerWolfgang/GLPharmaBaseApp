@@ -19,14 +19,15 @@ codeunit 50002 BASLotMgtPHA
         Text001Txt: Label '%1 in den Posten wird mitverändert!\ Wollen Sie Fortfahren?', comment = 'DEA="%1 in den Posten wird mitverändert!\ Wollen Sie Fortfahren?"', Locked = true;
         Text002Txt: Label 'Von Artikel %1, Charge %2 sind im Lager %3 nur mehr %4 vorhanden!', comment = 'DEA="Von Artikel %1, Charge %2 sind im Lager %3 nur mehr %4 vorhanden!"', Locked = true;
 
-    procedure FaktMengeCharge(ForType: Option; ForSubtype: Integer; ForID: Code[20]; ForBatchName: Code[10]; ForProdOrderLine: Integer; ForRefNo: Integer; ForLotNo: Code[20]; InvQuantity: Decimal)
+    procedure FaktMengeCharge(ForType: Option; ForSubtype: Enum "Purchase Document Type"; ForID: Code[20]; ForBatchName: Code[10]; ForProdOrderLine: Integer; ForRefNo: Integer; ForLotNo: Code[50]; InvQuantity: Decimal)
     var
         QtyToInvoiceThisLine: Decimal;
         TotalQtyToInvoice: Decimal;
         CurrentSignFactor: Integer;
     begin
         ReservEntry."Source Type" := ForType;
-        ReservEntry."Source Subtype" := ForSubtype;
+        // ToDo -> check optionfield in ReservEntry
+        ReservEntry.Validate("Source Subtype", ForSubtype);
         CurrentSignFactor := CreateReservEntry.SignFactor(ReservEntry);
         TotalQtyToInvoice := InvQuantity * CurrentSignFactor;
 
