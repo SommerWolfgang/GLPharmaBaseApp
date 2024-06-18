@@ -1,18 +1,7 @@
-table 50011 "BASRechnung MailversandPHA"
+table 50011 BASInvoiceMailSentPHA
 {
     Caption = 'Rechnung Mailversand';
-    DataClassification = SystemMetadata;
-
-    // version TODOPBA
-
-    // 
-    // Datum      | Autor   | Status     | Beschreibung
-    // --------------------------------------------------------------------------------------------------------
-    // 2013-03-21 | MFU     | Erstellt   |
-    // ---------------------------------------------------------------------------------------------------------
-    // 2016-06-29 | MFU     | OK         | Spalte "Responsibility Center" für Trennung Export / Inland eingebaut
-    // ---------------------------------------------------------------------------------------------------------
-
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -58,9 +47,5 @@ table 50011 "BASRechnung MailversandPHA"
         key(Key2; EMailEmpfaenger, "Invoice No")
         {
         }
-    }
-
-    fieldgroups
-    {
     }
 }
